@@ -1,0 +1,118 @@
+### Components
+- A UI for the query and response
+	- Chatbot interface (streams progress: "understanding question", "running query", "checking result")
+	- Interpretation line under every answer (plain-English restatement of how the question was understood)
+	- Thumbs up / correction button on every answer (feeds the Example Store)
+	- Confirmation card for scheduled jobs: query, schedule in words, next 3 run times, output target (Approve / Edit / Cancel)
+	- Jobs page (list, pause, delete, run history)
+- Backend (API, Business Logic)
+	- Auth / roles for the ops user
+	- Scheduler: APScheduler 3.x running as its OWN process (not inside the web workers), persistent job store, stable job ids
+- Database for storing the history
+	- User Query, generated query, interpretation, response, validator reasons, retries, trace
+	- Scheduled job specs and run history
+	- Conversation state (LangGraph checkpointer, one thread per conversation)
+- Target Database (MongoDB), accessed ONLY through a read-only DB user scoped to specific collections
+- Schema Store
+	- Schema snapshots (fields, types seen + frequency, field presence rate, nesting, arrays)
+	- Collection / field descriptions
+	- Distinct values of low-cardinality fields (for value grounding)
+	- Business glossary (definitions of terms like "active student", "enrolled")
+- Example Store (question -> query pairs; only VERIFIED pairs are used as few-shot examples)
+- AI Agent (in the backend, built as a LangGraph state machine)
+	- INPUT: Query from the ops user
+	- OUTPUT: MongoDB query (aggregation pipeline), result table, interpretation; or a scheduled job spec
+	- Model-agnostic (swap hosted / local model by config)
+
+#### Principle
+The LLM proposes; deterministic code disposes. Everything that must be correct or safe (safety gate, limits, allowlists, scheduling, authorization) is code, not a prompt.
+
+#### Offline Step: Schema Indexing (runs at setup and on a refresh schedule)
+1. Sample documents from every collection ($sample), read from a secondary / off-peak if possible
+2. Infer fields, types, nesting, array fields; record ALL types seen per field and how often each field is present
+3. Collect distinct values for low-cardinality fields (department, specialization, status, etc.)
+4. Add a short description per collection / field (LLM-drafted, human-reviewed)
+5. Add glossary entries for business terms (human-written)
+6. Save as a versioned snapshot in the Schema Store (+ embeddings for retrieval)
+7. Re-sample when "unknown field" failures show up in the logs
+
+#### Steps of the AI Agent
+System Prompt contains rules, output format and the CURRENT DATE. Schema is NOT hardcoded; it is retrieved per query (Step 3).
+Retry budget: ONE shared attempt counter (max 3) across Step 5 and Step 7 loops, plus a total time / LLM-call budget per request.
+1. Step 1: Input the User Query (with conversation thread id)
+2. Step 2: Intent Routing + Query Validation (ONE LLM call), returns {intent, valid TRUE/FALSE, reason, clarifying question}
+	- intent: DATA_QUESTION / SCHEMA_QUESTION / SCHEDULE_REQUEST / JOB_MANAGEMENT / OUT_OF_SCOPE (writes, deletes)
+	- SCHEMA_QUESTION --> answer from the Schema Store --> Step 10
+	- SCHEDULE_REQUEST --> go to "Scheduling Flow"
+	- JOB_MANAGEMENT --> go to "Scheduling Flow" step 8
+	- OUT_OF_SCOPE or valid = FALSE --> Break and return the reason
+	- Ambiguous --> ask the user a clarifying question (graph pauses; resumes from the saved thread state)
+3. Step 3: Schema Retrieval: top-k relevant collections/fields + glossary terms + VERIFIED similar (question, query) pairs
+	- Value grounding: match terms in the question against stored distinct values (e.g. "CS" -> "Computer Science & Engineering"); if no match, ask the user
+4. Step 4: Query Generation (LLM): returns a JSON aggregation pipeline (structured output, temperature 0) + a one-line interpretation
+5. Step 5: Safety Gate (code, no LLM). Any failure --> back to Step 4 with the failure reason (counts toward the shared counter)
+	- JSON parses; collections and fields exist in the schema snapshot
+	- ALLOWLIST of stages only (e.g. $match, $group, $project, $sort, $limit, $unwind, $lookup, $addFields, $count); everything else rejected
+	- Force maxTimeMS (hard stop)
+	- Append $limit ONLY at the END of the pipeline (never before $group / $count); remember if the output was truncated
+	- explain(queryPlanner) used only to WARN on collection scans / unbounded $lookup (it does not give doc counts; executionStats actually runs the query)
+6. Step 6: Execute on the Target DB (read-only user)
+7. Step 7: Result Validation
+	- Code checks first: error, empty result, nulls, suspicious counts, types, truncation
+	- Independent second path (for important / low-confidence queries): generate a second query differently and compare results; mismatch --> low confidence
+	- Then LLM check (Response Validation Prompt + Query + RESULT SUMMARY): does the result answer the question? returns {TRUE/FALSE, reason}. This LLM call has NO tools and receives results only as quoted data (stored text can contain injected instructions)
+	- Low confidence or FALSE --> if the cause is "unknown field/collection", go back to Step 3 with a wider search; otherwise back to Step 4 with the reason
+	- Still failing after the retry budget --> ask for clarification or return an honest "could not answer reliably" message (abstain, do not guess)
+8. Step 8: Build the response (table, query, interpretation, truncation notice if any)
+9. Step 9: Store the run in the Database. Save the (question, query) pair to the Example Store as UNVERIFIED; promote to VERIFIED only after user thumbs-up / correction or a gold-set match
+10. Step 10: Return the result
+
+- User Query, Generated Query, Interpretation, Response, validator reasons, retry count, trace - Stored in the Database
+
+**QUERY**
+Query can be like "Number of students who are studying in computer science all specializations?"
+**RESPONSE**
+- Output table (large results truncated / paginated, with "showing N of M")
+- What query was used on the table
+- Interpretation line ("Counting students whose department is Computer Science, all specializations")
+- AI Based analysis on that table (regardless of the response) - excitement beyond MVP. Statistics computed in code (pandas); the LLM only narrates them
+- Chatbot where a follow up question can be asked. - excitement beyond MVP
+
+#### Scheduling Flow (SCHEDULE_REQUEST)
+Example: "Send me the CS student count every Monday at 9am"
+1. Run Steps 2-9 in SCHEDULING MODE: the generator must use date PLACEHOLDERS (e.g. {{last_7_days}}, {{this_month}}), never literal dates
+2. LLM converts the request into a structured Job Spec: {name, query with placeholders, schedule {day names / time / timezone, default IST}, output target, owner}. Not raw cron; code builds the trigger
+3. Validate the spec in code: schedule valid, minimum interval enforced, per-user job quota, query passes the Safety Gate
+4. Output target restriction: only the owner's verified email / organisation domain / results collection (never an address taken from free text)
+5. Pause for user confirmation (LangGraph interrupt + durable checkpointer): Approve / Edit / Cancel. Side effects (save job, register in scheduler) happen only AFTER the interrupt, and are idempotent
+6. Save the Job Spec in the Database and register the job in the Scheduler with a stable job id (replace_existing=True), misfire_grace_time of several minutes, coalesce=True, max_instances=1
+7. Every run: resolve placeholders to real dates, re-check fields against the CURRENT schema snapshot, re-run the Safety Gate, confirm the owner still has access, execute, deliver the output
+8. Log run history (status, duration, row count, errors). Flag runs that differ wildly from the previous run (empty, or ~10x larger). On failure retry once or twice, then notify the owner; pause the job after N consecutive failures
+9. Manage via natural language: "list my jobs", "pause the Monday report", "change it to Fridays", "delete job X" (ownership check on every action; edits go back through confirmation)
+
+#### Evaluation (needed to show failure cases)
+- Gold set of 30-50 questions (easy / ambiguous / multi-collection / adversarial) with reference queries
+- Metric: execution accuracy (result matches the gold result; compare order-insensitively with number tolerance), plus retries needed, abstentions, and latency
+- Check that gold queries themselves are correct
+- Ablations: full schema vs retrieved schema, with/without value grounding, with/without Safety Gate, with/without validators, single vs dual-path
+- Security tests: destructive prompts ("delete all students"), injection text placed inside data fields, attempts to schedule output to an outside address
+- Scheduling tests: ambiguous schedules ("every morning"), schema change after job creation, overlapping runs, restart during a run, relative dates over multiple runs, duplicate firing with multiple workers
+- Test on more than one model (hosted and a smaller local one)
+- Failure-case log: what broke, why, what fixed it
+
+#### Beyond MVP
+- AI analysis of the result table
+- Follow-up chatbot with long-term memory (basic per-conversation state is already in MVP)
+- Semantic cache for repeated questions
+- PII masking, per-user data access rules
+
+#### Issues
+- MongoDB does not have a standard schema --> handled by Schema Indexing (sampling + types seen + presence rates + re-sampling on failures)
+- Job scheduling --> handled by the Scheduling Flow (APScheduler as a separate process for MVP; Celery Beat if it needs to scale)
+- DECIDE: agent output is SQL or MongoDB queries? (this draft assumes MongoDB)
+- "Valid but wrong" answers (query runs, answers a different question) --> deterministic checks, second path, interpretation line, abstention
+- Prompt injection through stored data --> no-tool validator, results treated as data, restricted output targets
+- Large results can overflow the LLM context --> summarise / sample before sending to the LLM
+- Schema drift --> versioned snapshots, re-check before every scheduled run
+- Latency (many sequential LLM calls) --> merged routing + validation, streamed progress
+- Data privacy: sample values and results go to the LLM provider --> keep the provider swappable (hosted / local)

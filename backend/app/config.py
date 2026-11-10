@@ -157,10 +157,11 @@ class Settings(BaseSettings):
     SMTP_PORT: int = Field(default=587, description="SMTP server port")
     SMTP_USER: Optional[str] = Field(default=None, description="SMTP username")
     SMTP_PASS: Optional[str] = Field(default=None, description="SMTP password")
+    ALERT_RECIPIENT_EMAIL: Optional[str] = Field(default=None, description="Alert recipient email address")
 
     @model_validator(mode="after")
     def validate_security_and_timeouts(self) -> "Settings":
-        """Enforces timeout ranges, retry bounds, CORS safety, and credential isolation."""
+        """Enforces timeout ranges, retry bounds, CORS safety, credential isolation, and production safeguards."""
         if self.QUERY_TIMEOUT_MS <= 0 or self.QUERY_TIMEOUT_MS > 120000:
             raise ValueError(f"QUERY_TIMEOUT_MS must be between 1 and 120000 ms, got {self.QUERY_TIMEOUT_MS}")
 
@@ -174,6 +175,19 @@ class Settings(BaseSettings):
         origins = self.cors_origins_list
         if "*" in origins and len(origins) > 1:
             raise ValueError("Wildcard '*' cannot be combined with explicit origins in CORS_ORIGINS.")
+
+        # Production Environment Enforcements
+        if self.APP_ENV == "production":
+            if self.ALLOW_UNAUTHENTICATED_DEV:
+                raise ValueError("ALLOW_UNAUTHENTICATED_DEV must be False in production environment.")
+            if not self.MONGO_AUTH_ENABLED:
+                raise ValueError("MONGO_AUTH_ENABLED must be True in production environment.")
+            if not (self.MONGO_READONLY_USERNAME and self.MONGO_READONLY_PASSWORD):
+                raise ValueError("Dedicated read-only banking credentials are required in production environment.")
+            if not (self.MONGO_METADATA_USERNAME and self.MONGO_METADATA_PASSWORD):
+                raise ValueError("Application metadata DB credentials are required in production environment.")
+            if not self.JWT_SECRET_KEY or self.JWT_SECRET_KEY.startswith("dev_"):
+                raise ValueError("JWT_SECRET_KEY must be a secure production key (not dev default).")
 
         # Server-side authentication validation
         if self.MONGO_AUTH_ENABLED:

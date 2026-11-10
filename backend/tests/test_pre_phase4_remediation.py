@@ -549,3 +549,81 @@ async def test_openai_refusal_and_safety_filter(monkeypatch):
     assert "[Refusal]:" in res
 
 
+# ==============================================================================
+# 8. Milestone D: Operational Reliability & Production Safeguards Tests
+# ==============================================================================
+
+def test_env_example_synchronization():
+    """Verify that every critical config variable in Settings exists in .env.example."""
+    from pathlib import Path
+    from backend.app.config import PROJECT_ROOT
+
+    env_example_path = PROJECT_ROOT / ".env.example"
+    assert env_example_path.exists(), ".env.example file must exist at project root."
+
+    with open(env_example_path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    keys = set()
+    for line in lines:
+        cleaned = line.strip()
+        if cleaned and not cleaned.startswith("#") and "=" in cleaned:
+            k = cleaned.split("=", 1)[0].strip()
+            keys.add(k)
+
+    required_keys = [
+        "APP_ENV", "MONGO_URI", "MONGO_BANKING_DB", "MONGO_METADATA_DB",
+        "MONGO_AUTH_ENABLED", "ALLOW_UNAUTHENTICATED_DEV",
+        "MONGO_READONLY_USERNAME", "MONGO_READONLY_PASSWORD",
+        "MONGO_METADATA_USERNAME", "MONGO_METADATA_PASSWORD",
+        "LLM_PROVIDER", "LLM_MODEL", "LLM_TIMEOUT_SECONDS",
+        "ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GEMINI_API_KEY", "GROQ_API_KEY",
+        "CHROMA_PERSIST_DIR", "CHROMA_COLLECTION_NAME", "EMBEDDING_PROVIDER",
+        "JWT_SECRET_KEY", "QUERY_TIMEOUT_MS", "REQUEST_TIMEOUT_SECONDS",
+        "USER_RATE_LIMIT", "MAX_REQUEST_BODY_BYTES", "MAX_CONVERSATION_HISTORY_TURNS"
+    ]
+
+    for req in required_keys:
+        assert req in keys, f"Missing critical configuration variable '{req}' in .env.example"
+
+
+def test_production_safeguards_rejection():
+    """Verify production mode rejects unsafe development flags or missing credentials."""
+    from backend.app.config import Settings
+
+    # 1. ALLOW_UNAUTHENTICATED_DEV=True in production must fail
+    with pytest.raises(ValueError) as exc1:
+        Settings(APP_ENV="production", ALLOW_UNAUTHENTICATED_DEV=True, MONGO_AUTH_ENABLED=True)
+    assert "ALLOW_UNAUTHENTICATED_DEV must be False" in str(exc1.value)
+
+    # 2. MONGO_AUTH_ENABLED=False in production must fail
+    with pytest.raises(ValueError) as exc2:
+        Settings(APP_ENV="production", ALLOW_UNAUTHENTICATED_DEV=False, MONGO_AUTH_ENABLED=False)
+    assert "MONGO_AUTH_ENABLED must be True" in str(exc2.value)
+
+    # 3. Dev JWT key in production must fail
+    with pytest.raises(ValueError) as exc3:
+        Settings(
+            APP_ENV="production",
+            ALLOW_UNAUTHENTICATED_DEV=False,
+            MONGO_AUTH_ENABLED=True,
+            MONGO_READONLY_USERNAME="reader",
+            MONGO_READONLY_PASSWORD="password",
+            MONGO_METADATA_USERNAME="writer",
+            MONGO_METADATA_PASSWORD="password2",
+            JWT_SECRET_KEY="dev_default_key_12345678901234567890"
+        )
+    assert "JWT_SECRET_KEY" in str(exc3.value)
+
+
+def test_app_lifespan_lifecycle():
+    """Verify FastAPI application lifespan startup and shutdown cycle runs cleanly."""
+    from backend.app.main import app
+
+    with TestClient(app) as test_client:
+        resp = test_client.get("/")
+        assert resp.status_code == 200
+        assert resp.json()["service"] == settings.APP_NAME
+
+
+

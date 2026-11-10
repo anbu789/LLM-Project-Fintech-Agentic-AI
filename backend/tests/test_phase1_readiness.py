@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 from pymongo import MongoClient
 
-from backend.app.config import settings
+from backend.app.config import PROJECT_ROOT, settings
 from backend.app.db.mongo_client import (
     check_mongo_connection,
     get_collection_inventory,
@@ -29,16 +29,16 @@ from backend.app.db.indexes import audit_indexes, RECOMMENDED_INDEXES
 
 def test_python_version_and_config():
     """Verify python version pinning and configuration."""
-    version_file = Path(".python-version")
+    version_file = PROJECT_ROOT / ".python-version"
     assert version_file.exists(), ".python-version file must exist"
     assert "3.12" in version_file.read_text(), "Expected Python 3.12 pinned"
 
 
 def test_nodejs_pinning_and_package_manifest():
     """Verify Node.js pinning and frontend package manifest."""
-    nvmrc = Path(".nvmrc")
+    nvmrc = PROJECT_ROOT / ".nvmrc"
     assert nvmrc.exists(), ".nvmrc must exist"
-    package_json = Path("frontend/package.json")
+    package_json = PROJECT_ROOT / "frontend/package.json"
     assert package_json.exists(), "frontend/package.json must exist"
     with open(package_json, "r") as f:
         data = json.load(f)
@@ -61,7 +61,7 @@ def test_env_settings_loaded_safely():
 
 def test_env_file_is_git_ignored():
     """Ensure .env is strictly ignored by Git."""
-    gitignore = Path(".gitignore")
+    gitignore = PROJECT_ROOT / ".gitignore"
     assert gitignore.exists()
     content = gitignore.read_text()
     assert ".env" in content
@@ -71,15 +71,15 @@ def test_env_file_is_git_ignored():
 def test_protected_assets_remain_unmodified():
     """Verify that dataset files and presentation files exist and are protected."""
     # Check dataset files
-    dataset_dir = Path("fintech-agent/data")
+    dataset_dir = PROJECT_ROOT / "fintech-agent/data"
     assert dataset_dir.exists(), "Dataset directory must exist"
     assert (dataset_dir / "schema.json").exists()
     assert (dataset_dir / "generate_dataset.py").exists()
     assert (dataset_dir / "validate_dataset.py").exists()
 
     # Check presentations
-    pres_pdf = Path("docs/codex/INT450_Final_Project_Presentation.pdf")
-    pres_pptx = Path("docs/codex/INT450_Final_Project_Presentation.pptx")
+    pres_pdf = PROJECT_ROOT / "docs/codex/INT450_Final_Project_Presentation.pdf"
+    pres_pptx = PROJECT_ROOT / "docs/codex/INT450_Final_Project_Presentation.pptx"
     assert pres_pdf.exists(), "Presentation PDF must remain intact"
     assert pres_pptx.exists(), "Presentation PPTX must remain intact"
 

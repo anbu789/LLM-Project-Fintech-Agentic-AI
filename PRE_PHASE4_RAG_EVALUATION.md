@@ -144,28 +144,30 @@ Safe queries querying legitimate loan fields (e.g. `"Show customers with outstan
 
 The retrieval engine was evaluated against 18 test cases reflecting diverse real-world banking queries from `SAMPLE_QUERIES.md`.
 
-### Evaluation Case Breakdown
+### Evaluation Case Breakdown (Raw Benchmark Execution with Mock Provider)
 
-| Case ID | Query Description | Category | Expected Collections | Expected Unsupported Shield | Hit Rate | Recall@5 | MRR | Precision@5 |
+> **Note on Embedding Provider:** Benchmark results are generated using the deterministic `MockEmbeddingProvider`. Live real-world embedding model certification is **BLOCKED** pending deployment of real embedding credentials / sentence-transformers packages.
+
+| Case ID | Query Description | Category | Expected Collections | Expected Unsupported Shield | Hit Rate | Recall@5 | RR (Reciprocal Rank) | Precision@5 |
 |:---|:---|:---|:---|:---:|:---:|:---:|:---:|:---:|
-| **Q01** | Show customers from Chennai | Single Filter | `customers` | No | 1.00 | 1.00 | 1.00 | 0.80 |
-| **Q02** | Find transactions above ₹10,000 | Numeric Range | `transactions` | No | 1.00 | 1.00 | 1.00 | 1.00 |
-| **Q03** | Show customers with active loans | Multi-Join | `customers`, `loans` | No | 1.00 | 1.00 | 1.00 | 0.80 |
-| **Q04** | Accounts of customers in Coimbatore | Multi-Join | `accounts`, `customers` | No | 1.00 | 1.00 | 1.00 | 0.80 |
+| **Q01** | Show customers from Chennai | Single Filter | `customers` | No | 1.00 | 1.00 | 1.00 | 1.00 |
+| **Q02** | Find transactions above ₹10,000 | Numeric Range | `transactions` | No | 1.00 | 1.00 | 1.00 | 0.80 |
+| **Q03** | Show customers with active loans | Multi-Join | `customers`, `loans` | No | 1.00 | 1.00 | 1.00 | 1.00 |
+| **Q04** | Accounts of customers in Coimbatore | Multi-Join | `accounts`, `customers` | No | 1.00 | 1.00 | 0.50 | 0.40 |
 | **Q05** | Credit cards expiring this month | Date / Attribute | `cards` | No | 1.00 | 1.00 | 1.00 | 1.00 |
 | **Q06** | Merchants with high transaction volumes | Join / Aggregate | `merchants`, `transactions` | No | 1.00 | 1.00 | 1.00 | 0.80 |
-| **Q07** | Employees working at a branch | Hierarchy Join | `employees`, `branches` | No | 1.00 | 1.00 | 1.00 | 0.80 |
-| **Q08** | KYC documents belonging to customers | Compliance Join | `kyc_documents`, `customers` | No | 1.00 | 1.00 | 1.00 | 0.60 |
-| **Q09** | Show outstanding loan balances | Loan Balances | `loans` | No | 1.00 | 1.00 | 1.00 | 0.80 |
-| **Q10** | Overdue loans with DPD and overdue amount | Shielding Test | `loans` | **Yes (DPD / Overdue)** | 1.00 | 1.00 | 1.00 | 0.80 |
+| **Q07** | Employees working at a branch | Hierarchy Join | `employees`, `branches` | No | 1.00 | 1.00 | 0.33 | 0.20 |
+| **Q08** | KYC documents belonging to customers | Compliance Join | `kyc_documents`, `customers` | No | 1.00 | 1.00 | 1.00 | 0.20 |
+| **Q09** | Show outstanding loan balances | Loan Balances | `loans` | No | 1.00 | 1.00 | 1.00 | 1.00 |
+| **Q10** | Overdue loans with DPD and overdue amount | Shielding Test | `loans` | **Yes (DPD / Overdue)** | 1.00 | 1.00 | 1.00 | 1.00 |
 | **Q11** | Delinquent borrowers with loans in arrears | Synonym Shielding | `loans` | **Yes (Delinquent / Arrears)**| 1.00 | 1.00 | 1.00 | 0.80 |
-| **Q12** | List NPA accounts with late payments | Regulatory Shielding | `loans` | **Yes (NPA / Late)** | 1.00 | 1.00 | 1.00 | 0.80 |
-| **Q13** | Customers with outstanding loans | Control (No False Alarm)| `customers`, `loans` | **No (Clean)** | 1.00 | 1.00 | 1.00 | 0.80 |
-| **Q14** | Fraud alerts for suspicious transactions | Risk Analysis | `fraud_alerts`, `transactions`| No | 1.00 | 1.00 | 1.00 | 0.80 |
+| **Q12** | List NPA accounts with late payments | Regulatory Shielding | `loans` | **Yes (NPA / Late)** | 1.00 | 1.00 | 1.00 | 0.60 |
+| **Q13** | Customers with outstanding loans | Control (No False Alarm)| `customers`, `loans` | **No (Clean)** | 1.00 | 1.00 | 1.00 | 1.00 |
+| **Q14** | Fraud alerts for suspicious transactions | Risk Analysis | `fraud_alerts`, `transactions`| No | 1.00 | 1.00 | 1.00 | 1.00 |
 | **Q15** | Customer investments in stocks | Wealth / Join | `investments`, `customers` | No | 1.00 | 1.00 | 1.00 | 0.60 |
-| **Q16** | Support tickets assigned to employees | Operations / Join | `support_tickets`, `employees`| No | 1.00 | 1.00 | 1.00 | 0.60 |
-| **Q17** | Active contactless credit cards | Card Filtering | `cards` | No | 1.00 | 1.00 | 1.00 | 0.80 |
-| **Q18** | Branch managers for all branches | Management Join | `branches`, `employees` | No | 1.00 | 0.50 | 0.33 | 0.40 |
+| **Q16** | Support tickets assigned to employees | Operations / Join | `support_tickets`, `employees`| No | 1.00 | 1.00 | 1.00 | 0.80 |
+| **Q17** | Active contactless credit cards | Card Filtering | `cards` | No | 1.00 | 1.00 | 1.00 | 1.00 |
+| **Q18** | Branch managers for all branches | Management Join | `branches`, `employees` | No | 1.00 | 0.50 | 0.50 | 0.80 |
 
 ---
 
@@ -177,7 +179,7 @@ The retrieval engine was evaluated against 18 test cases reflecting diverse real
 | **Unsupported Shield Rate** | $100\%$ | **100.0% (1.00)** | **PERFECT** | 100% of queries referencing absent loan concepts triggered warnings. |
 | **Shield False-Positive Rate**| $0\%$ | **0.0% (0.00)** | **PERFECT** | Safe control query Q13 triggered zero false warnings. |
 | **Collection Recall@5** | $\ge 85\%$ | **97.22% (0.972)** | **EXCEEDED** | High-relevance schema context captured across all multi-collection queries. |
-| **Mean Reciprocal Rank (MRR)** | $\ge 80\%$ | **90.74% (0.907)** | **EXCEEDED** | The primary target collection ranked #1 in 17 out of 18 test cases. |
+| **Mean Reciprocal Rank (MRR)** | $\ge 80\%$ | **90.74% (0.907)** | **EXCEEDED** | The primary target collection ranked #1 in 15 out of 18 cases, #2 in 2 cases (Q04, Q18), and #3 in 1 case (Q07). |
 | **Collection Precision@5** | $\ge 60\%$ | **77.78% (0.778)** | **EXCEEDED** | Noise collections minimal, preserving downstream prompt context window. |
 
 ---
@@ -186,4 +188,4 @@ The retrieval engine was evaluated against 18 test cases reflecting diverse real
 
 The ChromaDB vector index, banking glossary mappings, and retrieval pipeline are 100% synchronized with the physical banking schema, mathematically sound with cosine similarity, and shielded against hallucinated loan metrics.
 
-**RAG Evaluation Status:** **APPROVED TO PROCEED TO PHASE 4**
+**RAG Evaluation Status:** **CONDITIONALLY VERIFIED — PHASE 4 DEVELOPMENT ONLY (LIVE DENSE EMBEDDING CERTIFICATION BLOCKED)**

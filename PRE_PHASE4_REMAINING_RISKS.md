@@ -66,23 +66,31 @@ graph TD
 
 ### Risk 01: MongoDB Server-Side Authentication Enforcement
 - **Description:** During local development and testing, `ALLOW_UNAUTHENTICATED_DEV=True` allows PyMongo to connect without database credentials. The `ReadOnlyDatabaseProxy` and `ReadOnlyCollectionProxy` provide strong application-level security, but true defense-in-depth requires native database authorization.
-- **Root Cause:** Local developer convenience and lightweight CI execution.
+- **Root Cause:** Local developer convenience and lightweight CI execution. Live Windows MongoDB service (`mongod.exe` 8.0.6) is currently running without `security.authorization: enabled` in `mongod.cfg`.
 - **Mitigation Requirement for Phase 4:**
   1. The production safeguard in `backend/app/config.py` already throws an immediate startup exception if `APP_ENV=production` and `MONGO_AUTH_ENABLED=False`.
-  2. For staging and production deployments, run `scripts/mongo_init_auth.js` to create the read-only `fintech_reader` user on `fintech_agent_db` and read-write `agent_metadata_writer` on `agent_metadata_db`.
-  3. Ensure production connection strings supply separated credentials.
+  2. The provisioning script `scripts/mongo_init_auth.js` has been hardened to remove all hardcoded passwords, require both `BANKING_DB_PASSWORD` and `METADATA_DB_PASSWORD`, enforce credential separation, and eliminate credential leakage in logs.
+  3. Live execution of `scripts/mongo_init_auth.js` against the existing database is **deferred until formal DBA maintenance approval and server restart with security.authorization enabled**.
+  4. Ensure production connection strings supply separated credentials.
 
 ---
 
-### Risk 02: Real LLM and Embedding Model Divergence
+### Risk 02: Real LLM and Embedding Model Divergence (Live RAG Certification: BLOCKED)
 - **Description:** The test suite currently validates deterministic mock embeddings and mock LLM responses. Real-world models introduce non-deterministic behaviors:
   - Models may wrap JSON in Markdown code fences (e.g. ````json ... ````) or append conversational preamble.
   - Real embedding vectors (`sentence-transformers/all-MiniLM-L6-v2` or `text-embedding-3-small`) produce continuous dense distributions rather than deterministic hash distances.
   - LLM providers periodically update system prompts and safety classifiers that may reject complex banking queries.
+- **Current Operational Reality:**
+  - `EMBEDDING_PROVIDER` is currently set to `mock`.
+  - `OPENAI_API_KEY` is not configured in the environment.
+  - `sentence-transformers` is not installed in `.venv_clean`.
+  - **Live Real Embedding Certification Status:** **BLOCKED**. Schema RAG has only been certified for algorithmic correctness using `MockEmbeddingProvider`.
 - **Mitigation Requirement for Phase 4:**
-  1. **Robust Pipeline Extraction:** Phase 4 query synthesis node must use an extraction regex that strips markdown fences, conversational prefix/suffix, and extracts pure JSON arrays.
-  2. **Zero-Temperature Generation:** Set `temperature=0.0` for query synthesis to maximize structural reproducibility.
-  3. **Live Sandbox Smoke Suite:** Implement a small live-provider smoke test executed only when valid API keys are present in CI secrets.
+  1. **Phase 4 Development Boundary:** Phase 4 LangGraph node development may proceed under mock embedding and mock LLM providers.
+  2. **Live RAG Activation Prerequisite:** Before production deployment, provision `OPENAI_API_KEY` or install `sentence-transformers` in the virtual environment and execute live semantic retrieval validation.
+  3. **Robust Pipeline Extraction:** Phase 4 query synthesis node must use an extraction regex that strips markdown fences, conversational prefix/suffix, and extracts pure JSON arrays.
+  4. **Zero-Temperature Generation:** Set `temperature=0.0` for query synthesis to maximize structural reproducibility.
+  5. **Live Sandbox Smoke Suite:** Implement a small live-provider smoke test executed only when valid API keys are present in CI secrets.
 
 ---
 

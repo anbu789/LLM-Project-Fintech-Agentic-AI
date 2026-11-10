@@ -1,0 +1,201 @@
+merchant_id,merchant_name,category,mcc_code,city,state,registration_date,is_verified,average_transaction_value,total_transactions,created_at
+MER000001,Ray-Dubey,travel,4111,Ujjain,Haryana,2020-01-09T12:00:06,True,28730.52,45044,2020-01-09T12:00:06
+MER000002,Sachar Inc,groceries,5412,Thoothukudi,West Bengal,2023-06-14T13:20:30,True,1186.5,41821,2023-06-14T13:20:30
+MER000003,Kothari-Loke,dining,5811,Moradabad,Gujarat,2019-04-07T08:10:37,True,4531.51,42458,2019-04-07T08:10:37
+MER000004,Barad-Singhal,groceries,5412,Kollam,Karnataka,2020-04-03T15:24:36,True,2250.61,6006,2020-04-03T15:24:36
+MER000005,Palla-Mody,travel,7011,Rajahmundry,Rajasthan,2020-07-23T03:53:15,True,39539.13,24076,2020-07-23T03:53:15
+MER000006,Hans Group,travel,4511,Alwar,Assam,2017-10-19T10:38:35,False,15461.93,22298,2017-10-19T10:38:35
+MER000007,Mallick LLC,electronics,5732,Jorhat,Gujarat,2022-12-20T02:38:16,True,19597.95,44423,2022-12-20T02:38:16
+MER000008,Bala-D’Alia,healthcare,5912,Mangalore,Haryana,2021-03-22T20:19:47,True,10963.16,29904,2021-03-22T20:19:47
+MER000009,"Lanka, Barad and Chopra",utilities,4941,Hapur,Haryana,2019-06-18T00:20:35,True,9432.77,7200,2019-06-18T00:20:35
+MER000010,"Murthy, Sarin and Vaidya",dining,5812,Kharagpur,Himachal Pradesh,2023-01-08T15:43:37,True,2872.83,40082,2023-01-08T15:43:37
+MER000011,"Gupta, Kumar and Basu",dining,5811,Mumbai,Odisha,2016-01-28T19:36:28,False,1615.62,26858,2016-01-28T19:36:28
+MER000012,"Yohannan, Hegde and Patla",electronics,5732,Coimbatore,Karnataka,2017-05-18T13:03:34,True,40424.72,6469,2017-05-18T13:03:34
+MER000013,"Narayanan, Murthy and Dash",dining,5814,Guna,Odisha,2017-04-22T23:41:21,True,4754.5,45744,2017-04-22T23:41:21
+MER000014,Rege-Narain,healthcare,8011,Sagar,Delhi,2017-08-18T04:07:29,True,12505.22,18433,2017-08-18T04:07:29
+MER000015,"Datta, Handa and Salvi",groceries,5411,Akola,Odisha,2021-04-21T09:25:59,True,861.12,23868,2021-04-21T09:25:59
+MER000016,"Mitra, Ravi and Acharya",electronics,5065,Baranagar,Punjab,2021-04-01T12:57:33,True,23518.75,8105,2021-04-01T12:57:33
+MER000017,Sani PLC,entertainment,7941,Kirari Suleman Nagar,Uttar Pradesh,2016-07-23T15:19:53,True,4857.74,1499,2016-07-23T15:19:53
+MER000018,Sathe-Kala,groceries,5411,Gulbarga,Gujarat,2020-09-03T08:29:24,True,774.58,36420,2020-09-03T08:29:24
+MER000019,"Chad, Mander and Varma",dining,5812,Tiruchirappalli,Madhya Pradesh,2018-09-03T20:59:59,True,3974.92,39158,2018-09-03T20:59:59
+MER000020,Mukherjee and Sons,groceries,5411,Siliguri,Gujarat,2019-09-19T22:13:18,True,2435.84,7304,2019-09-19T22:13:18
+MER000021,Batra and Sons,groceries,5411,Phagwara,Punjab,2017-03-29T23:55:20,True,866.21,21318,2017-03-29T23:55:20
+MER000022,Shah Group,groceries,5412,Yamunanagar,Karnataka,2017-12-18T17:28:37,True,1378.69,7548,2017-12-18T17:28:37
+MER000023,Ratta-Kohli,electronics,5734,Kolkata,Punjab,2023-02-07T06:56:45,True,10506.21,33119,2023-02-07T06:56:45
+MER000024,Sandal and Sons,dining,5811,Kadapa,Jharkhand,2015-09-27T11:03:45,True,3270.2,2141,2015-09-27T11:03:45
+MER000025,Bedi-Krish,groceries,5412,Sirsa,Bihar,2023-02-24T06:57:33,True,1572.75,29169,2023-02-24T06:57:33
+MER000026,Shetty Ltd,electronics,5734,Mango,Himachal Pradesh,2016-05-17T00:20:59,True,11842.94,41015,2016-05-17T00:20:59
+MER000027,"Thaman, Sandhu and Sehgal",utilities,4941,Fatehpur,Jharkhand,2021-06-24T20:34:48,True,5302.74,28293,2021-06-24T20:34:48
+MER000028,Lad-Kota,electronics,5065,Saharsa,Uttarakhand,2016-12-11T22:39:44,True,18771.8,29693,2016-12-11T22:39:44
+MER000029,Khare-Maharaj,dining,5814,Solapur,Odisha,2022-01-15T08:21:10,True,3688.62,20583,2022-01-15T08:21:10
+MER000030,"Mangal, Keer and Magar",healthcare,8049,Imphal,Telangana,2020-04-25T22:53:35,True,3476.46,31181,2020-04-25T22:53:35
+MER000031,"Buch, Devi and Dora",electronics,5732,Yamunanagar,Tamil Nadu,2016-07-20T20:25:33,True,60077.94,24521,2016-07-20T20:25:33
+MER000032,"Dua, Kala and Bhatt",fuel,5542,Vellore,Delhi,2016-01-08T17:00:42,True,4431.23,49270,2016-01-08T17:00:42
+MER000033,Shukla-Sagar,healthcare,8011,Tiruppur,Himachal Pradesh,2015-11-16T16:11:41,True,2520.21,33353,2015-11-16T16:11:41
+MER000034,Ramachandran-Bahri,dining,5811,Morena,Assam,2017-08-19T11:02:09,True,674.86,36555,2017-08-19T11:02:09
+MER000035,Pandey LLC,utilities,4911,Gurgaon,Goa,2016-12-14T20:56:23,True,4576.57,36863,2016-12-14T20:56:23
+MER000036,"Kannan, Sura and Kanda",groceries,5411,Junagadh,Rajasthan,2019-07-20T20:41:44,True,2334.75,22370,2019-07-20T20:41:44
+MER000037,Balakrishnan-Ramachandran,utilities,4900,Machilipatnam,Gujarat,2015-02-07T22:33:40,True,4307.45,9397,2015-02-07T22:33:40
+MER000038,"Gandhi, Sibal and Datta",groceries,5441,Singrauli,Jharkhand,2016-07-24T03:53:51,True,1375.53,22440,2016-07-24T03:53:51
+MER000039,"Bala, Chacko and Sangha",fuel,5542,Surendranagar Dudhrej,Madhya Pradesh,2021-04-18T10:19:00,True,3054.17,5667,2021-04-18T10:19:00
+MER000040,Bedi LLC,groceries,5411,Khammam,Himachal Pradesh,2017-08-24T17:45:26,True,428.43,29139,2017-08-24T17:45:26
+MER000041,Sha LLC,healthcare,8049,Nadiad,Odisha,2023-04-06T19:07:23,True,4703.59,33677,2023-04-06T19:07:23
+MER000042,Sama-Krishnan,electronics,5734,Nandyal,Delhi,2020-11-14T19:54:24,True,54921.93,31991,2020-11-14T19:54:24
+MER000043,Zacharia Inc,travel,4411,Rajahmundry,Haryana,2015-10-10T05:07:41,False,3684.32,13497,2015-10-10T05:07:41
+MER000044,"Biswas, Baria and Balasubramanian",travel,4411,Kollam,Telangana,2018-08-05T13:29:38,True,6879.23,32696,2018-08-05T13:29:38
+MER000045,Dua and Sons,healthcare,5912,Bhalswa Jahangir Pur,Haryana,2017-12-27T17:30:30,True,4987.16,36716,2017-12-27T17:30:30
+MER000046,"Contractor, Kamdar and Shroff",utilities,4911,Arrah,Karnataka,2016-03-23T20:40:36,True,4867.67,5202,2016-03-23T20:40:36
+MER000047,Contractor and Sons,utilities,4941,Moradabad,Haryana,2022-04-21T11:30:46,True,4468.09,7648,2022-04-21T11:30:46
+MER000048,"Bal, Muni and Prashad",healthcare,8011,Davanagere,Rajasthan,2015-05-10T14:21:17,True,12553.44,45294,2015-05-10T14:21:17
+MER000049,Kibe Inc,utilities,4911,Ghaziabad,Delhi,2016-07-01T14:52:50,True,6094.28,34438,2016-07-01T14:52:50
+MER000050,Barman LLC,electronics,5734,Uluberia,Madhya Pradesh,2021-09-25T05:00:25,True,62771.19,5105,2021-09-25T05:00:25
+MER000051,Toor Ltd,electronics,5732,Ahmedabad,Punjab,2023-09-04T17:33:48,True,76741.42,42399,2023-09-04T17:33:48
+MER000052,Suri-Cherian,fuel,5541,Mirzapur,Gujarat,2019-01-08T02:57:52,True,1280.75,10118,2019-01-08T02:57:52
+MER000053,"Sharaf, Dua and Saran",electronics,5065,Nagaon,Assam,2018-01-05T17:56:40,True,45971.37,38076,2018-01-05T17:56:40
+MER000054,"Madan, Yohannan and Sule",entertainment,7941,Junagadh,Madhya Pradesh,2020-07-01T08:18:20,True,732.63,29080,2020-07-01T08:18:20
+MER000055,"Loyal, Naidu and Korpal",travel,4111,Alwar,Punjab,2019-09-03T18:18:20,True,16209.98,29716,2019-09-03T18:18:20
+MER000056,Kohli-Shetty,groceries,5412,Naihati,Kerala,2015-12-20T12:03:34,True,2619.9,6017,2015-12-20T12:03:34
+MER000057,Talwar LLC,healthcare,8049,Morbi,Uttarakhand,2022-11-15T04:33:49,False,14908.96,2788,2022-11-15T04:33:49
+MER000058,Pant LLC,entertainment,7922,Parbhani,Himachal Pradesh,2018-03-15T16:18:14,True,1376.72,4154,2018-03-15T16:18:14
+MER000059,"Majumdar, Anne and Varughese",entertainment,7922,Guwahati,Tamil Nadu,2016-10-05T03:19:07,True,1545.96,16336,2016-10-05T03:19:07
+MER000060,Ray Group,entertainment,7941,Fatehpur,Jharkhand,2022-06-23T11:19:38,True,3038.4,18639,2022-06-23T11:19:38
+MER000061,"Swaminathan, Sem and Badal",healthcare,8011,Durg,Himachal Pradesh,2021-12-15T00:06:37,True,12802.29,22031,2021-12-15T00:06:37
+MER000062,Ravel Ltd,electronics,5732,Farrukhabad,Uttarakhand,2020-08-10T15:02:59,True,24163.46,47530,2020-08-10T15:02:59
+MER000063,"Pillay, Solanki and Wali",fuel,5541,Khandwa,Goa,2020-09-02T10:33:03,True,4625.36,20431,2020-09-02T10:33:03
+MER000064,"Narayanan, Pandey and Setty",healthcare,8049,Farrukhabad,Tamil Nadu,2017-03-12T06:39:53,True,7845.25,21627,2017-03-12T06:39:53
+MER000065,Kashyap-Dara,fuel,5541,Satna,Bihar,2023-12-15T21:27:53,True,582.04,20341,2023-12-15T21:27:53
+MER000066,Wason Ltd,fuel,5542,Nellore,Assam,2018-08-23T22:43:30,True,4999.89,10254,2018-08-23T22:43:30
+MER000067,Sule LLC,electronics,5732,Salem,Jharkhand,2020-01-12T23:42:53,True,67139.35,34606,2020-01-12T23:42:53
+MER000068,Minhas and Sons,groceries,5441,Mangalore,Gujarat,2020-09-23T13:56:34,True,631.91,11951,2020-09-23T13:56:34
+MER000069,Atwal-Walla,fuel,5541,Panipat,Bihar,2022-06-12T14:35:23,True,3738.14,29211,2022-06-12T14:35:23
+MER000070,Bhagat PLC,travel,4411,Cuttack,Uttarakhand,2022-08-21T12:59:25,True,48314.24,30837,2022-08-21T12:59:25
+MER000071,"Swaminathan, Chauhan and Arora",dining,5811,Nandyal,Goa,2021-04-04T16:25:09,False,2389.15,18566,2021-04-04T16:25:09
+MER000072,Sastry-Oak,healthcare,8049,Faridabad,Bihar,2023-07-22T22:52:54,False,16429.38,39727,2023-07-22T22:52:54
+MER000073,Sridhar-Comar,fuel,5541,Rewa,Assam,2019-04-03T11:10:54,True,2995.43,6823,2019-04-03T11:10:54
+MER000074,Borah-Bera,electronics,5732,Jalgaon,Rajasthan,2019-11-07T07:40:42,True,72613.88,9756,2019-11-07T07:40:42
+MER000075,"Modi, Chada and Kothari",healthcare,5912,Proddatur,Odisha,2016-07-23T21:19:07,True,18644.2,27290,2016-07-23T21:19:07
+MER000076,Kara-Virk,groceries,5441,Hospet,Punjab,2021-09-29T11:30:01,True,2984.67,24670,2021-09-29T11:30:01
+MER000077,Mishra-Sanghvi,dining,5814,Jehanabad,Delhi,2015-06-25T03:37:52,True,3302.31,9671,2015-06-25T03:37:52
+MER000078,"Bhasin, Chaudhary and Johal",fuel,5542,Bilaspur,Assam,2015-08-27T00:11:11,True,1124.57,46338,2015-08-27T00:11:11
+MER000079,"Bumb, Dugar and Khatri",entertainment,7941,Suryapet,Maharashtra,2022-08-19T12:18:03,False,348.23,14233,2022-08-19T12:18:03
+MER000080,Dugar Inc,fuel,5542,Hospet,Delhi,2023-12-24T10:59:28,True,1569.38,8085,2023-12-24T10:59:28
+MER000081,"Singhal, Manne and Bali",groceries,5412,Tumkur,Himachal Pradesh,2019-01-21T14:40:33,True,510.4,32856,2019-01-21T14:40:33
+MER000082,"Mandal, Setty and Bobal",groceries,5441,Bilaspur,West Bengal,2023-10-08T10:23:58,True,1015.56,202,2023-10-08T10:23:58
+MER000083,"Hora, Sandal and Contractor",utilities,4941,Jalgaon,Bihar,2019-02-03T19:32:23,True,6848.04,34407,2019-02-03T19:32:23
+MER000084,Dhar-Bora,utilities,4941,Dehradun,Uttarakhand,2016-02-25T13:04:19,True,9889.15,36416,2016-02-25T13:04:19
+MER000085,Mani-Sarna,groceries,5412,Bhind,Karnataka,2021-08-23T04:40:51,True,2946.91,16723,2021-08-23T04:40:51
+MER000086,"Modi, Rau and Magar",groceries,5411,Bahraich,Punjab,2021-01-27T21:41:52,True,2039.89,6893,2021-01-27T21:41:52
+MER000087,Baral Group,utilities,4900,Mahbubnagar,Punjab,2017-04-08T23:28:51,True,8228.33,11574,2017-04-08T23:28:51
+MER000088,Bal-Chand,entertainment,7941,Ramgarh,Rajasthan,2023-02-21T11:44:27,True,692.18,30094,2023-02-21T11:44:27
+MER000089,"Bail, Luthra and Baria",groceries,5411,Nandyal,Karnataka,2019-12-29T09:19:43,True,2680.21,20782,2019-12-29T09:19:43
+MER000090,"Sathe, Mall and Golla",travel,7011,Pallavaram,Uttarakhand,2023-10-08T11:34:16,True,2794.42,42495,2023-10-08T11:34:16
+MER000091,Singhal LLC,dining,5814,Thoothukudi,Karnataka,2019-11-13T19:56:57,True,1759.83,8257,2019-11-13T19:56:57
+MER000092,Cheema-Dyal,utilities,4911,Bulandshahr,Odisha,2022-06-08T02:54:45,True,4173.13,12343,2022-06-08T02:54:45
+MER000093,"Tandon, Mani and Rattan",entertainment,7922,Malda,Jharkhand,2023-06-19T12:03:56,True,844.37,27920,2023-06-19T12:03:56
+MER000094,Murty LLC,electronics,5065,Bhiwandi,Rajasthan,2022-04-29T16:47:34,True,27054.49,5347,2022-04-29T16:47:34
+MER000095,Varkey-Agarwal,utilities,4911,Haridwar,Odisha,2020-01-12T01:01:31,True,4548.1,45304,2020-01-12T01:01:31
+MER000096,Guha PLC,entertainment,7922,Panchkula,Karnataka,2020-12-24T10:29:11,True,7310.54,40394,2020-12-24T10:29:11
+MER000097,"Sathe, Behl and Jani",healthcare,8049,Jamalpur,Karnataka,2019-09-03T00:39:46,True,12931.49,23909,2019-09-03T00:39:46
+MER000098,Mani Group,fuel,5541,Bhilai,Himachal Pradesh,2015-07-13T12:01:34,True,2471.78,8372,2015-07-13T12:01:34
+MER000099,Khatri Ltd,electronics,5065,Bijapur,Punjab,2019-01-06T10:10:54,True,76058.43,2222,2019-01-06T10:10:54
+MER000100,"Atwal, Reddy and Chander",fuel,5542,Raipur,Punjab,2022-08-27T17:18:58,True,845.98,9123,2022-08-27T17:18:58
+MER000101,Dalal-Dube,utilities,4911,Jalna,Telangana,2021-10-09T07:08:22,True,1577.76,48313,2021-10-09T07:08:22
+MER000102,"Mahajan, Sagar and Subramanian",fuel,5542,Latur,Uttarakhand,2023-06-28T22:49:47,True,3987.34,46239,2023-06-28T22:49:47
+MER000103,Dhillon-Rajagopal,entertainment,7941,Khora ,Kerala,2018-08-26T07:03:36,True,7989.3,13218,2018-08-26T07:03:36
+MER000104,"Deshpande, Boase and Majumdar",electronics,5732,Mau,Odisha,2017-04-23T09:17:18,True,57642.85,5853,2017-04-23T09:17:18
+MER000105,"Loke, Agate and Mandal",utilities,4941,Dharmavaram,Tamil Nadu,2020-11-28T19:48:52,True,3258.44,19757,2020-11-28T19:48:52
+MER000106,"Suri, Dixit and Sekhon",fuel,5542,Hapur,Jharkhand,2017-12-17T18:19:59,True,4933.1,9201,2017-12-17T18:19:59
+MER000107,Purohit-Shah,dining,5812,Maheshtala,Punjab,2023-05-28T17:53:29,True,1939.22,36252,2023-05-28T17:53:29
+MER000108,"Khare, Rajagopal and Kaur",fuel,5541,Varanasi,Kerala,2016-06-19T17:23:05,True,3726.2,31469,2016-06-19T17:23:05
+MER000109,Solanki-Raj,healthcare,8049,Saharanpur,Tamil Nadu,2021-12-19T03:09:09,True,6682.04,4960,2021-12-19T03:09:09
+MER000110,Bansal-Date,entertainment,7941,Salem,Jharkhand,2022-12-04T14:04:54,True,7048.09,36230,2022-12-04T14:04:54
+MER000111,Chaudhry-Vora,fuel,5542,Kanpur,Jharkhand,2017-03-12T18:47:23,False,749.36,8237,2017-03-12T18:47:23
+MER000112,"Dhawan, Rout and Dubey",fuel,5541,Nandyal,Rajasthan,2020-03-04T18:20:22,True,3691.99,22776,2020-03-04T18:20:22
+MER000113,Nigam-Rao,travel,4511,Ozhukarai,Uttar Pradesh,2016-05-05T00:26:29,True,27991.23,8303,2016-05-05T00:26:29
+MER000114,"Walla, Rai and Nadig",travel,4411,Hosur,Goa,2016-08-03T13:03:12,False,8555.52,43270,2016-08-03T13:03:12
+MER000115,Biswas and Sons,utilities,4900,Ambattur,Tamil Nadu,2015-09-13T23:20:22,True,6593.81,37899,2015-09-13T23:20:22
+MER000116,"Chana, Saraf and Chaudhari",travel,7011,Raiganj,Himachal Pradesh,2018-08-02T22:01:27,True,25403.86,41201,2018-08-02T22:01:27
+MER000117,Mistry Inc,travel,7011,Anantapur,West Bengal,2020-02-21T03:32:23,True,34564.55,19592,2020-02-21T03:32:23
+MER000118,Memon LLC,entertainment,7941,Chinsurah,Karnataka,2016-03-29T10:31:32,True,3441.85,30537,2016-03-29T10:31:32
+MER000119,Konda PLC,dining,5811,Buxar,Gujarat,2020-10-14T21:11:33,True,3634.06,48216,2020-10-14T21:11:33
+MER000120,"Gole, Garde and Gill",utilities,4900,Phagwara,Punjab,2021-10-13T12:55:50,True,1508.75,15942,2021-10-13T12:55:50
+MER000121,Khosla-Tank,entertainment,7922,Ahmednagar,Odisha,2017-01-31T07:47:29,True,955.13,19119,2017-01-31T07:47:29
+MER000122,Kumar-Sharaf,healthcare,5912,Bangalore,Rajasthan,2022-02-11T04:46:20,True,18708.15,47359,2022-02-11T04:46:20
+MER000123,Mani-Dugar,utilities,4900,Mango,Assam,2018-03-25T14:06:46,False,4934.74,20320,2018-03-25T14:06:46
+MER000124,Mistry-Samra,entertainment,7832,Sirsa,Haryana,2015-05-25T00:18:02,True,7740.16,14199,2015-05-25T00:18:02
+MER000125,Issac-Rajagopalan,utilities,4900,Aligarh,Kerala,2015-10-30T08:25:37,True,8882.23,42977,2015-10-30T08:25:37
+MER000126,Raj PLC,entertainment,7941,Ramgarh,Maharashtra,2019-11-11T13:53:15,True,3561.24,17432,2019-11-11T13:53:15
+MER000127,Merchant-Bains,utilities,4911,Panipat,Karnataka,2021-11-10T17:36:23,True,5917.68,12856,2021-11-10T17:36:23
+MER000128,Bawa PLC,utilities,4900,Baranagar,Haryana,2019-11-29T07:24:18,True,7761.84,18431,2019-11-29T07:24:18
+MER000129,Pandey and Sons,electronics,5732,Udupi,Haryana,2017-03-10T11:40:29,True,78969.44,36658,2017-03-10T11:40:29
+MER000130,Devan-Chatterjee,utilities,4900,Tirupati,Himachal Pradesh,2017-06-15T10:42:28,True,5250.74,3069,2017-06-15T10:42:28
+MER000131,Bandi-Patla,groceries,5441,Mysore,Madhya Pradesh,2017-05-01T12:20:41,True,1654.13,9860,2017-05-01T12:20:41
+MER000132,Narain-Sagar,fuel,5542,Kollam,Rajasthan,2020-07-30T21:48:43,True,3274.25,19710,2020-07-30T21:48:43
+MER000133,Zacharia LLC,utilities,4941,Dehradun,Uttarakhand,2023-08-19T08:17:38,True,5847.78,31222,2023-08-19T08:17:38
+MER000134,Subramaniam-Merchant,groceries,5412,Raipur,Delhi,2021-04-07T21:29:52,False,1834.37,47634,2021-04-07T21:29:52
+MER000135,Borra-Dhaliwal,groceries,5412,Sikar,Goa,2023-01-28T00:01:20,True,2219.92,38341,2023-01-28T00:01:20
+MER000136,"Pau, Chana and Rana",entertainment,7941,Bilaspur,Himachal Pradesh,2017-11-25T12:36:06,True,3165.48,44712,2017-11-25T12:36:06
+MER000137,"Dasgupta, Sha and Pillay",dining,5811,Bhimavaram,Delhi,2015-07-16T04:08:08,True,2289.04,27545,2015-07-16T04:08:08
+MER000138,Prabhu-Chokshi,fuel,5541,Chittoor,Bihar,2022-01-10T01:04:31,True,3251.65,31007,2022-01-10T01:04:31
+MER000139,Narang PLC,groceries,5441,Rajkot,Uttar Pradesh,2017-05-08T00:21:08,True,2994.74,31450,2017-05-08T00:21:08
+MER000140,"Shetty, Mittal and Rege",healthcare,5912,Kolhapur,Odisha,2020-05-03T14:10:40,False,7175.38,23318,2020-05-03T14:10:40
+MER000141,Barad LLC,travel,4411,Bhiwandi,West Bengal,2023-03-28T14:10:14,True,15626.46,19604,2023-03-28T14:10:14
+MER000142,Keer PLC,travel,7011,Munger,Madhya Pradesh,2018-07-11T23:30:18,True,28463.89,47394,2018-07-11T23:30:18
+MER000143,Prabhakar-Zachariah,travel,4111,Dharmavaram,Goa,2019-11-24T06:15:44,True,19605.02,25956,2019-11-24T06:15:44
+MER000144,"Dubey, Sachdeva and Chaudhary",utilities,4911,Tadepalligudem,Karnataka,2017-06-29T04:06:10,True,7284.34,22799,2017-06-29T04:06:10
+MER000145,Mammen-Bali,entertainment,7941,Bellary,Assam,2019-05-13T11:41:49,True,6658.02,17868,2019-05-13T11:41:49
+MER000146,Saxena-Keer,travel,4111,Navi Mumbai,Himachal Pradesh,2017-05-02T23:37:38,True,12724.82,3426,2017-05-02T23:37:38
+MER000147,"Pillai, Parmer and Bhat",dining,5812,Bally,Delhi,2018-12-17T19:06:16,True,3629.19,6689,2018-12-17T19:06:16
+MER000148,Das Group,fuel,5541,Rajpur Sonarpur,Bihar,2015-02-02T04:42:44,True,4462.91,31275,2015-02-02T04:42:44
+MER000149,"Bail, Bedi and Nath",entertainment,7922,Cuttack,Madhya Pradesh,2018-05-24T09:01:48,True,661.47,5962,2018-05-24T09:01:48
+MER000150,"Jha, Biswas and Johal",dining,5812,Muzaffarpur,Bihar,2015-08-20T18:19:02,True,1002.58,2481,2015-08-20T18:19:02
+MER000151,Divan-Agate,healthcare,5912,Ulhasnagar,Kerala,2023-06-06T05:00:05,True,680.71,37321,2023-06-06T05:00:05
+MER000152,Zachariah LLC,electronics,5734,Bhubaneswar,Odisha,2020-09-12T21:06:07,False,44377.44,32469,2020-09-12T21:06:07
+MER000153,"Bal, Deep and Aurora",fuel,5542,Patiala,Telangana,2023-07-31T01:38:39,True,1006.91,10749,2023-07-31T01:38:39
+MER000154,"Naik, Babu and Ghosh",entertainment,7941,Faridabad,Rajasthan,2019-05-18T14:07:08,True,2829.47,19434,2019-05-18T14:07:08
+MER000155,Sama PLC,dining,5811,Rajkot,Haryana,2017-12-26T11:41:53,True,2649.11,5784,2017-12-26T11:41:53
+MER000156,Sen-Pathak,healthcare,5912,Bidhannagar,Gujarat,2016-08-15T16:51:28,True,18748.6,547,2016-08-15T16:51:28
+MER000157,"Kant, Bassi and Verma",travel,4411,Berhampore,Odisha,2021-07-11T10:45:34,True,47747.71,19888,2021-07-11T10:45:34
+MER000158,"Balasubramanian, Bhat and Srinivas",groceries,5441,Purnia,Punjab,2019-06-14T05:37:59,True,373.95,7847,2019-06-14T05:37:59
+MER000159,"Chokshi, Swaminathan and Sawhney",entertainment,7832,Jodhpur,Haryana,2020-03-21T10:16:41,True,7400.23,46208,2020-03-21T10:16:41
+MER000160,Divan-Bhatti,travel,4511,Panipat,Punjab,2016-12-30T14:18:16,True,11737.3,8853,2016-12-30T14:18:16
+MER000161,"Nair, Raj and Wali",entertainment,7922,Malda,Himachal Pradesh,2017-08-09T20:41:14,True,5675.14,30956,2017-08-09T20:41:14
+MER000162,"Sani, Chaudhary and Contractor",dining,5811,Chinsurah,Himachal Pradesh,2019-03-18T16:43:10,True,547.07,29378,2019-03-18T16:43:10
+MER000163,Kari-Sachdev,utilities,4941,Malda,Delhi,2016-04-30T07:31:17,True,5702.67,33227,2016-04-30T07:31:17
+MER000164,Sagar-Chandran,dining,5812,Purnia,Madhya Pradesh,2017-07-20T03:36:27,True,2292.93,44683,2017-07-20T03:36:27
+MER000165,Kumer-Prasad,dining,5812,Bhalswa Jahangir Pur,Jharkhand,2023-04-26T11:18:39,True,419.83,8747,2023-04-26T11:18:39
+MER000166,Chand Inc,healthcare,8049,Bhiwani,Karnataka,2022-10-09T10:43:33,True,13618.97,20296,2022-10-09T10:43:33
+MER000167,Pradhan and Sons,groceries,5412,Dharmavaram,Maharashtra,2021-09-26T08:09:05,True,1819.27,3068,2021-09-26T08:09:05
+MER000168,"Narayan, Das and Roy",healthcare,8049,Bhusawal,Tamil Nadu,2020-11-10T19:52:06,True,1674.98,4623,2020-11-10T19:52:06
+MER000169,"Behl, Mani and Muni",entertainment,7922,Vasai-Virar,Bihar,2015-07-17T04:38:51,True,1256.35,42142,2015-07-17T04:38:51
+MER000170,"Tripathi, Kala and Dubey",healthcare,8011,Rajahmundry,Odisha,2021-05-15T19:39:35,True,18181.96,24718,2021-05-15T19:39:35
+MER000171,Palla PLC,electronics,5065,Raipur,Punjab,2017-04-06T08:52:37,True,79442.05,25859,2017-04-06T08:52:37
+MER000172,Kara-Sanghvi,fuel,5541,Narasaraopet,Maharashtra,2018-10-15T17:58:19,False,2583.52,47226,2018-10-15T17:58:19
+MER000173,"Loke, Balakrishnan and Gole",healthcare,5912,Tirupati,West Bengal,2021-06-14T17:48:23,True,3524.87,12452,2021-06-14T17:48:23
+MER000174,Panchal-Ahuja,electronics,5065,Asansol,Bihar,2015-07-20T04:35:36,True,75026.56,1125,2015-07-20T04:35:36
+MER000175,"Rattan, Boase and Dhar",dining,5812,Mysore,Delhi,2018-07-04T13:07:09,True,2315.24,44141,2018-07-04T13:07:09
+MER000176,"Wali, Kale and Puri",groceries,5441,Malda,Karnataka,2019-03-01T17:24:06,True,856.15,14338,2019-03-01T17:24:06
+MER000177,Dugar-Pingle,groceries,5441,Anantapur,Kerala,2017-05-20T18:31:54,True,2765.91,37855,2017-05-20T18:31:54
+MER000178,"Chad, Ben and Dugal",utilities,4900,Tadipatri,Kerala,2020-06-15T13:02:54,True,9864.11,34260,2020-06-15T13:02:54
+MER000179,Bumb LLC,dining,5814,Khandwa,Telangana,2022-01-13T18:34:05,True,4750.32,48282,2022-01-13T18:34:05
+MER000180,Sathe-Sachdeva,fuel,5542,Thrissur,Karnataka,2022-04-08T12:46:06,False,4737.14,44097,2022-04-08T12:46:06
+MER000181,"Comar, Pai and Sani",healthcare,8011,Anantapuram,Bihar,2023-12-03T21:36:00,True,6347.83,12150,2023-12-03T21:36:00
+MER000182,"Sur, Vyas and Morar",entertainment,7832,Muzaffarnagar,Kerala,2019-02-06T07:46:49,True,1325.94,30444,2019-02-06T07:46:49
+MER000183,Bhakta-Amble,groceries,5412,Barasat,Uttarakhand,2022-01-08T06:55:37,True,1287.57,16811,2022-01-08T06:55:37
+MER000184,Devan LLC,dining,5811,Khammam,Tamil Nadu,2020-08-14T04:23:12,False,4258.6,6159,2020-08-14T04:23:12
+MER000185,Amble Group,dining,5814,Akola,Haryana,2015-11-17T05:41:57,True,3074.17,4869,2015-11-17T05:41:57
+MER000186,Rai PLC,dining,5814,Orai,Uttar Pradesh,2018-09-10T11:50:58,True,1764.88,1104,2018-09-10T11:50:58
+MER000187,"Pandya, Bora and Ranganathan",dining,5811,Junagadh,Delhi,2018-03-26T18:23:13,True,3808.5,15998,2018-03-26T18:23:13
+MER000188,Sharaf Inc,dining,5812,Ramgarh,Uttarakhand,2021-09-30T14:03:32,True,1522.84,30656,2021-09-30T14:03:32
+MER000189,Ravel-Sahni,utilities,4911,Raipur,Punjab,2020-03-31T11:15:53,True,5224.13,6562,2020-03-31T11:15:53
+MER000190,Bail-Nair,entertainment,7832,Tadipatri,Punjab,2020-06-12T20:38:55,True,556.58,14601,2020-06-12T20:38:55
+MER000191,Pathak-Chakrabarti,fuel,5542,Aligarh,Uttarakhand,2015-04-11T18:53:13,False,3106.14,27466,2015-04-11T18:53:13
+MER000192,Sarin PLC,travel,4411,Loni,Madhya Pradesh,2017-08-05T01:14:12,True,28919.69,16204,2017-08-05T01:14:12
+MER000193,Randhawa LLC,entertainment,7922,Korba,Assam,2020-09-28T13:14:04,False,5205.22,32251,2020-09-28T13:14:04
+MER000194,Ganguly-Bose,entertainment,7941,Bettiah,Punjab,2017-11-11T08:49:10,True,5818.45,32102,2017-11-11T08:49:10
+MER000195,"Hari, Palla and Panchal",fuel,5541,Noida,Tamil Nadu,2015-12-31T22:45:31,False,3506.97,518,2015-12-31T22:45:31
+MER000196,Dhingra LLC,healthcare,8049,Malegaon,West Bengal,2017-05-04T08:13:21,True,3445.08,14434,2017-05-04T08:13:21
+MER000197,"Dua, Borra and Goel",entertainment,7832,Madhyamgram,Himachal Pradesh,2021-05-07T23:43:19,True,7484.45,31767,2021-05-07T23:43:19
+MER000198,"Sen, Naidu and Mutti",entertainment,7832,Gandhidham,Uttarakhand,2015-04-08T18:05:28,True,292.44,34795,2015-04-08T18:05:28
+MER000199,Singh Group,travel,4111,Panipat,Jharkhand,2019-11-17T10:05:38,True,34027.61,11848,2019-11-17T10:05:38
+MER000200,"Bhalla, Pandey and Tripathi",electronics,5065,Tirupati,Gujarat,2016-08-21T11:22:05,True,50342.91,16642,2016-08-21T11:22:05

@@ -1,0 +1,33 @@
+branch_id,branch_name,ifsc_code,address,city,state,pincode,region,branch_type,manager_id,contact_number,opening_date,working_hours,has_atm,has_locker_facility,employee_count,status,created_at
+BR00001,Mumbai Metro Branch 1,FNTK0000001,"H.No. 433, Chaudry Street",Mumbai,Maharashtra,356787,West,metro,EMP000001,+917958682846,2014-09-05T23:20:42,9:00 AM - 5:00 PM,True,True,39,active,2014-09-05T23:20:42
+BR00002,Bangalore Urban Branch 2,FNTK0000002,"60/01, Kaul Ganj",Bangalore,Karnataka,198246,South,urban,EMP000002,+917939042955,2010-07-05T03:41:01,9:00 AM - 5:00 PM,True,False,40,active,2010-07-05T03:41:01
+BR00003,Chennai Urban Branch 3,FNTK0000003,"38/63, Mall Chowk",Chennai,Tamil Nadu,539898,South,urban,EMP000052,+917946785248,2019-04-10T03:33:50,9:00 AM - 5:00 PM,True,True,5,active,2019-04-10T03:33:50
+BR00004,Delhi Metro Branch 4,FNTK0000004,"654, Kale Street",Delhi,Delhi,456778,North,metro,EMP000039,+918193448329,2017-03-11T00:49:38,9:00 AM - 5:00 PM,True,False,26,active,2017-03-11T00:49:38
+BR00005,Hyderabad Urban Branch 5,FNTK0000005,"H.No. 161
+Padmanabhan Path",Hyderabad,Telangana,988662,South,urban,EMP000057,+918477278577,2016-02-09T14:53:05,9:00 AM - 5:00 PM,True,False,34,active,2016-02-09T14:53:05
+BR00006,Pune Metro Branch 6,FNTK0000006,"H.No. 781
+Brar Marg",Pune,Maharashtra,182627,West,metro,EMP000043,+919370996465,2016-06-10T03:08:18,9:00 AM - 5:00 PM,True,False,28,closed,2016-06-10T03:08:18
+BR00007,Ahmedabad Metro Branch 7,FNTK0000007,"95/931
+Kari Nagar",Ahmedabad,Gujarat,793384,West,metro,EMP000083,+917978815630,2010-10-12T17:49:39,9:00 AM - 5:00 PM,True,False,19,active,2010-10-12T17:49:39
+BR00008,Kolkata Semi-Urban Branch 8,FNTK0000008,"H.No. 316
+Setty Road",Kolkata,West Bengal,766563,East,semi-urban,EMP000044,+918566942273,2017-09-18T09:26:42,9:00 AM - 5:00 PM,True,True,47,active,2017-09-18T09:26:42
+BR00009,Jaipur Urban Branch 9,FNTK0000009,"553
+Bora Road",Jaipur,Rajasthan,174870,North,urban,EMP000071,+919616197747,2021-01-09T18:02:29,9:00 AM - 5:00 PM,True,True,20,inactive,2021-01-09T18:02:29
+BR00010,Lucknow Urban Branch 10,FNTK0000010,"32/76, Kanda Road",Lucknow,Uttar Pradesh,821590,North,urban,EMP000065,+919392080953,2020-11-20T19:40:53,9:00 AM - 5:00 PM,True,True,8,active,2020-11-20T19:40:53
+BR00011,Kochi Urban Branch 11,FNTK0000011,"H.No. 305
+Loyal Marg",Kochi,Kerala,520651,South,urban,EMP000011,+918149938334,2015-05-15T03:46:07,9:00 AM - 5:00 PM,True,False,41,active,2015-05-15T03:46:07
+BR00012,Chandigarh Semi-Urban Branch 12,FNTK0000012,"953, Randhawa Chowk",Chandigarh,Punjab,623481,North,semi-urban,EMP000012,+918699226064,2021-02-24T18:05:54,9:00 AM - 5:00 PM,False,False,14,active,2021-02-24T18:05:54
+BR00013,Bhopal Urban Branch 13,FNTK0000013,"423
+Yohannan Circle",Bhopal,Madhya Pradesh,665158,Central,urban,EMP000064,+918128466620,2019-07-21T05:17:03,9:00 AM - 5:00 PM,True,True,42,active,2019-07-21T05:17:03
+BR00014,Bhubaneswar Urban Branch 14,FNTK0000014,"96/965
+Devi Ganj",Bhubaneswar,Odisha,634277,East,urban,EMP000030,+919119634399,2012-05-09T13:31:28,9:00 AM - 5:00 PM,True,True,12,active,2012-05-09T13:31:28
+BR00015,Patna Urban Branch 15,FNTK0000015,"H.No. 012
+Sami Street",Patna,Bihar,542666,East,urban,EMP000015,+919561557300,2021-07-30T08:42:50,9:00 AM - 5:00 PM,True,True,34,active,2021-07-30T08:42:50
+BR00016,Guwahati Metro Branch 16,FNTK0000016,"69, Wadhwa Chowk",Guwahati,Assam,813328,East,metro,EMP000016,+917491995979,2010-03-13T08:10:26,9:00 AM - 5:00 PM,True,True,22,closed,2010-03-13T08:10:26
+BR00017,Ranchi Metro Branch 17,FNTK0000017,"01/84
+Choudhury Path",Ranchi,Jharkhand,555884,East,metro,EMP000076,+917679282378,2014-12-29T17:54:41,9:00 AM - 5:00 PM,True,False,21,active,2014-12-29T17:54:41
+BR00018,Dehradun Semi-Urban Branch 18,FNTK0000018,"27
+Lall Nagar",Dehradun,Uttarakhand,211579,North,semi-urban,EMP000028,+919685643886,2018-08-21T14:58:43,9:00 AM - 5:00 PM,True,False,43,active,2018-08-21T14:58:43
+BR00019,Panaji Urban Branch 19,FNTK0000019,"14/89, Dua Ganj",Panaji,Goa,665579,West,urban,EMP000090,+919277851678,2012-09-30T19:56:18,9:00 AM - 5:00 PM,False,True,36,active,2012-09-30T19:56:18
+BR00020,Shimla Urban Branch 20,FNTK0000020,"880
+Naik",Shimla,Himachal Pradesh,351083,North,urban,EMP000097,+917248786714,2015-03-26T19:49:51,9:00 AM - 5:00 PM,True,True,10,inactive,2015-03-26T19:49:51

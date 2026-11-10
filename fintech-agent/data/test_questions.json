@@ -1,0 +1,455 @@
+{
+  "metadata": {
+    "total_questions": 55,
+    "levels": {
+      "1": "Simple retrieval — find/filter on one collection, no aggregation",
+      "2": "Filter + sort / count — single collection with operators",
+      "3": "Aggregation — $group, $sum, $avg, $count, $min, $max on one collection",
+      "4": "Multi-collection — requires $lookup / $unwind across ≥ 2 collections",
+      "5": "Complex multi-step — chained $lookup, sub-pipelines, or derived metrics"
+    },
+    "operator_legend": "$match $sort $limit $group $sum $avg $count $min $max $lookup $unwind $project $addFields $expr $dateToString $month $year $filter $size $cond"
+  },
+  "questions": [
+    {
+      "id": "Q01",
+      "level": 1,
+      "question": "Show all active customers.",
+      "hint": "Filter customers where status = 'Active'.",
+      "operators": ["$match"],
+      "collections": ["customers"]
+    },
+    {
+      "id": "Q02",
+      "level": 1,
+      "question": "Find all branches located in Maharashtra.",
+      "hint": "Filter branches where state = 'Maharashtra'.",
+      "operators": ["$match"],
+      "collections": ["branches"]
+    },
+    {
+      "id": "Q03",
+      "level": 1,
+      "question": "List all customers whose KYC status is 'pending'.",
+      "hint": "Filter customers where kyc_status = 'pending'.",
+      "operators": ["$match"],
+      "collections": ["customers"]
+    },
+    {
+      "id": "Q04",
+      "level": 1,
+      "question": "Show all loans that are currently defaulted.",
+      "hint": "Filter loans where status = 'defaulted'.",
+      "operators": ["$match"],
+      "collections": ["loans"]
+    },
+    {
+      "id": "Q05",
+      "level": 1,
+      "question": "List all merchants in the 'dining' category.",
+      "hint": "Filter merchants where category = 'dining'.",
+      "operators": ["$match"],
+      "collections": ["merchants"]
+    },
+    {
+      "id": "Q06",
+      "level": 1,
+      "question": "Show all credit cards that are currently blocked.",
+      "hint": "Filter cards where card_type = 'credit' and status = 'blocked'.",
+      "operators": ["$match"],
+      "collections": ["cards"]
+    },
+    {
+      "id": "Q07",
+      "level": 1,
+      "question": "Find all support tickets with critical priority.",
+      "hint": "Filter support_tickets where priority = 'critical'.",
+      "operators": ["$match"],
+      "collections": ["support_tickets"]
+    },
+    {
+      "id": "Q08",
+      "level": 1,
+      "question": "List all fraud alerts that are still open.",
+      "hint": "Filter fraud_alerts where status = 'open'.",
+      "operators": ["$match"],
+      "collections": ["fraud_alerts"]
+    },
+    {
+      "id": "Q09",
+      "level": 1,
+      "question": "Show all investments with a negative return.",
+      "hint": "Filter investments where returns_percentage < 0.",
+      "operators": ["$match"],
+      "collections": ["investments"]
+    },
+    {
+      "id": "Q10",
+      "level": 1,
+      "question": "List all employees in the 'Fraud & Risk' department.",
+      "hint": "Filter employees where department = 'Fraud & Risk'.",
+      "operators": ["$match"],
+      "collections": ["employees"]
+    },
+    {
+      "id": "Q11",
+      "level": 2,
+      "question": "Which customers have an annual income above ₹10 lakh, sorted by income descending?",
+      "hint": "Match annual_income > 1000000, sort by annual_income descending.",
+      "operators": ["$match", "$sort"],
+      "collections": ["customers"]
+    },
+    {
+      "id": "Q12",
+      "level": 2,
+      "question": "Find the top 10 accounts with the highest balance.",
+      "hint": "$sort by balance descending, $limit 10.",
+      "operators": ["$sort", "$limit"],
+      "collections": ["accounts"]
+    },
+    {
+      "id": "Q13",
+      "level": 2,
+      "question": "How many transactions failed in 2024?",
+      "hint": "$match status='failed' and transaction_date in 2024, then $count.",
+      "operators": ["$match", "$count"],
+      "collections": ["transactions"]
+    },
+    {
+      "id": "Q14",
+      "level": 2,
+      "question": "List all high-risk customers who are currently blocked.",
+      "hint": "$match risk_category='high' and status='Blocked'.",
+      "operators": ["$match"],
+      "collections": ["customers"]
+    },
+    {
+      "id": "Q15",
+      "level": 2,
+      "question": "Show all RTGS transactions above ₹10 lakh, sorted by amount descending.",
+      "hint": "$match transaction_mode='RTGS' and amount > 1000000, $sort amount desc.",
+      "operators": ["$match", "$sort"],
+      "collections": ["transactions"]
+    },
+    {
+      "id": "Q16",
+      "level": 2,
+      "question": "How many active home loans are there?",
+      "hint": "$match loan_type='home' and status='active', then $count.",
+      "operators": ["$match", "$count"],
+      "collections": ["loans"]
+    },
+    {
+      "id": "Q17",
+      "level": 2,
+      "question": "Which merchants have processed more than 10,000 transactions?",
+      "hint": "$match total_transactions > 10000, $sort total_transactions desc.",
+      "operators": ["$match", "$sort"],
+      "collections": ["merchants"]
+    },
+    {
+      "id": "Q18",
+      "level": 2,
+      "question": "List all dormant accounts opened before 2020.",
+      "hint": "$match status='dormant' and opening_date < 2020-01-01.",
+      "operators": ["$match"],
+      "collections": ["accounts"]
+    },
+    {
+      "id": "Q19",
+      "level": 2,
+      "question": "Find all support tickets raised via email that are still open or in progress.",
+      "hint": "$match channel='email' and status in ['open','in_progress'].",
+      "operators": ["$match"],
+      "collections": ["support_tickets"]
+    },
+    {
+      "id": "Q20",
+      "level": 2,
+      "question": "Which employees have a performance rating above 4.5?",
+      "hint": "$match performance_rating > 4.5, $sort performance_rating desc.",
+      "operators": ["$match", "$sort"],
+      "collections": ["employees"]
+    },
+    {
+      "id": "Q21",
+      "level": 3,
+      "question": "What is the average balance of savings accounts?",
+      "hint": "$match account_type='savings', $group $avg balance.",
+      "operators": ["$match", "$group", "$avg"],
+      "collections": ["accounts"]
+    },
+    {
+      "id": "Q22",
+      "level": 3,
+      "question": "What is the total transaction amount per month in 2025?",
+      "hint": "$match year=2025, $group by month using $month on transaction_date, $sum amount.",
+      "operators": ["$match", "$group", "$sum", "$month"],
+      "collections": ["transactions"]
+    },
+    {
+      "id": "Q23",
+      "level": 3,
+      "question": "How many customers are there in each risk category?",
+      "hint": "$group by risk_category, $sum 1.",
+      "operators": ["$group", "$sum"],
+      "collections": ["customers"]
+    },
+    {
+      "id": "Q24",
+      "level": 3,
+      "question": "What is the average loan interest rate by loan type?",
+      "hint": "$group by loan_type, $avg interest_rate.",
+      "operators": ["$group", "$avg"],
+      "collections": ["loans"]
+    },
+    {
+      "id": "Q25",
+      "level": 3,
+      "question": "Which transaction category has the highest total spend?",
+      "hint": "$group by category, $sum amount, $sort desc, $limit 1.",
+      "operators": ["$group", "$sum", "$sort", "$limit"],
+      "collections": ["transactions"]
+    },
+    {
+      "id": "Q26",
+      "level": 3,
+      "question": "What is the total outstanding loan amount per loan type?",
+      "hint": "$group by loan_type, $sum outstanding_amount.",
+      "operators": ["$group", "$sum"],
+      "collections": ["loans"]
+    },
+    {
+      "id": "Q27",
+      "level": 3,
+      "question": "How many transactions were made through each channel (UPI, NEFT, RTGS, etc.)?",
+      "hint": "$group by transaction_mode, $sum 1.",
+      "operators": ["$group", "$sum"],
+      "collections": ["transactions"]
+    },
+    {
+      "id": "Q28",
+      "level": 3,
+      "question": "What is the maximum credit limit among all credit cards?",
+      "hint": "$match card_type='credit', $group $max credit_limit.",
+      "operators": ["$match", "$group", "$max"],
+      "collections": ["cards"]
+    },
+    {
+      "id": "Q29",
+      "level": 3,
+      "question": "What is the average credit score of customers who have defaulted loans?",
+      "hint": "$group customers who appear in loans with status='defaulted', $avg credit_score — needs $lookup or prior match.",
+      "operators": ["$match", "$group", "$avg", "$lookup"],
+      "collections": ["loans", "customers"]
+    },
+    {
+      "id": "Q30",
+      "level": 3,
+      "question": "How many support tickets are there per priority level?",
+      "hint": "$group by priority, $sum 1.",
+      "operators": ["$group", "$sum"],
+      "collections": ["support_tickets"]
+    },
+    {
+      "id": "Q31",
+      "level": 4,
+      "question": "Which customers have active personal loans? Show their name and outstanding amount.",
+      "hint": "$match loans where loan_type='personal' and status='active', $lookup customers, $project name + outstanding_amount.",
+      "operators": ["$match", "$lookup", "$unwind", "$project"],
+      "collections": ["loans", "customers"]
+    },
+    {
+      "id": "Q32",
+      "level": 4,
+      "question": "List all transactions made at dining merchants, along with the merchant name.",
+      "hint": "$lookup merchants on merchant_id, $match category='dining' or merchant.category='dining'.",
+      "operators": ["$lookup", "$unwind", "$match", "$project"],
+      "collections": ["transactions", "merchants"]
+    },
+    {
+      "id": "Q33",
+      "level": 4,
+      "question": "Which branch has sanctioned the highest total loan amount?",
+      "hint": "$group loans by sanctioning_branch_id sum principal_amount, $sort desc, $limit 1, $lookup branches.",
+      "operators": ["$group", "$sum", "$sort", "$limit", "$lookup"],
+      "collections": ["loans", "branches"]
+    },
+    {
+      "id": "Q34",
+      "level": 4,
+      "question": "Which customers have an open fraud alert? Show customer name, alert type, and risk score.",
+      "hint": "$match fraud_alerts status='open', $lookup customers on customer_id.",
+      "operators": ["$match", "$lookup", "$unwind", "$project"],
+      "collections": ["fraud_alerts", "customers"]
+    },
+    {
+      "id": "Q35",
+      "level": 4,
+      "question": "Find customers who have more than 2 active accounts.",
+      "hint": "$group accounts by customer_id counting active ones, $match count > 2, $lookup customers.",
+      "operators": ["$match", "$group", "$sum", "$lookup", "$unwind"],
+      "collections": ["accounts", "customers"]
+    },
+    {
+      "id": "Q36",
+      "level": 4,
+      "question": "Which customers have never taken any loan?",
+      "hint": "Get customer_ids from loans, use $lookup or $nin in customers not present in loans collection.",
+      "operators": ["$lookup", "$match", "$project"],
+      "collections": ["customers", "loans"]
+    },
+    {
+      "id": "Q37",
+      "level": 4,
+      "question": "Which accounts have had no transactions in the last 6 months?",
+      "hint": "$group transactions to get last transaction per account, $lookup accounts, filter where last_transaction_date < 6 months ago, OR use last_transaction_date field on accounts.",
+      "operators": ["$match", "$lookup", "$group", "$project"],
+      "collections": ["accounts", "transactions"]
+    },
+    {
+      "id": "Q38",
+      "level": 4,
+      "question": "What is the total transaction amount per customer for the year 2025? Show top 10 customers.",
+      "hint": "$match 2025 dates, $group by customer_id $sum amount, $sort desc, $limit 10, $lookup customers for names.",
+      "operators": ["$match", "$group", "$sum", "$sort", "$limit", "$lookup"],
+      "collections": ["transactions", "customers"]
+    },
+    {
+      "id": "Q39",
+      "level": 4,
+      "question": "List all fraud alerts along with the transaction amount and account number of the flagged transaction.",
+      "hint": "$lookup transactions on transaction_id, $lookup accounts on account_id.",
+      "operators": ["$lookup", "$unwind", "$project"],
+      "collections": ["fraud_alerts", "transactions", "accounts"]
+    },
+    {
+      "id": "Q40",
+      "level": 4,
+      "question": "Which employees have managed the most support tickets? Show top 5.",
+      "hint": "$group support_tickets by assigned_agent_id $sum 1, $sort desc, $limit 5, $lookup employees.",
+      "operators": ["$group", "$sum", "$sort", "$limit", "$lookup"],
+      "collections": ["support_tickets", "employees"]
+    },
+    {
+      "id": "Q41",
+      "level": 5,
+      "question": "Which customers with active personal loans made more than 5 transactions in the last 3 months?",
+      "hint": "1) Filter active personal loans → get customer_ids. 2) Filter transactions in last 3 months for those customers. 3) Group by customer_id, count. 4) Filter count > 5. 5) Join customers for names.",
+      "operators": ["$match", "$group", "$count", "$lookup", "$unwind", "$expr"],
+      "collections": ["loans", "transactions", "customers"]
+    },
+    {
+      "id": "Q42",
+      "level": 5,
+      "question": "Which branch has the highest average account balance? Show branch name, city, and average balance.",
+      "hint": "$group accounts by branch_id $avg balance, $sort desc, $limit 1, $lookup branches.",
+      "operators": ["$group", "$avg", "$sort", "$limit", "$lookup", "$unwind", "$project"],
+      "collections": ["accounts", "branches"]
+    },
+    {
+      "id": "Q43",
+      "level": 5,
+      "question": "For each merchant category, what is the total transaction volume and average transaction amount in 2024?",
+      "hint": "$match 2024 + non-null merchant_id, $lookup merchants, $group by merchant.category, $sum amount, $avg amount.",
+      "operators": ["$match", "$lookup", "$unwind", "$group", "$sum", "$avg"],
+      "collections": ["transactions", "merchants"]
+    },
+    {
+      "id": "Q44",
+      "level": 5,
+      "question": "Which customers have both a defaulted loan and an open fraud alert?",
+      "hint": "Get customer_ids from defaulted loans, intersect with customer_ids from open fraud_alerts, $lookup customers.",
+      "operators": ["$match", "$group", "$lookup", "$unwind", "$project"],
+      "collections": ["loans", "fraud_alerts", "customers"]
+    },
+    {
+      "id": "Q45",
+      "level": 5,
+      "question": "What is the month-over-month transaction count for UPI payments in 2025?",
+      "hint": "$match UPI + year 2025, $group by {year, month}, $sum 1, $sort by month.",
+      "operators": ["$match", "$group", "$sum", "$sort", "$year", "$month", "$project"],
+      "collections": ["transactions"]
+    },
+    {
+      "id": "Q46",
+      "level": 5,
+      "question": "Which customers have investments with returns above 20% and also have an active loan?",
+      "hint": "Get customer_ids from investments where returns_percentage > 20. Intersect with active loan customers. Join customers.",
+      "operators": ["$match", "$group", "$lookup", "$unwind", "$project"],
+      "collections": ["investments", "loans", "customers"]
+    },
+    {
+      "id": "Q47",
+      "level": 5,
+      "question": "For each loan officer, how many loans have they approved, and what is the total outstanding amount of their portfolio?",
+      "hint": "$group loans by loan_officer_id, $sum 1, $sum outstanding_amount, $lookup employees for name.",
+      "operators": ["$group", "$sum", "$lookup", "$unwind", "$project"],
+      "collections": ["loans", "employees"]
+    },
+    {
+      "id": "Q48",
+      "level": 5,
+      "question": "Find customers from Karnataka who have a credit score above 750 and have made at least one transaction above ₹1 lakh in the last year.",
+      "hint": "$match customers state=Karnataka + credit_score>750, get their ids, $match transactions amount>100000 + last year, $group by customer_id, filter ≥1.",
+      "operators": ["$match", "$lookup", "$group", "$unwind", "$project"],
+      "collections": ["customers", "transactions"]
+    },
+    {
+      "id": "Q49",
+      "level": 5,
+      "question": "Which customers have unresolved support tickets AND have had a failed transaction in the past 6 months?",
+      "hint": "Get customers with open/in_progress tickets. Get customers with failed transactions last 6 months. Intersect. $lookup for names.",
+      "operators": ["$match", "$group", "$lookup", "$project"],
+      "collections": ["support_tickets", "transactions", "customers"]
+    },
+    {
+      "id": "Q50",
+      "level": 5,
+      "question": "Show the complete loan + account + customer summary for all defaulted loan customers: customer name, loan amount, outstanding, account balance, account type.",
+      "hint": "$match loans status=defaulted, $lookup customers on customer_id, $lookup accounts on customer_id (with $unwind and $project).",
+      "operators": ["$match", "$lookup", "$unwind", "$project"],
+      "collections": ["loans", "customers", "accounts"]
+    },
+    {
+      "id": "Q51",
+      "level": 5,
+      "question": "Which branches have more than 50 accounts opened in the last 2 years?",
+      "hint": "$match opening_date >= 2 years ago, $group by branch_id $sum 1, $match count > 50, $lookup branches.",
+      "operators": ["$match", "$group", "$sum", "$lookup", "$unwind", "$project"],
+      "collections": ["accounts", "branches"]
+    },
+    {
+      "id": "Q52",
+      "level": 5,
+      "question": "What is the average number of transactions per customer for customers who have both a credit card and a savings account?",
+      "hint": "Get customer_ids with credit cards, get customer_ids with savings accounts, find intersection, count transactions per customer, take average.",
+      "operators": ["$match", "$group", "$lookup", "$avg", "$project"],
+      "collections": ["cards", "accounts", "transactions"]
+    },
+    {
+      "id": "Q53",
+      "level": 5,
+      "question": "For high-risk customers, what is the distribution of their loan statuses?",
+      "hint": "Get high-risk customer_ids, $lookup loans, $group by loan status, $sum 1.",
+      "operators": ["$match", "$lookup", "$unwind", "$group", "$sum"],
+      "collections": ["customers", "loans"]
+    },
+    {
+      "id": "Q54",
+      "level": 5,
+      "question": "Which merchant has received the highest total payment amount through transactions?",
+      "hint": "$group transactions by merchant_id $sum amount (exclude null merchant_id), $sort desc, $limit 1, $lookup merchants.",
+      "operators": ["$match", "$group", "$sum", "$sort", "$limit", "$lookup", "$unwind"],
+      "collections": ["transactions", "merchants"]
+    },
+    {
+      "id": "Q55",
+      "level": 5,
+      "question": "Generate a full customer 360 view: for a given customer_id, show their accounts, total transactions, active loans, open tickets, and card count.",
+      "hint": "Multiple $lookup stages from customers → accounts, transactions, loans, support_tickets, cards. Use $size or $sum to count.",
+      "operators": ["$match", "$lookup", "$unwind", "$group", "$sum", "$size", "$project", "$addFields"],
+      "collections": ["customers", "accounts", "transactions", "loans", "support_tickets", "cards"]
+    }
+  ]
+}

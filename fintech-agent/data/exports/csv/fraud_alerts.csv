@@ -1,0 +1,301 @@
+alert_id,transaction_id,customer_id,alert_type,risk_score,status,detected_at,reviewed_by,review_notes,action_taken,created_at
+ALT000001,TXN000008672,CUST000103,geo_mismatch,67.22,investigating,2026-08-21T18:18:18,EMP000036,Accusamus porro cum quis rem ipsam laboriosam.,none,2025-09-02T13:23:47
+ALT000002,TXN000002279,CUST000324,unusual_amount,7.03,resolved,2024-01-18T20:02:03,EMP000033,Minima at mollitia architecto libero distinctio.,customer_contacted,2025-04-13T03:27:23
+ALT000003,TXN000004720,CUST000012,geo_mismatch,71.39,open,2026-06-03T17:29:10,,,account_frozen,2025-02-02T17:30:53
+ALT000004,TXN000002779,CUST000298,device_change,43.46,resolved,2026-05-31T22:32:01,EMP000032,Veritatis at eveniet ea quo aperiam adipisci.,none,2024-12-14T12:37:06
+ALT000005,TXN000009617,CUST000852,device_change,48.6,open,2024-01-23T04:53:11,,,none,2025-11-04T08:07:09
+ALT000006,TXN000007771,CUST000041,geo_mismatch,83.09,false_positive,2024-01-25T00:11:48,,,none,2025-01-10T06:53:09
+ALT000007,TXN000001531,CUST000351,blacklisted_merchant,1.29,resolved,2024-08-09T23:02:24,EMP000060,Culpa iste labore culpa ullam aspernatur perspiciatis in.,none,2026-03-20T12:41:09
+ALT000008,TXN000001411,CUST000935,device_change,69.87,investigating,2025-05-11T06:01:55,EMP000089,Placeat quasi impedit quisquam voluptates.,account_frozen,2025-04-12T12:55:10
+ALT000009,TXN000000550,CUST000726,blacklisted_merchant,1.89,open,2026-02-26T17:22:37,,,customer_contacted,2025-01-30T20:01:30
+ALT000010,TXN000006146,CUST000728,unusual_amount,57.5,false_positive,2026-07-18T13:01:37,,,none,2024-11-24T23:34:41
+ALT000011,TXN000003965,CUST000201,device_change,86.1,open,2025-07-31T11:48:47,,,none,2025-11-24T08:46:15
+ALT000012,TXN000007263,CUST000963,geo_mismatch,61.65,resolved,2026-04-23T05:56:06,EMP000100,Debitis impedit tempora eligendi sed vel.,none,2025-12-26T13:49:45
+ALT000013,TXN000002035,CUST000169,device_change,56.13,resolved,2025-04-14T22:42:23,EMP000019,Veniam provident iusto doloremque cum.,customer_contacted,2024-05-05T15:29:05
+ALT000014,TXN000000296,CUST000021,device_change,70.82,investigating,2025-09-01T16:34:15,EMP000016,Maiores impedit ullam animi non rerum ipsam facere.,none,2024-07-25T21:31:48
+ALT000015,TXN000003075,CUST000677,velocity,20.7,resolved,2024-04-01T06:28:39,EMP000019,Illo laborum sed unde repellendus.,customer_contacted,2024-06-10T19:37:54
+ALT000016,TXN000001870,CUST000741,unusual_amount,35.08,false_positive,2024-01-12T09:19:05,,,none,2025-12-23T08:44:45
+ALT000017,TXN000001390,CUST000124,velocity,23.46,open,2026-07-05T01:33:31,,,none,2024-12-14T23:55:34
+ALT000018,TXN000007455,CUST000277,blacklisted_merchant,36.38,resolved,2024-10-30T03:36:53,EMP000018,Occaecati reiciendis suscipit suscipit quam sapiente.,customer_contacted,2024-11-03T19:37:36
+ALT000019,TXN000007489,CUST000734,blacklisted_merchant,3.34,false_positive,2024-05-25T07:31:30,,,customer_contacted,2025-12-04T14:17:24
+ALT000020,TXN000008863,CUST000082,velocity,22.03,false_positive,2026-02-25T01:22:58,,,none,2024-06-28T22:19:15
+ALT000021,TXN000008672,CUST000103,unusual_amount,37.99,false_positive,2024-03-31T03:25:42,,,transaction_reversed,2025-05-07T21:37:59
+ALT000022,TXN000000808,CUST000529,geo_mismatch,20.87,open,2024-08-12T03:35:23,,,none,2024-05-28T03:34:20
+ALT000023,TXN000007095,CUST000209,device_change,17.55,open,2026-01-02T14:54:29,,,customer_contacted,2024-11-03T21:37:23
+ALT000024,TXN000006083,CUST000041,device_change,6.08,resolved,2024-11-15T04:29:39,EMP000048,Adipisci laudantium iste pariatur a iusto neque.,none,2025-03-04T23:48:25
+ALT000025,TXN000004746,CUST000719,geo_mismatch,16.41,investigating,2024-09-28T23:43:25,EMP000074,Facere eius maiores accusantium fuga.,customer_contacted,2025-12-26T14:20:51
+ALT000026,TXN000004746,CUST000719,blacklisted_merchant,10.07,resolved,2025-10-23T16:45:25,EMP000001,Atque molestiae ipsa enim omnis.,transaction_reversed,2024-10-09T18:31:26
+ALT000027,TXN000004973,CUST000466,velocity,52.43,resolved,2024-10-08T05:44:42,EMP000097,Sint doloribus nemo soluta tempora.,none,2025-10-18T19:52:41
+ALT000028,TXN000002247,CUST000955,unusual_amount,67.25,resolved,2025-05-20T23:09:18,EMP000077,Corporis ea debitis modi labore.,none,2025-08-06T01:49:22
+ALT000029,TXN000005314,CUST000796,device_change,76.47,investigating,2025-10-30T09:12:20,EMP000024,Sunt accusantium cumque minima explicabo architecto saepe suscipit.,customer_contacted,2025-02-08T12:55:21
+ALT000030,TXN000008560,CUST000394,geo_mismatch,97.86,open,2026-08-19T15:07:53,,,none,2024-11-17T09:33:19
+ALT000031,TXN000006753,CUST000743,device_change,6.0,resolved,2024-05-27T04:55:22,EMP000065,Aut aliquid repellat ipsa.,none,2025-07-29T04:43:36
+ALT000032,TXN000001390,CUST000124,device_change,70.01,investigating,2025-07-17T02:00:04,EMP000068,Quas placeat placeat iure.,account_frozen,2025-02-22T18:53:10
+ALT000033,TXN000005211,CUST000729,device_change,93.97,open,2025-06-23T11:52:13,,,customer_contacted,2025-01-27T08:13:18
+ALT000034,TXN000003181,CUST000102,geo_mismatch,49.21,open,2026-03-30T22:52:12,,,account_frozen,2026-01-13T20:15:09
+ALT000035,TXN000008084,CUST000220,blacklisted_merchant,6.69,false_positive,2025-10-17T06:00:45,,,account_frozen,2025-11-08T04:28:53
+ALT000036,TXN000008898,CUST000702,geo_mismatch,54.26,resolved,2024-10-01T13:47:01,EMP000007,Id sit sed eos praesentium.,customer_contacted,2024-05-18T17:55:25
+ALT000037,TXN000000296,CUST000021,device_change,95.18,false_positive,2026-03-10T01:35:37,,,account_frozen,2024-11-18T15:32:00
+ALT000038,TXN000008329,CUST000900,geo_mismatch,73.91,open,2026-02-02T17:32:29,,,account_frozen,2026-07-14T04:38:58
+ALT000039,TXN000000441,CUST000078,blacklisted_merchant,40.27,open,2025-02-23T01:29:47,,,none,2026-01-02T19:06:48
+ALT000040,TXN000001183,CUST000633,geo_mismatch,29.47,false_positive,2024-03-09T19:28:27,,,transaction_reversed,2024-10-30T06:36:18
+ALT000041,TXN000005365,CUST000662,geo_mismatch,61.18,resolved,2026-05-03T10:10:45,EMP000012,Suscipit ullam sapiente architecto non facilis exercitationem.,customer_contacted,2024-01-07T20:34:11
+ALT000042,TXN000004111,CUST000184,velocity,97.31,resolved,2025-11-01T01:39:03,EMP000024,Delectus cumque sint sed magni maiores.,none,2024-10-30T00:12:18
+ALT000043,TXN000009352,CUST000002,geo_mismatch,37.94,resolved,2026-07-03T19:33:11,EMP000059,Ab qui natus.,transaction_reversed,2026-07-15T06:53:58
+ALT000044,TXN000007455,CUST000277,blacklisted_merchant,27.93,investigating,2026-05-22T06:34:06,EMP000041,Magni laudantium nisi at.,transaction_reversed,2024-05-12T17:46:16
+ALT000045,TXN000004830,CUST000628,velocity,58.2,false_positive,2024-11-14T07:55:02,,,transaction_reversed,2026-03-26T04:07:51
+ALT000046,TXN000008963,CUST000652,geo_mismatch,5.69,resolved,2025-07-25T09:33:04,EMP000041,Officia dolorem id repellat distinctio.,none,2024-04-25T10:41:21
+ALT000047,TXN000000550,CUST000726,velocity,55.34,false_positive,2025-04-13T08:18:39,,,none,2025-09-25T10:02:48
+ALT000048,TXN000008672,CUST000103,device_change,51.2,open,2024-05-12T05:15:13,,,none,2026-06-09T15:13:35
+ALT000049,TXN000007848,CUST000870,unusual_amount,66.58,resolved,2025-06-16T07:49:20,EMP000068,Nihil ipsum placeat ipsa officiis laboriosam.,customer_contacted,2026-06-11T09:06:54
+ALT000050,TXN000008381,CUST000294,velocity,82.78,resolved,2025-02-21T23:37:55,EMP000058,Modi in asperiores cum sapiente.,account_frozen,2024-01-01T02:10:48
+ALT000051,TXN000006984,CUST000519,velocity,50.97,investigating,2025-12-21T13:31:19,EMP000021,Commodi aperiam minus.,none,2025-02-13T01:26:47
+ALT000052,TXN000005931,CUST000112,blacklisted_merchant,89.86,investigating,2025-08-25T15:44:17,EMP000009,Atque quaerat cum aspernatur iusto minus dolorum.,customer_contacted,2026-04-23T18:35:01
+ALT000053,TXN000007771,CUST000041,unusual_amount,17.69,resolved,2026-07-30T12:21:18,EMP000096,Dolorum porro natus corporis earum dolorem deleniti.,transaction_reversed,2026-08-24T10:26:20
+ALT000054,TXN000004121,CUST000351,unusual_amount,23.21,open,2024-12-15T10:55:50,,,customer_contacted,2025-01-09T02:43:15
+ALT000055,TXN000005949,CUST000646,device_change,35.32,false_positive,2024-05-11T02:12:36,,,customer_contacted,2026-04-08T00:39:45
+ALT000056,TXN000007268,CUST000969,device_change,38.23,resolved,2025-09-01T09:47:58,EMP000068,Quod temporibus iure a soluta.,customer_contacted,2025-12-14T18:59:41
+ALT000057,TXN000002986,CUST000279,unusual_amount,10.69,false_positive,2024-09-18T19:51:18,,,customer_contacted,2026-02-19T05:06:12
+ALT000058,TXN000004973,CUST000466,velocity,59.86,resolved,2024-05-11T17:00:37,EMP000048,Repellendus ducimus iusto iusto.,transaction_reversed,2024-07-08T02:34:11
+ALT000059,TXN000009573,CUST000362,velocity,76.1,false_positive,2024-02-26T01:56:36,,,customer_contacted,2024-10-14T14:32:44
+ALT000060,TXN000001993,CUST000571,device_change,27.85,resolved,2025-10-24T20:42:09,EMP000074,Ipsa nostrum doloribus assumenda.,transaction_reversed,2024-12-15T21:18:06
+ALT000061,TXN000001901,CUST000124,blacklisted_merchant,29.41,resolved,2026-07-13T07:12:24,EMP000003,Voluptates facere voluptas saepe.,none,2025-10-23T19:58:16
+ALT000062,TXN000006187,CUST000696,velocity,35.46,false_positive,2026-03-03T19:41:34,,,account_frozen,2026-02-03T19:48:47
+ALT000063,TXN000003314,CUST000296,geo_mismatch,98.22,resolved,2025-07-15T14:22:57,EMP000014,Hic quia eligendi atque quaerat ducimus natus.,none,2025-07-24T00:21:36
+ALT000064,TXN000009251,CUST000093,velocity,58.19,open,2025-02-01T05:01:11,,,none,2024-03-13T01:03:29
+ALT000065,TXN000004243,CUST000186,geo_mismatch,56.34,investigating,2025-11-07T10:21:27,EMP000031,Dignissimos doloribus aut maiores corrupti autem delectus.,none,2025-10-31T13:24:36
+ALT000066,TXN000001390,CUST000124,unusual_amount,58.84,resolved,2024-08-19T00:12:28,EMP000007,Magnam tenetur occaecati dolore consequuntur molestiae asperiores.,none,2024-04-16T18:39:53
+ALT000067,TXN000007671,CUST000900,geo_mismatch,23.05,false_positive,2025-03-01T14:42:10,,,none,2026-02-02T01:03:07
+ALT000068,TXN000004676,CUST000557,velocity,40.06,resolved,2026-03-12T21:29:14,EMP000011,Est ipsam quidem quas.,none,2024-05-24T18:44:46
+ALT000069,TXN000009555,CUST000011,device_change,63.43,resolved,2025-09-25T00:20:34,EMP000064,Molestias reiciendis quis ratione asperiores nesciunt nobis.,account_frozen,2024-12-15T16:43:49
+ALT000070,TXN000006187,CUST000696,velocity,46.9,resolved,2025-02-06T09:54:59,EMP000024,Repellendus nesciunt unde quia culpa.,none,2024-01-21T23:14:44
+ALT000071,TXN000003079,CUST000778,velocity,36.43,resolved,2024-11-05T05:28:51,EMP000066,Aliquid ab illum eius tempora natus.,none,2024-02-06T01:29:22
+ALT000072,TXN000003272,CUST000183,blacklisted_merchant,47.46,resolved,2025-03-26T16:52:46,EMP000089,Eveniet harum occaecati deleniti dolore.,customer_contacted,2025-03-06T16:22:44
+ALT000073,TXN000007509,CUST000458,blacklisted_merchant,70.66,open,2024-03-29T11:20:38,,,none,2024-09-08T22:32:26
+ALT000074,TXN000005081,CUST000124,device_change,77.73,resolved,2024-10-16T15:29:36,EMP000078,Officiis nostrum nisi voluptatum amet dolor.,customer_contacted,2024-12-08T08:22:06
+ALT000075,TXN000005512,CUST000946,geo_mismatch,93.36,resolved,2025-05-03T11:17:08,EMP000082,Doloremque optio in maiores repellendus dolorum.,customer_contacted,2026-04-02T12:21:51
+ALT000076,TXN000004762,CUST000341,geo_mismatch,61.43,false_positive,2025-10-19T07:15:11,,,transaction_reversed,2026-06-11T22:07:53
+ALT000077,TXN000008380,CUST000339,velocity,40.13,open,2025-06-09T00:07:49,,,transaction_reversed,2024-01-23T11:50:31
+ALT000078,TXN000005424,CUST000726,geo_mismatch,53.47,resolved,2024-12-27T01:09:46,EMP000070,Nostrum minus impedit quae tempore quibusdam.,none,2026-03-08T12:23:25
+ALT000079,TXN000005450,CUST000331,velocity,6.45,false_positive,2025-05-15T04:45:49,,,none,2024-04-13T17:41:31
+ALT000080,TXN000004091,CUST000719,geo_mismatch,64.18,resolved,2024-09-03T09:33:08,EMP000045,Eos voluptatem necessitatibus quod minus.,customer_contacted,2025-02-23T23:22:56
+ALT000081,TXN000003492,CUST000495,velocity,49.57,open,2024-11-07T21:10:36,,,customer_contacted,2026-01-21T11:40:35
+ALT000082,TXN000008367,CUST000393,geo_mismatch,48.5,resolved,2025-06-17T00:09:18,EMP000023,Voluptatum accusantium vero itaque ut.,customer_contacted,2024-08-15T23:28:00
+ALT000083,TXN000003837,CUST000319,velocity,70.62,investigating,2026-08-05T01:04:15,EMP000024,Totam corporis sequi nobis corporis dicta quam.,account_frozen,2025-12-15T23:03:46
+ALT000084,TXN000009352,CUST000002,blacklisted_merchant,95.46,open,2024-08-15T22:22:16,,,none,2026-04-03T15:12:09
+ALT000085,TXN000000577,CUST000792,geo_mismatch,67.78,false_positive,2025-09-15T11:49:43,,,customer_contacted,2024-05-11T10:51:34
+ALT000086,TXN000008268,CUST000108,unusual_amount,36.12,open,2026-08-08T16:15:53,,,transaction_reversed,2025-01-03T20:49:13
+ALT000087,TXN000005753,CUST000002,unusual_amount,55.42,open,2026-03-19T00:51:53,,,account_frozen,2024-10-20T05:39:45
+ALT000088,TXN000002513,CUST000927,blacklisted_merchant,19.91,investigating,2025-03-17T03:24:43,EMP000028,Earum sapiente ipsum repellendus hic nobis repellat.,none,2024-08-09T15:33:27
+ALT000089,TXN000006753,CUST000743,velocity,28.6,resolved,2024-06-09T21:05:23,EMP000077,Similique ipsam repellendus voluptatem asperiores quia.,transaction_reversed,2026-06-30T23:09:11
+ALT000090,TXN000002165,CUST000171,blacklisted_merchant,78.6,open,2026-01-30T10:59:50,,,customer_contacted,2026-06-05T14:14:35
+ALT000091,TXN000007656,CUST000169,unusual_amount,65.52,resolved,2025-04-26T14:43:10,EMP000009,Sint reiciendis praesentium quaerat.,customer_contacted,2025-08-05T10:50:41
+ALT000092,TXN000004653,CUST000246,velocity,91.14,investigating,2024-09-12T01:06:17,EMP000090,Occaecati eligendi harum.,account_frozen,2025-05-09T07:35:14
+ALT000093,TXN000007114,CUST000278,geo_mismatch,68.61,resolved,2025-03-04T18:16:56,EMP000024,Soluta inventore laborum illum dolor voluptates exercitationem.,none,2025-11-19T01:57:50
+ALT000094,TXN000000441,CUST000078,device_change,76.59,open,2024-08-07T16:33:35,,,none,2024-01-17T15:31:25
+ALT000095,TXN000005021,CUST000201,geo_mismatch,35.4,resolved,2026-08-09T14:09:06,EMP000028,Asperiores magnam dolorum laudantium non asperiores.,account_frozen,2025-07-18T23:57:17
+ALT000096,TXN000002245,CUST000495,blacklisted_merchant,29.56,investigating,2025-05-01T23:20:16,EMP000019,Laudantium illo natus.,none,2025-08-15T11:23:30
+ALT000097,TXN000000577,CUST000792,device_change,44.54,investigating,2024-05-26T16:29:30,EMP000095,Explicabo cum commodi enim minima.,transaction_reversed,2024-10-17T19:03:02
+ALT000098,TXN000003134,CUST000424,geo_mismatch,73.31,open,2025-07-03T06:13:18,,,transaction_reversed,2024-05-27T14:24:38
+ALT000099,TXN000002290,CUST000563,velocity,82.08,resolved,2026-01-10T07:55:34,EMP000015,Numquam nobis laborum provident.,transaction_reversed,2026-07-30T22:04:58
+ALT000100,TXN000006708,CUST000977,device_change,24.13,open,2024-06-27T21:23:38,,,transaction_reversed,2025-09-07T16:04:47
+ALT000101,TXN000004121,CUST000351,velocity,24.82,investigating,2026-01-13T16:53:38,EMP000005,Id vel nihil sapiente quaerat sapiente.,transaction_reversed,2024-04-08T14:21:32
+ALT000102,TXN000005356,CUST000104,device_change,56.03,open,2024-01-08T10:44:57,,,none,2024-10-01T05:05:51
+ALT000103,TXN000005081,CUST000124,velocity,72.76,false_positive,2024-11-29T14:28:15,,,none,2025-06-27T06:56:03
+ALT000104,TXN000006870,CUST000860,device_change,86.64,open,2024-11-02T14:13:45,,,customer_contacted,2024-07-21T19:45:14
+ALT000105,TXN000000055,CUST000850,device_change,90.08,open,2024-07-14T18:18:27,,,customer_contacted,2026-06-07T07:37:04
+ALT000106,TXN000001518,CUST000465,unusual_amount,1.06,open,2024-04-12T06:11:38,,,customer_contacted,2024-09-22T03:00:13
+ALT000107,TXN000007954,CUST000033,velocity,60.77,open,2026-07-18T10:32:04,,,account_frozen,2024-06-08T01:55:49
+ALT000108,TXN000002371,CUST000011,blacklisted_merchant,84.95,open,2026-01-03T20:55:49,,,none,2026-07-15T07:33:01
+ALT000109,TXN000007509,CUST000458,geo_mismatch,67.86,false_positive,2026-02-03T07:02:39,,,none,2026-06-22T07:39:01
+ALT000110,TXN000005211,CUST000729,blacklisted_merchant,27.5,open,2025-08-12T18:20:25,,,none,2026-07-27T23:48:46
+ALT000111,TXN000000564,CUST000030,device_change,88.94,investigating,2024-10-05T12:37:50,EMP000082,Cumque impedit fugiat fuga.,transaction_reversed,2026-07-27T02:33:21
+ALT000112,TXN000008489,CUST000180,velocity,30.85,resolved,2024-07-09T15:27:14,EMP000006,Nulla beatae ipsa labore.,transaction_reversed,2025-02-21T04:17:02
+ALT000113,TXN000009827,CUST000625,unusual_amount,97.18,open,2025-06-13T01:36:14,,,none,2026-05-10T00:59:52
+ALT000114,TXN000001596,CUST000554,unusual_amount,81.17,investigating,2026-04-04T10:20:45,EMP000093,Ipsum numquam tenetur similique ab ipsam assumenda.,none,2025-03-18T11:43:41
+ALT000115,TXN000002925,CUST000571,geo_mismatch,30.61,resolved,2024-03-29T11:48:51,EMP000058,Deserunt sunt laborum officia.,none,2024-01-07T17:45:40
+ALT000116,TXN000008084,CUST000220,unusual_amount,71.94,open,2026-05-21T04:27:13,,,none,2026-02-21T00:24:36
+ALT000117,TXN000006158,CUST000561,blacklisted_merchant,35.15,open,2025-08-04T12:42:09,,,transaction_reversed,2025-06-13T14:17:03
+ALT000118,TXN000008672,CUST000103,velocity,29.94,resolved,2026-05-20T21:45:53,EMP000094,Laborum vitae ex minima non odit unde vitae.,customer_contacted,2024-01-28T23:16:32
+ALT000119,TXN000000577,CUST000792,device_change,30.6,resolved,2026-02-19T06:06:25,EMP000084,Vero corporis ducimus impedit sit nesciunt maxime maiores.,account_frozen,2024-10-09T10:21:22
+ALT000120,TXN000003262,CUST000458,velocity,90.83,investigating,2026-01-07T11:44:04,EMP000068,Quibusdam ipsam distinctio.,transaction_reversed,2026-02-13T16:26:10
+ALT000121,TXN000001993,CUST000571,blacklisted_merchant,38.9,false_positive,2026-06-14T02:47:40,,,account_frozen,2025-08-24T11:18:19
+ALT000122,TXN000003079,CUST000778,device_change,63.01,investigating,2024-01-16T17:25:04,EMP000054,Officia eius fugit a.,none,2025-08-31T06:11:20
+ALT000123,TXN000007030,CUST000039,blacklisted_merchant,91.76,open,2024-02-22T07:37:19,,,account_frozen,2026-07-19T13:08:55
+ALT000124,TXN000005024,CUST000056,blacklisted_merchant,81.75,open,2026-06-06T02:13:13,,,account_frozen,2024-05-15T06:04:46
+ALT000125,TXN000000582,CUST000521,velocity,79.98,resolved,2025-11-16T06:23:02,EMP000048,Sed incidunt officiis voluptate aliquid dolor.,account_frozen,2026-03-12T01:21:00
+ALT000126,TXN000002181,CUST000384,blacklisted_merchant,98.61,open,2024-04-13T16:44:19,,,customer_contacted,2026-04-09T16:41:51
+ALT000127,TXN000009666,CUST000796,velocity,38.6,investigating,2026-01-03T15:16:37,EMP000002,Necessitatibus animi aliquid commodi voluptas.,none,2024-11-07T13:54:38
+ALT000128,TXN000006158,CUST000561,geo_mismatch,5.76,resolved,2026-01-13T13:08:43,EMP000064,Neque ipsum dolor laborum sed impedit quos.,none,2025-09-23T11:32:35
+ALT000129,TXN000002513,CUST000927,device_change,25.88,resolved,2025-10-05T17:40:15,EMP000094,Rem assumenda id aperiam autem.,none,2024-07-16T22:26:24
+ALT000130,TXN000004187,CUST000938,velocity,69.2,open,2025-10-24T15:13:22,,,account_frozen,2025-05-08T18:31:01
+ALT000131,TXN000005272,CUST000977,velocity,18.67,open,2024-03-09T05:40:51,,,none,2024-08-05T01:13:58
+ALT000132,TXN000007455,CUST000277,geo_mismatch,18.24,resolved,2024-04-28T17:10:44,EMP000084,Doloribus iusto harum.,account_frozen,2026-05-26T22:37:43
+ALT000133,TXN000009344,CUST000905,geo_mismatch,67.31,open,2026-07-16T23:53:35,,,customer_contacted,2025-08-25T02:14:14
+ALT000134,TXN000001078,CUST000455,device_change,8.64,investigating,2024-09-22T17:42:33,EMP000071,Quod nesciunt vitae.,none,2024-03-04T00:58:53
+ALT000135,TXN000003481,CUST000962,device_change,52.8,resolved,2026-04-19T19:25:48,EMP000066,Fuga dignissimos quidem delectus commodi voluptate asperiores recusandae.,customer_contacted,2024-08-06T12:52:49
+ALT000136,TXN000005024,CUST000056,blacklisted_merchant,45.72,resolved,2025-11-14T02:52:09,EMP000087,Facere alias sapiente amet adipisci ut.,transaction_reversed,2024-11-03T04:56:23
+ALT000137,TXN000005682,CUST000108,device_change,58.33,resolved,2024-09-29T03:54:40,EMP000009,Maiores soluta natus voluptas incidunt vero.,none,2024-05-31T01:10:35
+ALT000138,TXN000005024,CUST000056,device_change,95.4,investigating,2024-10-17T02:17:24,EMP000052,Quod eveniet quae tempore ad ab velit ad.,transaction_reversed,2025-08-29T06:28:05
+ALT000139,TXN000008780,CUST000413,device_change,11.78,open,2026-06-14T04:56:30,,,customer_contacted,2024-10-07T15:13:27
+ALT000140,TXN000009118,CUST000251,unusual_amount,47.96,investigating,2024-07-27T19:47:43,EMP000062,Corporis animi animi consequuntur nulla praesentium dolore.,none,2025-10-25T17:04:32
+ALT000141,TXN000004102,CUST000415,unusual_amount,69.81,resolved,2025-10-03T21:49:44,EMP000008,Fugit nemo voluptatibus voluptatem fugit occaecati.,customer_contacted,2024-01-25T22:54:44
+ALT000142,TXN000006763,CUST000129,device_change,85.42,resolved,2026-07-12T15:56:19,EMP000058,Earum quam magni nesciunt velit nam.,customer_contacted,2026-03-16T00:32:58
+ALT000143,TXN000005949,CUST000646,blacklisted_merchant,37.61,investigating,2024-04-14T12:31:44,EMP000071,Veritatis vel quasi explicabo inventore.,none,2025-03-22T18:44:32
+ALT000144,TXN000001832,CUST000621,geo_mismatch,49.14,resolved,2025-03-30T11:25:17,EMP000074,Cupiditate excepturi rem.,none,2024-10-28T18:44:37
+ALT000145,TXN000008008,CUST000762,unusual_amount,40.95,investigating,2026-03-18T13:28:31,EMP000094,Ea exercitationem corporis alias sapiente itaque.,account_frozen,2025-03-09T23:41:03
+ALT000146,TXN000004094,CUST000308,geo_mismatch,73.53,resolved,2025-01-13T03:37:33,EMP000097,Impedit porro omnis.,none,2024-02-11T07:57:59
+ALT000147,TXN000007799,CUST000684,velocity,43.94,open,2026-02-07T17:36:34,,,none,2025-03-17T11:48:09
+ALT000148,TXN000006187,CUST000696,blacklisted_merchant,41.68,resolved,2024-07-25T08:40:18,EMP000082,A sequi magnam deleniti eos.,none,2024-01-30T05:30:29
+ALT000149,TXN000002660,CUST000255,velocity,41.47,resolved,2024-10-18T12:48:25,EMP000035,Nobis quod numquam ullam.,transaction_reversed,2026-01-05T15:18:25
+ALT000150,TXN000006881,CUST000508,blacklisted_merchant,33.6,resolved,2025-06-27T22:03:32,EMP000099,Fugiat temporibus perspiciatis deleniti.,none,2024-09-05T10:44:51
+ALT000151,TXN000005438,CUST000372,device_change,50.64,open,2026-03-27T16:00:09,,,none,2025-05-20T21:20:42
+ALT000152,TXN000003049,CUST000366,geo_mismatch,56.19,investigating,2024-06-29T23:14:10,EMP000032,Sequi corrupti ipsa quas soluta inventore.,none,2026-07-28T23:36:12
+ALT000153,TXN000005273,CUST000260,blacklisted_merchant,15.0,resolved,2026-03-02T03:39:08,EMP000008,Natus molestias quod minus laborum earum.,none,2026-08-21T07:45:24
+ALT000154,TXN000000407,CUST000470,velocity,41.44,false_positive,2025-03-20T17:34:07,,,customer_contacted,2026-08-01T15:48:03
+ALT000155,TXN000006350,CUST000732,device_change,98.16,investigating,2026-04-19T07:54:23,EMP000065,Aliquid occaecati aspernatur dignissimos molestias veniam.,customer_contacted,2026-03-22T15:06:27
+ALT000156,TXN000008729,CUST000839,geo_mismatch,81.48,resolved,2024-08-19T01:03:15,EMP000091,Sed officiis voluptatibus soluta voluptatum.,transaction_reversed,2026-07-15T11:54:12
+ALT000157,TXN000006156,CUST000319,velocity,29.37,false_positive,2024-05-18T21:54:38,,,account_frozen,2026-04-20T20:58:20
+ALT000158,TXN000002514,CUST000240,device_change,22.69,resolved,2026-04-06T06:51:24,EMP000030,Dolore hic facilis rem omnis earum laboriosam.,customer_contacted,2024-04-29T07:02:00
+ALT000159,TXN000009616,CUST000130,unusual_amount,32.74,resolved,2025-04-26T05:30:32,EMP000055,Voluptatibus impedit quis ipsum ratione quidem ducimus.,none,2025-09-08T05:59:10
+ALT000160,TXN000008489,CUST000180,velocity,36.53,open,2024-04-12T14:29:52,,,none,2025-10-01T09:54:55
+ALT000161,TXN000006156,CUST000319,unusual_amount,36.03,investigating,2025-01-25T07:34:56,EMP000057,Soluta numquam quas in numquam nemo blanditiis aspernatur.,none,2026-01-09T01:56:19
+ALT000162,TXN000005134,CUST000595,unusual_amount,0.05,resolved,2025-12-13T02:42:08,EMP000063,Reiciendis minima iure perspiciatis unde.,none,2024-06-30T19:36:53
+ALT000163,TXN000009827,CUST000625,blacklisted_merchant,26.37,resolved,2026-01-17T07:12:00,EMP000025,Praesentium et quos dignissimos.,customer_contacted,2026-03-31T16:23:09
+ALT000164,TXN000005040,CUST000879,device_change,13.89,resolved,2026-08-29T18:31:00,EMP000045,Fugit inventore esse libero similique rem architecto.,account_frozen,2026-08-03T18:45:26
+ALT000165,TXN000000161,CUST000035,unusual_amount,51.0,resolved,2024-11-06T22:38:01,EMP000094,Autem cumque nisi est voluptatibus enim consequuntur.,transaction_reversed,2025-10-21T14:40:51
+ALT000166,TXN000002513,CUST000927,unusual_amount,29.22,investigating,2025-08-18T12:39:02,EMP000097,Nesciunt necessitatibus vel explicabo ullam.,none,2025-04-09T18:36:51
+ALT000167,TXN000000407,CUST000470,device_change,40.32,investigating,2025-10-11T01:06:34,EMP000095,Repudiandae repellat repellat quaerat.,none,2026-02-24T18:36:42
+ALT000168,TXN000007102,CUST000906,blacklisted_merchant,92.03,investigating,2025-05-05T15:45:00,EMP000005,Temporibus culpa magnam asperiores officia perspiciatis voluptatum.,transaction_reversed,2024-02-07T03:26:19
+ALT000169,TXN000009555,CUST000011,unusual_amount,78.26,investigating,2026-04-01T22:01:12,EMP000018,Consequuntur dolor voluptatibus quae.,transaction_reversed,2024-08-01T16:53:15
+ALT000170,TXN000001375,CUST000654,device_change,61.9,resolved,2024-12-17T19:04:01,EMP000048,Corporis nobis blanditiis odit possimus.,none,2026-08-26T21:41:28
+ALT000171,TXN000005040,CUST000879,blacklisted_merchant,30.96,investigating,2026-03-01T00:12:39,EMP000080,Rerum aut ex nesciunt repellat.,transaction_reversed,2024-01-27T20:54:38
+ALT000172,TXN000001390,CUST000124,velocity,23.91,resolved,2024-10-24T11:22:59,EMP000041,In architecto modi at totam.,transaction_reversed,2024-09-19T14:20:25
+ALT000173,TXN000006309,CUST000050,geo_mismatch,25.08,investigating,2024-02-21T22:04:33,EMP000004,Eveniet quae sunt sint pariatur quidem asperiores.,transaction_reversed,2026-04-09T23:28:52
+ALT000174,TXN000008213,CUST000992,blacklisted_merchant,12.45,investigating,2025-06-29T12:06:56,EMP000040,Architecto voluptates quisquam tempore.,none,2024-09-06T03:36:30
+ALT000175,TXN000006657,CUST000237,geo_mismatch,69.0,open,2025-03-02T02:59:05,,,none,2024-03-13T06:55:17
+ALT000176,TXN000009032,CUST000739,device_change,6.41,false_positive,2025-06-02T22:32:23,,,none,2024-12-07T14:14:36
+ALT000177,TXN000005565,CUST000200,velocity,35.15,resolved,2025-04-05T03:53:23,EMP000039,Unde ullam voluptate accusantium praesentium voluptatem voluptatem.,none,2025-10-19T13:20:42
+ALT000178,TXN000005450,CUST000331,velocity,42.4,investigating,2024-04-25T10:32:14,EMP000069,Tempora necessitatibus quas vitae.,none,2025-06-15T12:12:58
+ALT000179,TXN000001078,CUST000455,blacklisted_merchant,84.01,resolved,2024-10-24T19:13:18,EMP000005,Aut mollitia animi in est blanditiis accusantium.,account_frozen,2025-07-01T13:05:36
+ALT000180,TXN000000068,CUST000095,blacklisted_merchant,83.92,resolved,2024-03-08T23:55:58,EMP000050,Dolorum ullam facilis adipisci.,customer_contacted,2025-03-17T03:54:44
+ALT000181,TXN000008367,CUST000393,device_change,6.48,open,2025-10-24T16:20:17,,,account_frozen,2026-05-02T11:27:26
+ALT000182,TXN000007095,CUST000209,device_change,42.65,open,2026-08-04T18:44:24,,,none,2026-01-18T10:50:48
+ALT000183,TXN000009203,CUST000647,device_change,74.51,open,2026-08-04T19:40:16,,,none,2025-02-27T16:42:36
+ALT000184,TXN000007087,CUST000994,device_change,64.04,open,2026-05-05T16:36:09,,,account_frozen,2026-03-16T09:24:50
+ALT000185,TXN000001903,CUST000654,blacklisted_merchant,6.37,investigating,2024-03-05T20:09:47,EMP000085,Architecto quisquam eum.,transaction_reversed,2024-10-30T09:52:46
+ALT000186,TXN000005739,CUST000056,unusual_amount,85.06,resolved,2024-05-13T12:33:08,EMP000014,Cumque amet facilis provident.,none,2026-04-16T08:38:05
+ALT000187,TXN000006309,CUST000050,device_change,32.59,investigating,2026-07-05T16:21:48,EMP000092,Aut quaerat recusandae est odio.,account_frozen,2025-02-24T03:40:00
+ALT000188,TXN000004789,CUST000284,geo_mismatch,39.2,investigating,2026-03-15T06:18:15,EMP000100,Neque quibusdam dolore necessitatibus perspiciatis debitis velit.,none,2025-05-06T19:59:22
+ALT000189,TXN000004479,CUST000157,velocity,30.05,resolved,2026-02-23T13:36:08,EMP000027,Nihil mollitia accusamus ad illum unde.,transaction_reversed,2024-07-09T16:48:15
+ALT000190,TXN000003314,CUST000296,unusual_amount,34.35,open,2024-06-29T04:20:29,,,none,2024-05-25T21:50:52
+ALT000191,TXN000005450,CUST000331,velocity,73.54,false_positive,2024-07-07T18:22:08,,,account_frozen,2024-01-29T19:09:44
+ALT000192,TXN000007489,CUST000734,unusual_amount,73.78,open,2024-05-14T08:43:59,,,transaction_reversed,2025-08-24T16:21:52
+ALT000193,TXN000001469,CUST000479,device_change,53.84,resolved,2025-04-02T07:28:00,EMP000057,Esse doloremque optio iure perferendis.,none,2025-04-12T23:56:20
+ALT000194,TXN000005337,CUST000426,unusual_amount,36.81,false_positive,2024-02-19T23:31:11,,,customer_contacted,2024-09-17T13:19:28
+ALT000195,TXN000005949,CUST000646,geo_mismatch,39.31,false_positive,2026-01-11T13:56:01,,,transaction_reversed,2024-05-17T13:36:53
+ALT000196,TXN000001436,CUST000684,unusual_amount,54.67,investigating,2025-06-30T11:50:46,EMP000075,Reprehenderit sed occaecati autem nam et.,none,2025-04-25T04:21:21
+ALT000197,TXN000008780,CUST000413,unusual_amount,80.17,resolved,2025-11-26T18:41:29,EMP000096,Laborum maxime minus voluptate distinctio veritatis.,account_frozen,2025-06-25T09:58:06
+ALT000198,TXN000002181,CUST000384,unusual_amount,64.37,false_positive,2024-07-28T17:17:02,,,account_frozen,2026-07-22T23:04:34
+ALT000199,TXN000000055,CUST000850,device_change,2.67,resolved,2025-07-14T20:49:49,EMP000011,Adipisci ipsa hic quasi aliquid explicabo.,account_frozen,2025-02-15T01:25:02
+ALT000200,TXN000007236,CUST000811,blacklisted_merchant,50.29,resolved,2025-09-23T10:52:19,EMP000049,Magnam impedit inventore tempore laudantium laboriosam sequi.,customer_contacted,2025-11-03T04:31:24
+ALT000201,TXN000006158,CUST000561,velocity,96.77,resolved,2026-05-25T08:03:08,EMP000009,Magnam eum provident.,none,2024-08-29T18:18:36
+ALT000202,TXN000000020,CUST000374,unusual_amount,88.15,investigating,2026-03-17T11:32:54,EMP000004,Architecto voluptas libero ullam.,customer_contacted,2026-06-28T14:52:42
+ALT000203,TXN000004094,CUST000308,geo_mismatch,37.63,resolved,2024-11-29T14:59:55,EMP000037,Temporibus quam neque sapiente.,none,2025-10-12T18:47:23
+ALT000204,TXN000005326,CUST000176,device_change,32.96,investigating,2026-05-13T16:51:53,EMP000027,Excepturi temporibus facere ullam occaecati.,account_frozen,2025-02-10T15:09:37
+ALT000205,TXN000007455,CUST000277,device_change,97.83,resolved,2025-03-13T20:54:59,EMP000052,Eum quod delectus ad dolor placeat.,customer_contacted,2025-03-19T07:49:39
+ALT000206,TXN000003588,CUST000116,geo_mismatch,6.16,resolved,2025-02-23T07:04:50,EMP000013,Vitae perferendis vero itaque fugiat earum.,none,2024-01-24T05:18:40
+ALT000207,TXN000008291,CUST000969,unusual_amount,37.63,resolved,2026-08-01T19:55:32,EMP000003,Suscipit earum eaque quae doloribus eveniet.,account_frozen,2025-03-05T11:47:13
+ALT000208,TXN000006984,CUST000519,unusual_amount,67.61,false_positive,2024-02-11T09:46:32,,,none,2026-03-25T15:28:05
+ALT000209,TXN000004187,CUST000938,geo_mismatch,32.52,investigating,2025-02-04T06:28:43,EMP000035,Nulla molestias nisi iste.,customer_contacted,2024-01-26T10:03:44
+ALT000210,TXN000003160,CUST000808,unusual_amount,37.57,resolved,2024-05-19T18:59:19,EMP000096,Eaque qui laborum sed reprehenderit facilis deleniti.,customer_contacted,2024-09-16T10:34:08
+ALT000211,TXN000001671,CUST000507,velocity,20.0,resolved,2024-12-12T03:42:48,EMP000042,Blanditiis cum suscipit.,none,2025-07-06T21:41:16
+ALT000212,TXN000002279,CUST000324,blacklisted_merchant,64.93,open,2024-06-18T09:42:48,,,account_frozen,2026-02-14T09:36:29
+ALT000213,TXN000009100,CUST000378,geo_mismatch,32.54,resolved,2024-05-28T13:29:24,EMP000052,Et illum nemo fugiat magni voluptas repellat.,none,2026-08-04T12:03:23
+ALT000214,TXN000001411,CUST000935,geo_mismatch,5.76,resolved,2026-08-31T04:12:55,EMP000002,Unde alias nemo soluta.,account_frozen,2024-06-14T18:44:35
+ALT000215,TXN000006830,CUST000564,device_change,53.35,resolved,2024-11-14T03:17:51,EMP000042,Harum praesentium laborum illum maiores repellendus recusandae.,customer_contacted,2025-10-01T03:08:09
+ALT000216,TXN000001993,CUST000571,blacklisted_merchant,81.36,open,2025-01-20T06:00:49,,,transaction_reversed,2025-03-10T16:21:34
+ALT000217,TXN000009049,CUST000658,unusual_amount,62.12,investigating,2026-03-21T00:23:29,EMP000074,Commodi corrupti sapiente esse reiciendis facere adipisci dolor.,customer_contacted,2024-08-14T02:14:49
+ALT000218,TXN000007848,CUST000870,device_change,16.57,resolved,2025-08-10T10:17:27,EMP000090,Laborum sunt architecto ex dicta.,none,2026-01-23T10:21:38
+ALT000219,TXN000009118,CUST000251,blacklisted_merchant,27.98,open,2026-06-24T15:53:14,,,account_frozen,2025-01-21T23:02:34
+ALT000220,TXN000004830,CUST000628,blacklisted_merchant,96.79,open,2024-07-05T15:46:33,,,none,2026-05-22T04:24:15
+ALT000221,TXN000009352,CUST000002,blacklisted_merchant,84.41,resolved,2025-12-14T20:16:49,EMP000037,Suscipit ratione laboriosam aspernatur.,transaction_reversed,2026-05-30T17:32:12
+ALT000222,TXN000009344,CUST000905,geo_mismatch,15.86,resolved,2024-02-27T01:09:48,EMP000004,Enim ut minima ab iure.,none,2024-02-03T03:17:07
+ALT000223,TXN000001761,CUST000480,unusual_amount,87.04,resolved,2024-09-19T01:39:48,EMP000059,Molestias corporis harum similique ducimus accusantium.,customer_contacted,2025-02-27T13:11:37
+ALT000224,TXN000005314,CUST000796,device_change,70.66,false_positive,2024-12-13T23:19:20,,,none,2025-04-24T17:02:15
+ALT000225,TXN000009118,CUST000251,blacklisted_merchant,54.59,resolved,2025-10-17T20:55:04,EMP000073,Illum doloribus aperiam laudantium consequuntur doloremque.,account_frozen,2026-03-07T06:12:01
+ALT000226,TXN000003492,CUST000495,device_change,87.14,resolved,2024-09-01T16:09:36,EMP000071,Cum laborum itaque dolores labore.,none,2026-04-09T06:31:12
+ALT000227,TXN000009266,CUST000377,unusual_amount,96.35,investigating,2024-10-23T10:03:28,EMP000065,Corporis reiciendis velit aspernatur.,none,2026-01-04T01:03:04
+ALT000228,TXN000000490,CUST000896,geo_mismatch,20.8,investigating,2024-03-06T14:43:35,EMP000078,Modi voluptates ducimus fuga.,account_frozen,2026-08-20T14:49:51
+ALT000229,TXN000009750,CUST000936,geo_mismatch,67.61,resolved,2025-01-13T02:00:11,EMP000059,Ratione praesentium cumque minima suscipit repudiandae ratione sequi.,customer_contacted,2025-12-14T11:41:00
+ALT000230,TXN000005913,CUST000298,geo_mismatch,68.53,resolved,2024-12-10T09:26:20,EMP000034,Atque animi consectetur atque.,none,2024-10-28T04:37:48
+ALT000231,TXN000004243,CUST000186,unusual_amount,83.55,investigating,2025-03-23T18:43:30,EMP000052,Nostrum vel vero nulla voluptatem nesciunt inventore occaecati.,transaction_reversed,2025-11-11T08:44:30
+ALT000232,TXN000007671,CUST000900,blacklisted_merchant,61.29,resolved,2024-05-26T20:49:37,EMP000096,Occaecati animi optio debitis possimus quae aliquid occaecati.,none,2026-01-17T16:56:40
+ALT000233,TXN000009049,CUST000658,geo_mismatch,58.56,open,2024-10-13T12:07:40,,,transaction_reversed,2026-03-19T06:17:15
+ALT000234,TXN000006156,CUST000319,unusual_amount,87.09,resolved,2025-09-08T05:11:54,EMP000033,Velit repellendus eaque nostrum aliquam veniam accusantium.,customer_contacted,2026-01-02T17:03:19
+ALT000235,TXN000005682,CUST000108,velocity,42.93,false_positive,2026-07-04T01:53:13,,,account_frozen,2026-02-16T16:48:51
+ALT000236,TXN000000116,CUST000877,blacklisted_merchant,89.85,resolved,2025-01-12T23:27:24,EMP000033,Nobis quia ab quam est.,customer_contacted,2024-07-01T03:37:08
+ALT000237,TXN000009266,CUST000377,geo_mismatch,99.28,open,2024-10-03T03:03:20,,,transaction_reversed,2024-01-21T05:48:12
+ALT000238,TXN000003837,CUST000319,unusual_amount,35.06,investigating,2025-07-22T20:23:06,EMP000074,Saepe ipsa cum eos eveniet.,customer_contacted,2025-08-01T21:12:50
+ALT000239,TXN000001183,CUST000633,blacklisted_merchant,56.24,resolved,2026-06-26T08:24:50,EMP000059,Autem labore mollitia at distinctio qui maxime.,account_frozen,2025-03-28T21:54:17
+ALT000240,TXN000009616,CUST000130,device_change,10.36,open,2024-02-20T03:12:41,,,account_frozen,2025-09-24T17:21:38
+ALT000241,TXN000005081,CUST000124,velocity,77.47,open,2024-04-14T14:10:15,,,none,2025-09-16T20:03:31
+ALT000242,TXN000009617,CUST000852,device_change,30.41,resolved,2024-10-02T10:11:25,EMP000019,Ipsum beatae fugiat animi nesciunt illo.,none,2025-08-20T16:38:54
+ALT000243,TXN000002165,CUST000171,unusual_amount,96.68,false_positive,2024-11-23T03:05:04,,,customer_contacted,2024-07-12T02:07:39
+ALT000244,TXN000007532,CUST000863,blacklisted_merchant,22.04,resolved,2025-07-03T18:12:17,EMP000090,Enim pariatur soluta facilis temporibus.,account_frozen,2026-05-21T07:58:16
+ALT000245,TXN000004577,CUST000887,unusual_amount,88.67,resolved,2025-01-03T16:49:04,EMP000019,Numquam assumenda recusandae harum neque nam.,none,2024-08-12T01:40:01
+ALT000246,TXN000000432,CUST000716,geo_mismatch,43.11,open,2025-03-23T11:27:34,,,customer_contacted,2025-04-21T03:56:53
+ALT000247,TXN000008489,CUST000180,blacklisted_merchant,35.71,open,2024-06-06T12:10:15,,,account_frozen,2025-06-18T22:42:06
+ALT000248,TXN000009863,CUST000217,velocity,61.99,false_positive,2024-05-23T12:19:03,,,none,2025-06-07T20:59:23
+ALT000249,TXN000005762,CUST000370,unusual_amount,21.59,resolved,2024-08-30T06:35:51,EMP000090,Quisquam dolores sequi itaque nemo possimus voluptatum repellendus.,customer_contacted,2024-01-23T04:20:02
+ALT000250,TXN000004191,CUST000819,blacklisted_merchant,58.37,open,2024-05-13T01:59:02,,,none,2026-02-15T17:18:45
+ALT000251,TXN000000985,CUST000293,velocity,94.57,open,2024-12-17T03:33:19,,,transaction_reversed,2024-04-28T20:34:45
+ALT000252,TXN000006156,CUST000319,device_change,61.87,investigating,2025-05-06T22:14:23,EMP000089,Sed exercitationem deserunt aliquam harum quos.,none,2024-05-27T09:10:13
+ALT000253,TXN000005488,CUST000502,device_change,11.78,false_positive,2026-04-01T08:32:54,,,account_frozen,2026-03-17T07:44:51
+ALT000254,TXN000005069,CUST000528,blacklisted_merchant,40.59,resolved,2025-05-30T06:53:20,EMP000001,Fugit natus eligendi blanditiis.,transaction_reversed,2026-01-27T13:44:11
+ALT000255,TXN000007900,CUST000596,blacklisted_merchant,33.84,resolved,2024-08-31T21:32:37,EMP000013,Aperiam molestiae voluptatum consectetur cum.,customer_contacted,2025-10-22T20:17:26
+ALT000256,TXN000009245,CUST000992,unusual_amount,39.96,false_positive,2025-06-21T00:14:31,,,account_frozen,2024-05-16T11:50:59
+ALT000257,TXN000003075,CUST000677,blacklisted_merchant,20.08,resolved,2025-11-24T17:36:07,EMP000090,Laboriosam voluptates porro non pariatur quasi atque.,account_frozen,2024-01-22T06:11:21
+ALT000258,TXN000001411,CUST000935,geo_mismatch,16.83,open,2025-08-02T02:18:18,,,account_frozen,2025-01-10T08:15:02
+ALT000259,TXN000001832,CUST000621,geo_mismatch,36.64,resolved,2025-01-29T16:26:49,EMP000021,Possimus quisquam nostrum aperiam.,none,2026-08-18T10:15:17
+ALT000260,TXN000005391,CUST000933,unusual_amount,32.74,resolved,2024-04-14T08:26:47,EMP000047,Ratione ut officia labore.,none,2024-06-23T20:36:48
+ALT000261,TXN000000512,CUST000032,geo_mismatch,99.6,investigating,2025-02-07T08:33:37,EMP000006,Velit occaecati libero cum quo possimus.,none,2024-06-15T10:00:05
+ALT000262,TXN000000432,CUST000716,device_change,38.71,resolved,2025-02-24T22:57:30,EMP000086,Neque non in.,transaction_reversed,2025-01-22T17:05:50
+ALT000263,TXN000002268,CUST000037,unusual_amount,25.36,false_positive,2026-05-07T18:15:10,,,customer_contacted,2024-03-03T14:47:54
+ALT000264,TXN000005512,CUST000946,unusual_amount,41.32,resolved,2026-08-18T20:35:55,EMP000084,Laboriosam cum placeat explicabo vero expedita.,customer_contacted,2025-10-24T13:16:44
+ALT000265,TXN000001469,CUST000479,velocity,48.83,false_positive,2025-09-19T21:59:04,,,customer_contacted,2025-03-18T06:32:57
+ALT000266,TXN000005337,CUST000426,unusual_amount,59.01,investigating,2026-05-01T07:09:45,EMP000009,Consequatur quibusdam delectus enim voluptate doloremque.,none,2025-06-09T04:01:15
+ALT000267,TXN000009626,CUST000688,device_change,70.94,resolved,2024-03-18T12:22:01,EMP000076,Ad error veritatis quam est modi amet distinctio.,transaction_reversed,2024-12-02T14:07:50
+ALT000268,TXN000003726,CUST000426,unusual_amount,57.19,investigating,2024-04-22T13:58:18,EMP000003,Voluptas sapiente fugit praesentium at.,transaction_reversed,2026-04-05T08:23:56
+ALT000269,TXN000007455,CUST000277,unusual_amount,82.89,open,2024-06-28T12:20:51,,,none,2024-09-27T20:00:49
+ALT000270,TXN000004479,CUST000157,device_change,78.46,resolved,2025-07-11T19:10:17,EMP000003,Ab quidem officiis.,none,2026-02-16T21:10:47
+ALT000271,TXN000000582,CUST000521,velocity,4.65,resolved,2025-09-23T11:16:16,EMP000062,Reiciendis iusto unde aspernatur voluptates quam nesciunt.,none,2025-05-09T10:33:00
+ALT000272,TXN000006753,CUST000743,unusual_amount,32.07,resolved,2024-05-17T13:11:09,EMP000018,Iste fugiat eum impedit aperiam ratione qui est.,customer_contacted,2025-02-25T01:11:16
+ALT000273,TXN000001909,CUST000591,device_change,7.61,open,2024-10-31T17:09:15,,,transaction_reversed,2024-01-31T03:09:38
+ALT000274,TXN000009100,CUST000378,unusual_amount,50.35,false_positive,2024-02-21T04:06:44,,,account_frozen,2024-08-28T08:26:33
+ALT000275,TXN000003079,CUST000778,device_change,74.95,resolved,2024-05-13T20:16:18,EMP000085,Tempore facere similique amet sapiente fugit.,customer_contacted,2025-04-23T16:16:05
+ALT000276,TXN000005424,CUST000726,device_change,35.52,open,2025-10-13T11:39:53,,,customer_contacted,2024-11-24T05:04:56
+ALT000277,TXN000006830,CUST000564,blacklisted_merchant,25.36,open,2025-04-07T20:58:41,,,customer_contacted,2025-10-20T20:25:21
+ALT000278,TXN000007030,CUST000039,blacklisted_merchant,96.69,open,2025-05-07T03:10:40,,,transaction_reversed,2026-05-23T03:47:53
+ALT000279,TXN000008963,CUST000652,blacklisted_merchant,48.6,open,2025-07-19T08:10:53,,,transaction_reversed,2025-01-16T22:15:02
+ALT000280,TXN000004479,CUST000157,device_change,86.44,false_positive,2025-11-23T14:12:12,,,customer_contacted,2024-06-29T21:38:40
+ALT000281,TXN000002165,CUST000171,device_change,94.6,open,2026-08-29T02:10:39,,,customer_contacted,2024-08-23T09:35:59
+ALT000282,TXN000006603,CUST000108,geo_mismatch,54.82,false_positive,2024-07-05T20:37:43,,,none,2025-04-17T15:48:47
+ALT000283,TXN000003262,CUST000458,velocity,20.1,false_positive,2024-01-04T06:57:52,,,customer_contacted,2025-07-11T23:34:54
+ALT000284,TXN000005438,CUST000372,geo_mismatch,8.02,resolved,2024-07-18T17:41:50,EMP000010,Aperiam animi adipisci amet consequatur molestias autem.,customer_contacted,2026-05-11T14:10:50
+ALT000285,TXN000003837,CUST000319,geo_mismatch,32.31,resolved,2025-10-10T14:58:08,EMP000093,Amet accusantium reprehenderit labore.,transaction_reversed,2024-07-28T02:31:44
+ALT000286,TXN000007954,CUST000033,velocity,54.05,false_positive,2024-07-30T05:49:00,,,transaction_reversed,2026-08-25T23:40:03
+ALT000287,TXN000005739,CUST000056,unusual_amount,87.76,open,2024-12-22T07:13:38,,,none,2024-02-04T10:38:59
+ALT000288,TXN000002463,CUST000604,unusual_amount,71.02,resolved,2025-09-28T06:37:01,EMP000016,Illo eum veniam error error deserunt sint.,none,2026-03-04T08:37:59
+ALT000289,TXN000000287,CUST000636,blacklisted_merchant,22.68,resolved,2025-10-24T02:05:26,EMP000010,Quia quo illum excepturi corporis atque.,customer_contacted,2024-03-02T09:32:05
+ALT000290,TXN000005123,CUST000521,unusual_amount,86.59,resolved,2025-09-05T16:58:10,EMP000045,Expedita repellendus ipsum impedit hic ut.,none,2025-04-14T10:18:44
+ALT000291,TXN000008008,CUST000762,blacklisted_merchant,26.2,open,2025-05-30T21:54:29,,,none,2026-06-07T21:08:02
+ALT000292,TXN000008367,CUST000393,blacklisted_merchant,37.0,open,2024-02-10T23:00:05,,,transaction_reversed,2026-04-19T15:49:03
+ALT000293,TXN000001518,CUST000465,blacklisted_merchant,63.59,resolved,2025-10-20T16:47:25,EMP000042,Placeat accusantium magnam totam quos praesentium.,transaction_reversed,2025-08-15T17:17:11
+ALT000294,TXN000002986,CUST000279,blacklisted_merchant,80.97,open,2026-07-16T17:01:31,,,transaction_reversed,2026-05-04T12:00:39
+ALT000295,TXN000003512,CUST000266,velocity,70.9,resolved,2026-08-27T06:23:52,EMP000024,Aperiam cumque aliquid eos voluptas et beatae.,none,2025-08-26T10:54:10
+ALT000296,TXN000008490,CUST000510,geo_mismatch,34.97,open,2026-08-12T20:25:19,,,account_frozen,2026-02-26T22:03:16
+ALT000297,TXN000006603,CUST000108,geo_mismatch,45.37,resolved,2026-03-23T17:19:38,EMP000090,Alias laborum repellendus expedita quidem repellat sint.,transaction_reversed,2026-05-17T20:38:30
+ALT000298,TXN000006984,CUST000519,geo_mismatch,64.63,resolved,2025-02-23T01:25:26,EMP000006,Sit sapiente rem laboriosam unde.,none,2024-11-04T01:49:43
+ALT000299,TXN000008863,CUST000082,velocity,78.59,resolved,2024-05-26T01:22:03,EMP000014,Facere numquam ut eaque perferendis.,customer_contacted,2024-05-28T21:00:26
+ALT000300,TXN000006324,CUST000346,geo_mismatch,6.04,investigating,2024-02-06T13:54:44,EMP000012,Accusamus animi harum.,account_frozen,2026-08-27T08:18:31

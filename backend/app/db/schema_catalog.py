@@ -1,19 +1,20 @@
 """
 FinTech Agent — Schema Catalog and Verification Engine
 Inspects and compares schema.json against the actual MongoDB collections.
+Uses centralized path resolution and read-only database connections.
 """
 
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from pymongo import MongoClient
 from backend.app.config import settings
+from backend.app.db.mongo_client import mongo_manager
 
-SCHEMA_PATH = Path("fintech-agent/data/schema.json")
+SCHEMA_PATH = Path(settings.SCHEMA_SOURCE_PATH)
 
 
 def load_schema_json() -> Optional[Dict[str, Any]]:
-    """Loads schema.json if it exists."""
+    """Loads schema.json using centralized path resolution."""
     if not SCHEMA_PATH.exists():
         return None
     with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
@@ -27,10 +28,13 @@ def verify_schema_against_db(db_name: Optional[str] = None) -> Dict[str, Any]:
         return {"error": "schema.json not found"}
 
     target_db = db_name or settings.MONGO_BANKING_DB
-    client = MongoClient(settings.MONGO_URI, serverSelectionTimeoutMS=3000)
-    db = client[target_db]
-    db_collections = set(db.list_collection_names())
+    if target_db == settings.MONGO_BANKING_DB:
+        db = mongo_manager.get_banking_db(enforce_proxy=True)
+    else:
+        client = mongo_manager.get_metadata_client()
+        db = client[target_db]
 
+    db_collections = set(db.list_collection_names())
     schema_collections = set(schema.get("collections", {}).keys())
     missing_in_db = list(schema_collections - db_collections)
     extra_in_db = list(db_collections - schema_collections)
@@ -54,7 +58,7 @@ def verify_schema_against_db(db_name: Optional[str] = None) -> Dict[str, Any]:
         if col not in db_collections:
             continue
 
-        sample_docs = list(db[col].find({}, {"_id": 0}).limit(20))
+        sample_docs = list(db[col].find({}, {"_id": 0}).limit(100))
         documented_fields = set(schema["collections"][col].get("fields", {}).keys())
 
         observed_fields = set()
@@ -81,8 +85,6 @@ def verify_schema_against_db(db_name: Optional[str] = None) -> Dict[str, Any]:
             "missing_in_samples": missing_fields,
             "undocumented_observed": undocumented_fields,
         }
-
-    client.close()
 
     return {
         "database": target_db,

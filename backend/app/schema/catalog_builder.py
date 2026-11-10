@@ -2,18 +2,22 @@
 FinTech Agent — Schema Catalog Builder
 Builds a unified, structured, and validated representation of the banking database
 by combining schema.json, MongoDB collection metadata, and BANKING_GLOSSARY.md.
+Includes deterministic source fingerprinting, atomic cache persistence, and robust invalidation.
 """
 
 from datetime import datetime, timezone
+import hashlib
 import json
+import os
 from pathlib import Path
+import tempfile
 from typing import Any, Dict, List, Optional
 
 from backend.app.config import settings
 from backend.app.core.logging import logger
 from backend.app.db.mongo_client import mongo_manager
 from backend.app.schema.fingerprint import compute_schema_fingerprint
-from backend.app.schema.glossary_mapper import load_glossary_entries
+from backend.app.schema.glossary_mapper import load_glossary_entries, validate_glossary_against_schema
 from backend.app.schema.models import (
     CollectionMetadata,
     FieldMetadata,
@@ -22,15 +26,24 @@ from backend.app.schema.models import (
     SchemaCatalog,
 )
 
-SCHEMA_JSON_PATH = Path("fintech-agent/data/schema.json")
+SCHEMA_JSON_PATH = Path(settings.SCHEMA_SOURCE_PATH)
 DEFAULT_CATALOG_OUTPUT_PATH = Path(settings.SCHEMA_CATALOG_PATH)
+
+
+def compute_file_sha256(filepath: Path) -> str:
+    """Computes SHA-256 hash of a file's raw byte contents."""
+    h = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        while chunk := f.read(65536):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 class SchemaCatalogBuilder:
     """Builds a rich, grounded schema catalog without modifying any underlying data."""
 
-    def __init__(self, schema_json_path: Path = SCHEMA_JSON_PATH):
-        self.schema_json_path = schema_json_path
+    def __init__(self, schema_json_path: Optional[Path] = None):
+        self.schema_json_path = schema_json_path or SCHEMA_JSON_PATH
 
     def _load_schema_json(self) -> Dict[str, Any]:
         """Loads original schema.json in read-only mode."""
@@ -51,10 +64,15 @@ class SchemaCatalogBuilder:
         return counts
 
     def build_catalog(self, include_live_counts: bool = True) -> SchemaCatalog:
-        """Constructs the complete SchemaCatalog instance."""
+        """Constructs the complete SchemaCatalog instance from source schema.json."""
         raw_schema = self._load_schema_json()
         doc_counts = self._fetch_collection_counts() if include_live_counts else {}
         glossary_entries = load_glossary_entries()
+
+        # Validate glossary entries against schema
+        glossary_errors = validate_glossary_against_schema(raw_schema)
+        if glossary_errors:
+            logger.warning(f"Glossary validation warnings: {glossary_errors}")
 
         # Build term index for fast field annotation
         term_map: Dict[str, List[str]] = {}
@@ -142,18 +160,20 @@ class SchemaCatalogBuilder:
             )
             collections_map[col_name] = col_meta
 
-        # Compute deterministic fingerprint
+        # Compute deterministic structural fingerprint
         temp_dict = {
             "database": raw_schema.get("database", "fintech_agent_db"),
             "collections": {k: v.model_dump() for k, v in collections_map.items()},
             "relationships": [r.model_dump() for r in all_relationships]
         }
-        fingerprint = compute_schema_fingerprint(temp_dict)
+        catalog_fingerprint = compute_schema_fingerprint(temp_dict)
+        source_fingerprint = compute_file_sha256(self.schema_json_path)
 
         catalog = SchemaCatalog(
             database=raw_schema.get("database", "fintech_agent_db"),
             schema_version=str(raw_schema.get("schema_version", "2")),
-            catalog_fingerprint=fingerprint,
+            catalog_fingerprint=catalog_fingerprint,
+            source_fingerprint=source_fingerprint,
             generated_at=datetime.now(timezone.utc).isoformat(),
             source=str(self.schema_json_path),
             collections=collections_map,
@@ -163,26 +183,53 @@ class SchemaCatalogBuilder:
         return catalog
 
     def save_catalog(self, catalog: SchemaCatalog, output_path: Optional[Path] = None) -> Path:
-        """Saves catalog JSON to the dedicated generated-artifact directory."""
+        """Saves catalog JSON atomically to disk to prevent partial write corruption."""
         target = output_path or DEFAULT_CATALOG_OUTPUT_PATH
         target.parent.mkdir(parents=True, exist_ok=True)
-        with open(target, "w", encoding="utf-8") as f:
+
+        temp_target = target.with_suffix(".tmp")
+        with open(temp_target, "w", encoding="utf-8") as f:
             json.dump(catalog.model_dump(), f, indent=2)
-        logger.info(f"Schema catalog saved to '{target}' (fingerprint={catalog.catalog_fingerprint[:12]}...)")
+
+        os.replace(temp_target, target)
+        logger.info(f"Schema catalog saved atomically to '{target}' (fingerprint={catalog.catalog_fingerprint[:12]}...)")
         return target
 
     @classmethod
-    def load_catalog(cls, path: Optional[Path] = None) -> SchemaCatalog:
-        """Loads cached schema catalog from disk or builds fresh if missing."""
+    def load_catalog(
+        cls,
+        path: Optional[Path] = None,
+        source_path: Optional[Path] = None,
+        force_rebuild: bool = False
+    ) -> SchemaCatalog:
+        """
+        Loads cached schema catalog from disk if valid, or rebuilds from source schema.json.
+        Verifies source file fingerprint to guarantee cache freshness.
+        """
         target = path or DEFAULT_CATALOG_OUTPUT_PATH
-        if target.exists():
-            with open(target, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            return SchemaCatalog(**data)
-        builder = cls()
-        cat = builder.build_catalog()
-        builder.save_catalog(cat, target)
-        return cat
+        src = source_path or SCHEMA_JSON_PATH
+
+        if not src.exists():
+            raise FileNotFoundError(f"Authoritative schema source file not found at '{src}'")
+
+        current_source_hash = compute_file_sha256(src)
+
+        if not force_rebuild and target.exists():
+            try:
+                with open(target, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                cached = SchemaCatalog(**data)
+                # Verify source hash matches cached record
+                if cached.source_fingerprint == current_source_hash:
+                    return cached
+                logger.info(f"Source schema hash changed; invalidating stale cache at '{target}'")
+            except Exception as exc:
+                logger.warning(f"Failed to load cached catalog at '{target}' ({exc}); rebuilding fresh from source.")
+
+        builder = cls(schema_json_path=src)
+        fresh_catalog = builder.build_catalog()
+        builder.save_catalog(fresh_catalog, target)
+        return fresh_catalog
 
 
 schema_catalog_builder = SchemaCatalogBuilder()

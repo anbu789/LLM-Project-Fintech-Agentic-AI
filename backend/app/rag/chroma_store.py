@@ -76,6 +76,7 @@ class ChromaSchemaStore:
 
         client = self.client
         coll_metadata = {
+            "hnsw:space": "cosine",
             "description": "FinTech Agent Schema Catalog RAG Index",
             "dimension": expected_dimension or settings.EMBEDDING_DIMENSION,
             "embedding_provider": settings.EMBEDDING_PROVIDER,
@@ -141,6 +142,8 @@ class ChromaSchemaStore:
             meta = dict(col.metadata or {})
             meta["schema_fingerprint"] = schema_fingerprint
             meta["dimension"] = dim
+            # ChromaDB forbids passing 'hnsw:space' to col.modify() once created
+            meta.pop("hnsw:space", None)
             col.modify(metadata=meta)
 
         logger.info(f"Upserted {len(documents)} schema documents into ChromaDB collection '{self.collection_name}'")
@@ -176,14 +179,18 @@ class ChromaSchemaStore:
         distances = results.get("distances", [[]])[0]
 
         for doc_id, doc_text, meta, dist in zip(ids, docs, metas, distances):
-            # Compute cosine similarity from distance if distance metric is L2 or cosine
-            # In ChromaDB default (L2 squared), similarity approx: 1 / (1 + dist)
+            # Compute cosine similarity from cosine distance (hnsw:space = "cosine"):
+            # ChromaDB cosine distance = 1.0 - cosine_similarity
+            if dist is not None:
+                sim = max(0.0, min(1.0, round(1.0 - float(dist), 4)))
+            else:
+                sim = 1.0
             output.append({
                 "id": doc_id,
                 "content": doc_text,
                 "metadata": meta,
                 "distance": dist,
-                "similarity": round(1.0 / (1.0 + float(dist)), 4) if dist is not None else 1.0
+                "similarity": sim
             })
         return output
 

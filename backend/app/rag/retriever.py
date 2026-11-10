@@ -31,6 +31,7 @@ class RetrievedDocument(BaseModel):
 class RetrievalResult(BaseModel):
     """Complete structured response from the semantic schema retrieval service."""
     query: str = Field(..., description="Original user inquiry")
+    status: str = Field(default="ready", description="Retrieval status: 'ready' or 'no_hits'")
     relevant_collections: List[str] = Field(default_factory=list, description="Ranked list of relevant collection names")
     relevant_fields: List[Dict[str, Any]] = Field(default_factory=list, description="Relevant collection fields identified")
     relevant_relationships: List[Dict[str, Any]] = Field(default_factory=list, description="Discovered join relationships")
@@ -42,20 +43,46 @@ class RetrievalResult(BaseModel):
 class SchemaRetriever:
     """Retrieves relevant database schema information for natural language banking questions."""
 
-    KNOWN_UNSUPPORTED_CONCEPTS = {
-        "overdue_amount": {
-            "concept": "overdue_amount",
-            "warning": "The 'overdue_amount' field does NOT exist in the loans collection. Use 'loans.outstanding_amount' with status = 'defaulted' or check 'loans.next_due_date'."
-        },
-        "days_past_due": {
+    KNOWN_UNSUPPORTED_CONCEPTS = [
+        {
+            "terms": ["days_past_due", "days past due", "dpd"],
             "concept": "days_past_due",
             "warning": "The 'days_past_due' (DPD) field does NOT exist in the loans collection. Evaluate overdue status using 'loans.status' = 'defaulted' or relative date calculations on 'loans.next_due_date'."
         },
-        "dpd": {
-            "concept": "days_past_due",
-            "warning": "The 'days_past_due' (DPD) field does NOT exist in the loans collection."
+        {
+            "terms": [
+                "overdue_amount", "overdue amount", "overdue loan", "overdue loans",
+                "overdue debt", "overdue debts", "past due balance", "past due balances"
+            ],
+            "concept": "overdue_amount",
+            "warning": "The 'overdue_amount' field does NOT exist in the loans collection. Use 'loans.outstanding_amount' with status = 'defaulted' or check 'loans.next_due_date'."
+        },
+        {
+            "terms": ["delinquent", "delinquent borrower", "delinquent borrowers", "delinquent loan", "delinquent loans"],
+            "concept": "delinquent_loans",
+            "warning": "The loans collection has no delinquency bucket or 'days_past_due' field. Delinquent loans are represented by 'loans.status' = 'defaulted' with 'loans.outstanding_amount' > 0."
+        },
+        {
+            "terms": ["arrears", "in arrears"],
+            "concept": "loan_arrears",
+            "warning": "The loans collection does not track 'arrears' as a separate field. Use 'loans.outstanding_amount' with status = 'defaulted' or check 'loans.next_due_date'."
+        },
+        {
+            "terms": ["npa", "non performing asset", "non-performing asset", "non performing assets"],
+            "concept": "npa",
+            "warning": "Non-performing assets (NPA) are not classified via special regulatory fields. In this schema, defaulted loans are identified by 'loans.status' = 'defaulted'."
+        },
+        {
+            "terms": ["late payment", "late payments"],
+            "concept": "late_payments",
+            "warning": "Late payment history is not tracked per loan installment. Check 'loans.next_due_date' < current date or 'loans.status' = 'defaulted'."
+        },
+        {
+            "terms": ["defaulted loan", "defaulted loans"],
+            "concept": "defaulted_loans",
+            "warning": "Defaulted loans are queried using 'loans.status' = 'defaulted'. Note that 'days_past_due' and 'overdue_amount' do NOT exist; only 'loans.outstanding_amount' is available."
         }
-    }
+    ]
 
     def __init__(
         self,
@@ -93,7 +120,7 @@ class SchemaRetriever:
         """
         cleaned_query = query.strip()
         if not cleaned_query:
-            return RetrievalResult(query=query)
+            return RetrievalResult(query=query, status="no_hits")
 
         k = top_k or settings.RETRIEVAL_TOP_K
         provider = self.embedding_provider
@@ -125,7 +152,7 @@ class SchemaRetriever:
 
         # 3. Process and filter documents
         retrieved_docs: List[RetrievedDocument] = []
-        collections_found: Set[str] = set()
+        collection_scores: Dict[str, float] = {}
         fields_found: List[Dict[str, Any]] = []
         seen_field_keys: Set[str] = set()
 
@@ -148,7 +175,8 @@ class SchemaRetriever:
         }
         for token in tokens:
             if token in col_keywords:
-                collections_found.add(col_keywords[token])
+                matched_col = col_keywords[token]
+                collection_scores[matched_col] = max(collection_scores.get(matched_col, 0.0), 0.99)
 
         for hit in raw_hits:
             meta = hit.get("metadata", {})
@@ -159,8 +187,9 @@ class SchemaRetriever:
                 continue
 
             col = meta.get("collection")
+            sim = hit.get("similarity", 0.0)
             if col and col != "general":
-                collections_found.add(col)
+                collection_scores[col] = max(collection_scores.get(col, 0.0), sim)
 
             f_name = meta.get("field")
             if col and f_name:
@@ -187,12 +216,20 @@ class SchemaRetriever:
             )
             retrieved_docs.append(doc)
 
+        # Ranked collections preserving vector similarity order (score descending)
+        ranked_collections = sorted(
+            collection_scores.keys(),
+            key=lambda c: collection_scores[c],
+            reverse=True
+        )
+
         # 4. Multi-collection join expansion
         discovered_relationships: List[Dict[str, Any]] = []
-        if len(collections_found) > 1:
+        if len(ranked_collections) > 1:
             cat = self.catalog
+            ranked_set = set(ranked_collections)
             for rel in cat.relationships:
-                if rel.from_collection in collections_found and rel.to_collection in collections_found:
+                if rel.from_collection in ranked_set and rel.to_collection in ranked_set:
                     discovered_relationships.append({
                         "from": f"{rel.from_collection}.{rel.from_field}",
                         "to": f"{rel.to_collection}.{rel.to_field}",
@@ -200,19 +237,30 @@ class SchemaRetriever:
                         "description": rel.description
                     })
 
-        # 5. Unsupported concept inspection
+        # 5. Unsupported concept inspection (with regex word boundaries)
         unsupported: List[Dict[str, str]] = []
         q_lower = cleaned_query.lower()
-        for term, info in self.KNOWN_UNSUPPORTED_CONCEPTS.items():
-            if term.replace("_", " ") in q_lower or term in q_lower:
-                unsupported.append(info)
+        seen_concepts: Set[str] = set()
+        for item in self.KNOWN_UNSUPPORTED_CONCEPTS:
+            for term in item["terms"]:
+                pattern = r"\b" + re.escape(term) + r"\b"
+                if re.search(pattern, q_lower):
+                    if item["concept"] not in seen_concepts:
+                        seen_concepts.add(item["concept"])
+                        unsupported.append({
+                            "concept": item["concept"],
+                            "warning": item["warning"]
+                        })
+                    break
 
         # Limit returned documents to requested top_k
         final_docs = retrieved_docs[:k]
+        status = "ready" if (final_docs or ranked_collections) else "no_hits"
 
         return RetrievalResult(
             query=cleaned_query,
-            relevant_collections=sorted(list(collections_found)),
+            status=status,
+            relevant_collections=ranked_collections,
             relevant_fields=fields_found[:k],
             relevant_relationships=discovered_relationships,
             retrieved_documents=final_docs,

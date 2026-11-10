@@ -251,3 +251,136 @@ def test_rate_limiter_in_memory():
 
     limiter.reset()
     assert limiter.is_allowed(test_ip) is True
+
+
+# ==============================================================================
+# 6. Milestone B: Schema Catalog & RAG Verification Tests
+# ==============================================================================
+
+def test_glossary_fields_match_schema_json():
+    """Verify all mapped fields in glossary exist in schema.json and hallucinated fields are fixed."""
+    from backend.app.schema.glossary_mapper import (
+        CANONICAL_GLOSSARY,
+        validate_glossary_against_schema,
+    )
+
+    # 1. Structural validation
+    discrepancies = validate_glossary_against_schema()
+    assert len(discrepancies) == 0, f"Glossary discrepancies found: {discrepancies}"
+
+    # 2. Verify specific hallucinated fields were corrected
+    all_mapped_fields = {
+        field_ref
+        for item in CANONICAL_GLOSSARY
+        for field_ref in item.get("mapped_fields", [])
+    }
+
+    assert "kyc_documents.document_type" in all_mapped_fields
+    assert "kyc_documents.doc_type" not in all_mapped_fields
+
+    assert "fraud_alerts.risk_score" in all_mapped_fields
+    assert "fraud_alerts.severity" not in all_mapped_fields
+
+    assert "merchants.category" in all_mapped_fields
+    assert "merchants.merchant_category" not in all_mapped_fields
+
+
+def test_chromadb_cosine_space_and_similarity():
+    """Verify ChromaDB collection uses cosine space and computes similarity in [0, 1]."""
+    from backend.app.rag.chroma_store import chroma_store
+
+    col = chroma_store.get_collection()
+    # ChromaDB stores hnsw space in configuration['hnsw']['space']
+    space = None
+    if hasattr(col, "configuration") and col.configuration:
+        space = col.configuration.get("hnsw", {}).get("space")
+    if not space and col.metadata:
+        space = col.metadata.get("hnsw:space")
+    assert space == "cosine"
+
+    # Query with mock vector
+    mock_vec = [0.05] * settings.EMBEDDING_DIMENSION
+    hits = chroma_store.query(mock_vec, top_k=3)
+    assert len(hits) > 0
+    for hit in hits:
+        assert 0.0 <= hit["similarity"] <= 1.0
+        assert hit["distance"] is not None
+
+
+def test_retriever_ranking_preserves_vector_similarity():
+    """Verify retriever orders collections by relevance instead of alphabetical sorting."""
+    from backend.app.rag.retriever import schema_retriever
+
+    res = schema_retriever.retrieve("Show debit cards and credit cards with PIN set")
+    # 'cards' should be the highest-relevance collection
+    assert len(res.relevant_collections) > 0
+    assert res.relevant_collections[0] == "cards"
+    assert res.status == "ready"
+
+
+def test_unsupported_loan_concepts_shielding():
+    """Verify conservative mapping detects banking synonyms for missing loan fields without false positives."""
+    from backend.app.rag.retriever import schema_retriever
+
+    # 1. Overdue loans
+    res_overdue = schema_retriever.retrieve("Find overdue loans with overdue amount")
+    overdue_flags = {w["concept"] for w in res_overdue.unsupported_concepts}
+    assert "overdue_amount" in overdue_flags
+
+    # 2. Delinquent borrowers & arrears
+    res_delinquent = schema_retriever.retrieve("Show delinquent borrowers with loans in arrears")
+    delinq_flags = {w["concept"] for w in res_delinquent.unsupported_concepts}
+    assert "delinquent_loans" in delinq_flags
+    assert "loan_arrears" in delinq_flags
+
+    # 3. NPA & DPD
+    res_npa = schema_retriever.retrieve("Show NPA loans with DPD greater than 90")
+    npa_flags = {w["concept"] for w in res_npa.unsupported_concepts}
+    assert "npa" in npa_flags
+    assert "days_past_due" in npa_flags
+
+    # 4. Safe control query: MUST NOT trigger any warning
+    res_safe = schema_retriever.retrieve("Show customers with outstanding loans")
+    assert len(res_safe.unsupported_concepts) == 0
+
+
+def test_retrieval_empty_query_status():
+    """Verify empty or whitespace query returns status='no_hits' and 0 documents."""
+    from backend.app.rag.retriever import schema_retriever
+
+    res = schema_retriever.retrieve("   ")
+    assert res.status == "no_hits"
+    assert res.total_hits == 0
+    assert len(res.retrieved_documents) == 0
+
+
+def test_rag_benchmark_evaluation_metrics():
+    """Verify 18 benchmark test cases run and meet quality thresholds."""
+    from backend.app.rag.evaluation import (
+        EXTENDED_BENCHMARK_TEST_CASES,
+        evaluation_runner,
+    )
+
+    report = evaluation_runner.run_evaluation(test_cases=EXTENDED_BENCHMARK_TEST_CASES, top_k=5)
+    assert report["total_test_cases"] >= 18
+    metrics = report["metrics"]
+    assert metrics["collection_retrieval_hit_rate"] >= 0.95
+    assert metrics["unsupported_concept_shield_rate"] == 1.0
+    assert metrics["mean_reciprocal_rank_mrr"] > 0.8
+
+
+def test_embedding_provider_error_handling():
+    """Verify real provider abstraction raises appropriate exceptions when misconfigured."""
+    from backend.app.core.exceptions import MissingAPIKeyError, ProviderConfigurationError
+    from backend.app.embeddings.openai_provider import OpenAICompatibleEmbeddingProvider
+    from backend.app.embeddings.provider_factory import get_embedding_provider
+
+    # Missing API key
+    provider = OpenAICompatibleEmbeddingProvider(api_key="")
+    with pytest.raises(MissingAPIKeyError):
+        provider.embed_text("test")
+
+    # Invalid provider type
+    with pytest.raises(ProviderConfigurationError):
+        get_embedding_provider(provider_type="unsupported_provider_xyz")
+

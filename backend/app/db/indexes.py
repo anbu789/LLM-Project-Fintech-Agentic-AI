@@ -6,6 +6,7 @@ Audits existing indexes against architecture recommendations without making modi
 from typing import Any, Dict, List
 from pymongo import MongoClient
 from backend.app.config import settings
+from backend.app.db.mongo_client import mongo_manager
 
 # Key recommended indexes based on SYSTEM_ARCHITECTURE_UPDATED.md
 RECOMMENDED_INDEXES: Dict[str, List[Dict[str, Any]]] = {
@@ -74,12 +75,16 @@ RECOMMENDED_INDEXES: Dict[str, List[Dict[str, Any]]] = {
 def audit_indexes(db_name: str = None) -> Dict[str, Any]:
     """Audits existing indexes against recommendations without altering indexes."""
     target_db = db_name or settings.MONGO_BANKING_DB
-    client = MongoClient(settings.MONGO_URI, serverSelectionTimeoutMS=3000)
-    db = client[target_db]
+    if target_db == settings.MONGO_BANKING_DB:
+        db = mongo_manager.get_banking_db(enforce_proxy=True)
+    else:
+        client = mongo_manager.get_metadata_client()
+        db = client[target_db]
 
     report = {}
+    col_names = db.list_collection_names()
     for col_name, rec_list in RECOMMENDED_INDEXES.items():
-        existing = list(db[col_name].list_indexes()) if col_name in db.list_collection_names() else []
+        existing = list(db[col_name].list_indexes()) if col_name in col_names else []
         existing_keys = [tuple(idx["key"].items()) for idx in existing]
 
         matched = []
@@ -101,5 +106,4 @@ def audit_indexes(db_name: str = None) -> Dict[str, Any]:
             "missing_recommendations": missing,
         }
 
-    client.close()
     return report

@@ -34,7 +34,7 @@ CANONICAL_GLOSSARY: List[Dict] = [
         "meaning": "Process of verifying customer identity and regulatory documentation.",
         "implementation_guidance": "Check 'customers.kyc_status' on customer profile or query 'kyc_documents' for submitted documents.",
         "mapped_collections": ["customers", "kyc_documents"],
-        "mapped_fields": ["customers.kyc_status", "kyc_documents.doc_type", "kyc_documents.verification_status"],
+        "mapped_fields": ["customers.kyc_status", "kyc_documents.document_type", "kyc_documents.verification_status"],
         "synonyms": ["kyc", "identity verification", "customer verification", "id verification"]
     },
     {
@@ -50,9 +50,9 @@ CANONICAL_GLOSSARY: List[Dict] = [
         "term": "KYC document",
         "category": "Customer and Identity Terms",
         "meaning": "Identity or address proof record submitted by a customer (e.g. passport, driving licence, utility bill).",
-        "implementation_guidance": "Query 'kyc_documents' collection. Contains 'doc_type', 'doc_number', 'verification_status', and 'verified_by'.",
+        "implementation_guidance": "Query 'kyc_documents' collection. Contains 'document_type', 'doc_number', 'verification_status', and 'verified_by'.",
         "mapped_collections": ["kyc_documents"],
-        "mapped_fields": ["kyc_documents.kyc_id", "kyc_documents.customer_id", "kyc_documents.doc_type", "kyc_documents.verification_status"],
+        "mapped_fields": ["kyc_documents.kyc_id", "kyc_documents.customer_id", "kyc_documents.document_type", "kyc_documents.verification_status"],
         "synonyms": ["id proof", "address proof", "verification document", "identity record"]
     },
     {
@@ -88,9 +88,9 @@ CANONICAL_GLOSSARY: List[Dict] = [
         "term": "Fraud alert",
         "category": "Risk and Fraud Terms",
         "meaning": "System-generated flag identifying a suspicious transaction or unusual activity for review.",
-        "implementation_guidance": "Query 'fraud_alerts' collection. Contains 'alert_id', 'transaction_id', 'customer_id', 'alert_type', 'severity', and 'status'.",
+        "implementation_guidance": "Query 'fraud_alerts' collection. Contains 'alert_id', 'transaction_id', 'customer_id', 'alert_type', 'risk_score', and 'status'.",
         "mapped_collections": ["fraud_alerts"],
-        "mapped_fields": ["fraud_alerts.alert_id", "fraud_alerts.transaction_id", "fraud_alerts.customer_id", "fraud_alerts.alert_type", "fraud_alerts.severity", "fraud_alerts.status"],
+        "mapped_fields": ["fraud_alerts.alert_id", "fraud_alerts.transaction_id", "fraud_alerts.customer_id", "fraud_alerts.alert_type", "fraud_alerts.risk_score", "fraud_alerts.status"],
         "synonyms": ["fraud warning", "suspicious flag", "security alert", "fraud case"]
     },
     {
@@ -180,18 +180,18 @@ CANONICAL_GLOSSARY: List[Dict] = [
         "term": "Merchant",
         "category": "Accounts and Transactions",
         "meaning": "Commercial entity or merchant receiving payment in commercial transactions.",
-        "implementation_guidance": "Collection 'merchants'. Keys: 'merchant_id', 'merchant_name', 'merchant_category', 'city'.",
+        "implementation_guidance": "Collection 'merchants'. Keys: 'merchant_id', 'merchant_name', 'category', 'city'.",
         "mapped_collections": ["merchants", "transactions"],
-        "mapped_fields": ["merchants.merchant_id", "merchants.merchant_name", "merchants.merchant_category", "transactions.merchant_id"],
+        "mapped_fields": ["merchants.merchant_id", "merchants.merchant_name", "merchants.category", "transactions.merchant_id"],
         "synonyms": ["vendor", "store", "shop", "seller", "payee", "retailer"]
     },
     {
         "term": "Merchant category",
         "category": "Accounts and Transactions",
         "meaning": "Industry classification of merchant (e.g., 'Groceries', 'Electronics', 'Healthcare', 'Dining').",
-        "implementation_guidance": "Stored in 'merchants.merchant_category'.",
+        "implementation_guidance": "Stored in 'merchants.category'.",
         "mapped_collections": ["merchants"],
-        "mapped_fields": ["merchants.merchant_category"],
+        "mapped_fields": ["merchants.category"],
         "synonyms": ["mcc", "merchant industry", "business category", "retail category"]
     },
 
@@ -354,3 +354,42 @@ def find_glossary_for_term(term: str) -> Optional[GlossaryEntry]:
         if any(syn.lower() == term_lower for syn in item["synonyms"]):
             return GlossaryEntry(**item)
     return None
+
+
+def validate_glossary_against_schema(schema_dict: Optional[Dict] = None) -> List[str]:
+    """
+    Validates that every collection and field referenced in the glossary
+    actually exists in the provided schema dictionary.
+    Returns a list of error strings; empty list indicates 100% validity.
+    """
+    if schema_dict is None:
+        import json
+        from pathlib import Path
+        from backend.app.config import settings
+        schema_path = Path(settings.SCHEMA_SOURCE_PATH)
+        if not schema_path.exists():
+            return [f"Schema source file not found at {schema_path}"]
+        with open(schema_path, "r", encoding="utf-8") as f:
+            schema_dict = json.load(f)
+
+    errors: List[str] = []
+    collections = schema_dict.get("collections", {})
+
+    for item in CANONICAL_GLOSSARY:
+        term = item["term"]
+        for col in item.get("mapped_collections", []):
+            if col != "general" and col not in collections:
+                errors.append(f"Glossary term '{term}' references nonexistent collection '{col}'")
+
+        for field_ref in item.get("mapped_fields", []):
+            if "." not in field_ref:
+                errors.append(f"Glossary term '{term}' has invalid field format '{field_ref}' (must be collection.field)")
+                continue
+            col, f = field_ref.split(".", 1)
+            if col not in collections:
+                errors.append(f"Glossary term '{term}' references nonexistent collection '{col}' in '{field_ref}'")
+            elif f not in collections[col].get("fields", {}):
+                errors.append(f"Glossary term '{term}' references nonexistent field '{f}' in collection '{col}'")
+
+    return errors
+

@@ -81,7 +81,7 @@ BENCHMARK_TEST_CASES: List[EvaluationTestCase] = [
         query="Find KYC documents belonging to customers",
         category="Customer Compliance",
         expected_collections=["kyc_documents", "customers"],
-        expected_fields=["customer_id", "doc_type"],
+        expected_fields=["customer_id", "document_type"],
         expected_relationships=["kyc_documents.customer_id->customers.customer_id"]
     ),
     EvaluationTestCase(
@@ -98,6 +98,74 @@ BENCHMARK_TEST_CASES: List[EvaluationTestCase] = [
         expected_collections=["loans"],
         expected_fields=["status", "outstanding_amount"],
         unsupported_concepts=["days_past_due", "overdue_amount"]
+    )
+]
+
+# Extended 18 Adversarial and Comprehensive Benchmark Cases
+EXTENDED_BENCHMARK_TEST_CASES: List[EvaluationTestCase] = BENCHMARK_TEST_CASES + [
+    EvaluationTestCase(
+        id="Q11_DELINQUENT_BORROWERS",
+        query="Find delinquent borrowers with loans in arrears",
+        category="Unsupported Synonyms Shielding",
+        expected_collections=["loans"],
+        expected_fields=["status", "outstanding_amount"],
+        unsupported_concepts=["delinquent_loans", "loan_arrears"]
+    ),
+    EvaluationTestCase(
+        id="Q12_NPA_LATE_PAYMENTS",
+        query="List NPA accounts with late payments",
+        category="Regulatory & Missing Concepts",
+        expected_collections=["loans"],
+        expected_fields=["status", "outstanding_amount"],
+        unsupported_concepts=["npa", "late_payments"]
+    ),
+    EvaluationTestCase(
+        id="Q13_SAFE_OUTSTANDING_CONTROL",
+        query="Show customers with outstanding loans",
+        category="Control: No False Positive Warnings",
+        expected_collections=["customers", "loans"],
+        expected_fields=["outstanding_amount", "customer_id"],
+        expected_relationships=["loans.customer_id->customers.customer_id"],
+        unsupported_concepts=[]
+    ),
+    EvaluationTestCase(
+        id="Q14_FRAUD_ALERTS_TXN",
+        query="Find fraud alerts for suspicious transactions",
+        category="Fraud & Risk Analysis",
+        expected_collections=["fraud_alerts", "transactions"],
+        expected_fields=["risk_score", "transaction_id"],
+        expected_relationships=["fraud_alerts.transaction_id->transactions.transaction_id"]
+    ),
+    EvaluationTestCase(
+        id="Q15_INVESTMENTS_STOCKS",
+        query="Find customer investments in stocks",
+        category="Wealth & Investment",
+        expected_collections=["investments", "customers"],
+        expected_fields=["investment_type", "customer_id"],
+        expected_relationships=["investments.customer_id->customers.customer_id"]
+    ),
+    EvaluationTestCase(
+        id="Q16_SUPPORT_TICKETS_AGENT",
+        query="Show support tickets assigned to employees",
+        category="Operations & Support",
+        expected_collections=["support_tickets", "employees"],
+        expected_fields=["ticket_id", "assigned_agent_id"],
+        expected_relationships=["support_tickets.assigned_agent_id->employees.employee_id"]
+    ),
+    EvaluationTestCase(
+        id="Q17_CARDS_CONTACTLESS",
+        query="List active contactless credit cards",
+        category="Card Attributes & Filters",
+        expected_collections=["cards"],
+        expected_fields=["is_contactless", "card_type", "status"]
+    ),
+    EvaluationTestCase(
+        id="Q18_BRANCH_MANAGERS",
+        query="Find branch managers for all branches",
+        category="Management Hierarchy",
+        expected_collections=["branches", "employees"],
+        expected_fields=["manager_id", "branch_id"],
+        expected_relationships=["branches.manager_id->employees.employee_id"]
     )
 ]
 

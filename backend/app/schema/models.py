@@ -61,6 +61,7 @@ class SchemaCatalog(BaseModel):
     database: str = Field(..., description="Database name (fintech_agent_db)")
     schema_version: str = Field(..., description="Schema revision number")
     catalog_fingerprint: str = Field(..., description="Deterministic SHA-256 hash of schema structure")
+    source_fingerprint: Optional[str] = Field(default=None, description="SHA-256 hash of raw schema.json file for cache invalidation")
     generated_at: str = Field(..., description="ISO 8601 generation timestamp")
     source: str = Field(default="schema.json + mongodb_inspection + banking_glossary", description="Source of catalog")
     collections: Dict[str, CollectionMetadata] = Field(default_factory=dict, description="Collections map")

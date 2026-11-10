@@ -1,15 +1,20 @@
 """
 FinTech Agent — Application Configuration
 Loaded from environment variables and .env file using Pydantic Settings.
-Includes security validation, timeout constraints, and dual-database credential isolation.
+Includes security validation, timeout constraints, dual-database credential isolation,
+and centralized project root path resolution.
 """
 
+from pathlib import Path
 import urllib.parse
 from typing import List, Optional
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from backend.app.core.exceptions import DatabaseCredentialsError
+
+# Centralized project root resolution (independent of process CWD)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 
 class Settings(BaseSettings):
@@ -75,12 +80,35 @@ class Settings(BaseSettings):
     # LLM Provider Configuration
     LLM_PROVIDER: str = Field(default="anthropic", description="LLM provider: mock, anthropic, openai, gemini, groq")
     LLM_MODEL: str = Field(default="claude-3-5-sonnet-20241022", description="LLM model identifier")
-    LLM_API_KEY: Optional[str] = Field(default=None, description="LLM provider API key")
+    LLM_API_KEY: Optional[str] = Field(default=None, description="Generic fallback LLM API key")
     LLM_API_BASE_URL: Optional[str] = Field(default=None, description="Custom base URL for OpenAI-compatible APIs")
     LLM_TIMEOUT_SECONDS: int = Field(default=30, description="LLM API timeout in seconds")
 
-    # Chat API Limits
+    # Provider-Specific API Keys (Isolated Credentials)
+    ANTHROPIC_API_KEY: Optional[str] = Field(default=None, description="Dedicated Anthropic API key")
+    OPENAI_API_KEY: Optional[str] = Field(default=None, description="Dedicated OpenAI API key")
+    GEMINI_API_KEY: Optional[str] = Field(default=None, description="Dedicated Gemini/Google API key")
+    GROQ_API_KEY: Optional[str] = Field(default=None, description="Dedicated Groq API key")
+
+    def get_provider_api_key(self, provider: str) -> Optional[str]:
+        """Resolves provider-specific API key, falling back to LLM_API_KEY if unset."""
+        prov = provider.lower().strip()
+        if prov == "anthropic":
+            return self.ANTHROPIC_API_KEY or self.LLM_API_KEY
+        elif prov == "openai":
+            return self.OPENAI_API_KEY or self.LLM_API_KEY
+        elif prov in {"gemini", "google"}:
+            return self.GEMINI_API_KEY or self.LLM_API_KEY
+        elif prov == "groq":
+            return self.GROQ_API_KEY or self.LLM_API_KEY
+        return self.LLM_API_KEY
+
+    # Chat API Limits & Security
     MAX_MESSAGE_LENGTH: int = Field(default=2000, description="Maximum allowed chat message characters")
+    MAX_REQUEST_BODY_BYTES: int = Field(default=1_048_576, description="Max allowed HTTP request body in bytes (1MB)")
+    USER_RATE_LIMIT: int = Field(default=60, description="Max allowed requests per minute per IP")
+    USER_LLM_BUDGET: int = Field(default=100000, description="Token/character budget for LLM calls")
+    MAX_CONVERSATION_HISTORY_TURNS: int = Field(default=10, description="Max conversation turns passed to LLM context")
 
     # Query Execution & Safety Defaults
     QUERY_TIMEOUT_MS: int = Field(default=15000, description="Server-side query timeout in ms (maxTimeMS)")
@@ -92,23 +120,47 @@ class Settings(BaseSettings):
     REQUEST_TIMEOUT_SECONDS: int = Field(default=30, description="Overall request deadline in seconds")
 
     # ChromaDB & Schema Vector Store Configuration (Phase 3)
-    CHROMA_PERSIST_DIR: str = Field(default="./chroma_data", description="ChromaDB persistence directory")
-    CHROMA_COLLECTION_NAME: str = Field(default="fintech_schema_catalog", description="ChromaDB collection name")
+    CHROMA_PERSIST_DIR: str = Field(
+        default=str(PROJECT_ROOT / "chroma_data"),
+        description="Absolute ChromaDB persistence directory"
+    )
+    CHROMA_COLLECTION_NAME: str = Field(default="fintech_schema_catalog_cosine", description="ChromaDB collection name")
     EMBEDDING_PROVIDER: str = Field(default="mock", description="Embedding provider: mock, sentence-transformers, openai")
     EMBEDDING_MODEL: str = Field(default="all-MiniLM-L6-v2", description="Embedding model identifier")
     EMBEDDING_API_KEY: Optional[str] = Field(default=None, description="API key for external embedding provider")
     EMBEDDING_BATCH_SIZE: int = Field(default=32, description="Batch size for embedding generation")
     EMBEDDING_DIMENSION: int = Field(default=384, description="Expected embedding dimension (384 for MiniLM, 1536 for OpenAI)")
-    SCHEMA_CATALOG_PATH: str = Field(default="backend/data/generated/schema_catalog.json", description="Path to generated schema catalog JSON")
+    SCHEMA_SOURCE_PATH: str = Field(
+        default=str(PROJECT_ROOT / "fintech-agent" / "data" / "schema.json"),
+        description="Path to original source schema.json"
+    )
+    SCHEMA_CATALOG_PATH: str = Field(
+        default=str(PROJECT_ROOT / "backend" / "data" / "generated" / "schema_catalog.json"),
+        description="Path to generated schema catalog JSON"
+    )
     RETRIEVAL_TOP_K: int = Field(default=5, description="Default top-k documents to retrieve")
 
-    # Scheduler (Placeholders for Phase 6)
+    # Scheduler & Jobs
     SCHEDULER_TIMEZONE: str = Field(default="Asia/Kolkata", description="Scheduler timezone")
     SCHEDULER_RECONCILE_INTERVAL_SECONDS: int = Field(default=30, description="Job reconciliation interval")
+    SCHEDULER_MAX_INSTANCES: int = Field(default=1, description="Max concurrent scheduler instances")
+    JOB_MAX_CONSECUTIVE_FAILURES: int = Field(default=3, description="Max consecutive job execution failures")
+
+    # Authentication & JWT Configuration
+    JWT_SECRET_KEY: str = Field(default="dev_jwt_secret_key_minimum_32_chars_long_12345", description="JWT secret key")
+    JWT_ALGORITHM: str = Field(default="HS256", description="JWT signing algorithm")
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30, description="Access token expiration minutes")
+    JWT_REFRESH_TOKEN_EXPIRE_MINUTES: int = Field(default=10080, description="Refresh token expiration minutes")
+
+    # Notification & Delivery
+    SMTP_HOST: Optional[str] = Field(default=None, description="SMTP server host")
+    SMTP_PORT: int = Field(default=587, description="SMTP server port")
+    SMTP_USER: Optional[str] = Field(default=None, description="SMTP username")
+    SMTP_PASS: Optional[str] = Field(default=None, description="SMTP password")
 
     @model_validator(mode="after")
     def validate_security_and_timeouts(self) -> "Settings":
-        """Enforces timeout ranges, retry bounds, and credential isolation."""
+        """Enforces timeout ranges, retry bounds, CORS safety, and credential isolation."""
         if self.QUERY_TIMEOUT_MS <= 0 or self.QUERY_TIMEOUT_MS > 120000:
             raise ValueError(f"QUERY_TIMEOUT_MS must be between 1 and 120000 ms, got {self.QUERY_TIMEOUT_MS}")
 
@@ -117,6 +169,11 @@ class Settings(BaseSettings):
 
         if self.MAX_RETRY_ATTEMPTS < 0 or self.MAX_RETRY_ATTEMPTS > 10:
             raise ValueError(f"MAX_RETRY_ATTEMPTS must be between 0 and 10, got {self.MAX_RETRY_ATTEMPTS}")
+
+        # Check CORS configuration
+        origins = self.cors_origins_list
+        if "*" in origins and len(origins) > 1:
+            raise ValueError("Wildcard '*' cannot be combined with explicit origins in CORS_ORIGINS.")
 
         # Server-side authentication validation
         if self.MONGO_AUTH_ENABLED:

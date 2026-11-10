@@ -1,17 +1,18 @@
 """
 FinTech Agent — Conversational Chat API Route
 Provides basic conversational LLM shell endpoint with request tracing,
-deadline monitoring, and error shielding.
+deadline monitoring, rate limiting, and error shielding.
 """
 
 import time
 import uuid
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from backend.app.config import settings
 from backend.app.core.deadline import RequestDeadline
 from backend.app.core.exceptions import FinTechAgentException
 from backend.app.core.logging import logger, sanitize_error_message
+from backend.app.core.rate_limit import chat_rate_limiter
 from backend.app.schemas.chat import ChatRequest, ChatResponse, ErrorResponse
 from backend.app.services.llm_service import llm_service
 
@@ -21,12 +22,14 @@ router = APIRouter(tags=["Chat"])
 @router.post(
     "/chat",
     response_model=ChatResponse,
+    dependencies=[Depends(chat_rate_limiter)],
     responses={
         400: {"model": ErrorResponse, "description": "Missing configuration or invalid request"},
         401: {"model": ErrorResponse, "description": "LLM provider authentication failed"},
         403: {"model": ErrorResponse, "description": "Forbidden operation"},
+        413: {"model": ErrorResponse, "description": "Payload too large"},
         422: {"model": ErrorResponse, "description": "Request validation error"},
-        429: {"model": ErrorResponse, "description": "Provider rate limit exceeded"},
+        429: {"model": ErrorResponse, "description": "Provider or client rate limit exceeded"},
         500: {"model": ErrorResponse, "description": "Internal server error"},
         502: {"model": ErrorResponse, "description": "LLM provider communication error"},
         504: {"model": ErrorResponse, "description": "Request or query deadline exceeded"},
@@ -34,7 +37,7 @@ router = APIRouter(tags=["Chat"])
 )
 async def chat_endpoint(request: ChatRequest):
     """Processes natural language inquiries via the configured LLM provider under deadline tracking."""
-    request_id = f"req-{uuid.uuid4().hex[:12]}"
+    request_id = f"req-{uuid.uuid4().hex}"
     conv_id = request.conversation_id or f"conv-{uuid.uuid4().hex[:12]}"
     start_time = time.time()
     deadline = RequestDeadline(settings.REQUEST_TIMEOUT_SECONDS, request_id)
@@ -55,7 +58,8 @@ async def chat_endpoint(request: ChatRequest):
             request_id=request_id,
             message=reply_text,
             provider=settings.LLM_PROVIDER,
-            model=settings.LLM_MODEL
+            model=settings.LLM_MODEL,
+            latency_ms=duration_ms
         )
     except FinTechAgentException as fae:
         duration_ms = round((time.time() - start_time) * 1000, 2)
@@ -72,7 +76,8 @@ async def chat_endpoint(request: ChatRequest):
         )
     except Exception as exc:
         duration_ms = round((time.time() - start_time) * 1000, 2)
-        logger.error(f"[{request_id}] Unexpected error in {duration_ms}ms: {str(exc)}", exc_info=True)
+        safe_exc = sanitize_error_message(str(exc))
+        logger.error(f"[{request_id}] Unexpected error in {duration_ms}ms: {safe_exc}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={

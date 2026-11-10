@@ -1,6 +1,6 @@
 """
 FinTech Agent — FastAPI Application Entry Point
-Configures middleware, exception handlers, and API routing.
+Configures middleware (CORS, RequestBodyLimit), exception handlers, and API routing.
 """
 
 from fastapi import FastAPI, Request, status
@@ -10,21 +10,30 @@ from fastapi.responses import JSONResponse
 
 from backend.app.api.routes import api_router
 from backend.app.config import settings
-from backend.app.core.logging import logger
+from backend.app.core.logging import logger, sanitize_error_message
+from backend.app.core.middleware import RequestBodyLimitMiddleware
 
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="Natural Language to Sandboxed MongoDB Query Agent for Banking Operations (Phase 2 LLM Shell)",
+    description="Natural Language to Sandboxed MongoDB Query Agent for Banking Operations",
     docs_url="/docs",
     redoc_url="/redoc",
 )
 
-# CORS Middleware
+# 1. Request Body Size Limiter Middleware
+app.add_middleware(
+    RequestBodyLimitMiddleware,
+    max_body_bytes=settings.MAX_REQUEST_BODY_BYTES
+)
+
+# 2. CORS Middleware with credentials safety
+origins = settings.cors_origins_list
+has_wildcard = "*" in origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
-    allow_credentials=True,
+    allow_origins=origins if not has_wildcard else ["*"],
+    allow_credentials=not has_wildcard,  # Wildcard cannot be used with credentials
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
@@ -39,7 +48,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     msg = first_error.get("msg", "Invalid request payload.")
     error_msg = f"Validation error on '{field}': {msg}" if field else msg
 
-    logger.warning(f"Validation failure on {request.url.path}: {error_msg}")
+    logger.warning(f"Validation failure on {request.url.path}: {sanitize_error_message(error_msg)}")
     return JSONResponse(
         status_code=422,
         content={
@@ -57,7 +66,7 @@ async def root():
     return {
         "service": settings.APP_NAME,
         "version": settings.APP_VERSION,
-        "phase": "Phase 2 — LLM Connectivity & API Shell",
+        "phase": "Pre-Phase 4 Hardened LLM & Schema RAG Shell",
         "documentation": "/docs",
         "health": "/api/v1/health",
     }

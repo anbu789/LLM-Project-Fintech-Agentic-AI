@@ -1,7 +1,7 @@
 """
 FinTech Agent — MongoDB Client and Database Access Layer
-Enforces least-privilege connection separation, read-only database proxying,
-and native query timeout enforcement.
+Enforces least-privilege connection separation, comprehensive read-only database proxying,
+and native query timeout enforcement across all collection and database access paths.
 """
 
 from typing import Any, Dict, List, Optional
@@ -75,24 +75,55 @@ class ReadOnlyCursorProxy:
         except (pymongo.errors.ExecutionTimeout, pymongo.errors.NetworkTimeout) as exc:
             raise DatabaseTimeoutError(self._timeout_ms, str(exc)) from exc
 
+    def explain(self, *args, **kwargs) -> Dict[str, Any]:
+        """Provides read-only query execution plan inspection."""
+        return self._cursor.explain(*args, **kwargs)
+
     def __getattr__(self, name: str) -> Any:
+        if name.startswith("_"):
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
         return getattr(self._cursor, name)
 
 
 class ReadOnlyCollectionProxy:
-    """Wrapper around PyMongo Collection to strictly block write operations and enforce timeouts."""
+    """
+    Explicit read-only wrapper around PyMongo Collection.
+    Strictly intercepts and blocks all write and mutation methods, enforces query timeouts,
+    and prevents unwrapped database or collection leakage.
+    """
 
     BLOCKED_METHODS = {
         "insert_one", "insert_many",
         "update_one", "update_many", "replace_one",
         "delete_one", "delete_many",
         "find_one_and_delete", "find_one_and_replace", "find_one_and_update",
-        "drop", "rename", "create_index", "create_indexes", "drop_index", "drop_indexes",
-        "bulk_write", "map_reduce"
+        "drop", "rename",
+        "create_index", "create_indexes", "drop_index", "drop_indexes",
+        "bulk_write", "map_reduce", "reindex",
+        "create_search_index", "create_search_indexes",
+        "drop_search_index", "update_search_index"
     }
 
-    def __init__(self, collection: Collection):
+    def __init__(self, collection: Collection, database_proxy: Optional["ReadOnlyDatabaseProxy"] = None):
         self._collection = collection
+        self._database_proxy = database_proxy
+
+    @property
+    def name(self) -> str:
+        """Returns collection name."""
+        return self._collection.name
+
+    @property
+    def full_name(self) -> str:
+        """Returns database-qualified collection name."""
+        return self._collection.full_name
+
+    @property
+    def database(self) -> "ReadOnlyDatabaseProxy":
+        """Returns the protected ReadOnlyDatabaseProxy, never the unwrapped PyMongo Database."""
+        if self._database_proxy is None:
+            self._database_proxy = ReadOnlyDatabaseProxy(self._collection.database)
+        return self._database_proxy
 
     def find(self, *args, **kwargs) -> ReadOnlyCursorProxy:
         """Executes find query with server-side timeout injection."""
@@ -109,16 +140,19 @@ class ReadOnlyCollectionProxy:
         except (pymongo.errors.ExecutionTimeout, pymongo.errors.NetworkTimeout) as exc:
             raise DatabaseTimeoutError(timeout_ms, str(exc)) from exc
 
-    def aggregate(self, pipeline: List[Dict[str, Any]], *args, **kwargs) -> ReadOnlyCursorProxy:
-        """Executes aggregation pipeline after blocking mutating stages ($out, $merge)."""
-        # Block write stages disguised in aggregation
+    def aggregate(self, pipeline: Any, *args, **kwargs) -> ReadOnlyCursorProxy:
+        """Executes aggregation pipeline after strictly blocking mutating stages ($out, $merge)."""
+        if not hasattr(pipeline, "__iter__"):
+            raise ValueError("Aggregation pipeline must be an iterable of stage dictionaries.")
+
         for stage in pipeline:
             if isinstance(stage, dict):
                 for stage_key in stage.keys():
-                    if stage_key in ("$out", "$merge"):
+                    key_clean = str(stage_key).strip().lower()
+                    if key_clean in ("$out", "$merge"):
                         raise DatabaseWriteProhibitedError(
                             f"aggregate with stage '{stage_key}'",
-                            details="Pipeline stages $out and $merge mutate data and are prohibited."
+                            details="Pipeline stages $out and $merge mutate data and are strictly prohibited."
                         )
 
         timeout_ms = kwargs.pop("maxTimeMS", None) or kwargs.pop("max_time_ms", None) or settings.QUERY_TIMEOUT_MS
@@ -157,34 +191,93 @@ class ReadOnlyCollectionProxy:
         except (pymongo.errors.ExecutionTimeout, pymongo.errors.NetworkTimeout) as exc:
             raise DatabaseTimeoutError(timeout_ms, str(exc)) from exc
 
+    def list_indexes(self, *args, **kwargs):
+        """Allows read-only index inspection."""
+        return self._collection.list_indexes(*args, **kwargs)
+
+    def index_information(self, *args, **kwargs):
+        """Allows read-only index metadata inspection."""
+        return self._collection.index_information(*args, **kwargs)
+
     def __getattr__(self, name: str) -> Any:
-        if name in self.BLOCKED_METHODS:
+        """Blocks mutation methods and unauthorized attribute access."""
+        mutation_prefixes = ("insert", "update", "delete", "replace", "drop", "create", "bulk", "rename")
+        if name in self.BLOCKED_METHODS or any(name.startswith(p) for p in mutation_prefixes):
             raise DatabaseWriteProhibitedError(name)
-        return getattr(self._collection, name)
+        if name.startswith("_"):
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        raise DatabaseWriteProhibitedError(
+            name,
+            details=f"Method or property '{name}' is not permitted on read-only collections."
+        )
 
 
 class ReadOnlyDatabaseProxy:
-    """Wrapper around PyMongo Database to enforce read-only semantics."""
+    """
+    Wrapper around PyMongo Database to enforce read-only semantics.
+    Protects item access, attribute access (db.customers), get_collection(),
+    and blocks all administrative or mutating database commands.
+    """
+
+    BLOCKED_DATABASE_COMMANDS = {
+        "drop", "dropdatabase", "create", "createindexes", "insert",
+        "update", "delete", "collmod", "renamecollection", "applyops",
+        "converttocapped", "reindex", "eval"
+    }
 
     def __init__(self, database: Database):
         self._database = database
 
+    @property
+    def name(self) -> str:
+        return self._database.name
+
     def __getitem__(self, name: str) -> ReadOnlyCollectionProxy:
-        return ReadOnlyCollectionProxy(self._database[name])
+        return self.get_collection(name)
+
+    def get_collection(self, name: str, *args, **kwargs) -> ReadOnlyCollectionProxy:
+        """Returns a protected ReadOnlyCollectionProxy for the requested collection."""
+        raw_col = self._database.get_collection(name, *args, **kwargs)
+        return ReadOnlyCollectionProxy(raw_col, database_proxy=self)
+
+    def list_collection_names(self, *args, **kwargs) -> List[str]:
+        return self._database.list_collection_names(*args, **kwargs)
+
+    def list_collections(self, *args, **kwargs):
+        return self._database.list_collections(*args, **kwargs)
+
+    def validate_collection(self, name_or_collection, *args, **kwargs):
+        return self._database.validate_collection(name_or_collection, *args, **kwargs)
+
+    def drop_collection(self, name: str) -> None:
+        raise DatabaseWriteProhibitedError("drop_collection")
+
+    def create_collection(self, name: str, *args, **kwargs) -> None:
+        raise DatabaseWriteProhibitedError("create_collection")
+
+    def command(self, cmd: Any, *args, **kwargs) -> Any:
+        """Inspects database commands and blocks all administrative/mutating operations."""
+        if isinstance(cmd, str):
+            cmd_clean = cmd.strip().lower()
+            if cmd_clean in self.BLOCKED_DATABASE_COMMANDS:
+                raise DatabaseWriteProhibitedError(f"Database command '{cmd}'")
+        elif isinstance(cmd, dict):
+            for k in cmd.keys():
+                k_clean = str(k).strip().lower()
+                if k_clean in self.BLOCKED_DATABASE_COMMANDS:
+                    raise DatabaseWriteProhibitedError(f"Database command with key '{k}'")
+        return self._database.command(cmd, *args, **kwargs)
 
     def __getattr__(self, name: str) -> Any:
-        if name in {"drop_collection", "create_collection", "command"}:
-            if name == "command":
-                def safe_command(cmd, *args, **kwargs):
-                    blocked_cmds = {"drop", "dropDatabase", "createIndexes", "delete", "insert", "update", "collMod", "create"}
-                    if isinstance(cmd, str) and cmd in blocked_cmds:
-                        raise DatabaseWriteProhibitedError(f"Database command '{cmd}'")
-                    elif isinstance(cmd, dict) and any(k in blocked_cmds for k in cmd):
-                        raise DatabaseWriteProhibitedError(f"Database command with keys {list(cmd.keys())}")
-                    return self._database.command(cmd, *args, **kwargs)
-                return safe_command
+        """Intercepts attribute access so db.customers returns a ReadOnlyCollectionProxy."""
+        if name.startswith("_"):
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+        if name in {"drop_collection", "create_collection"}:
             raise DatabaseWriteProhibitedError(name)
-        return getattr(self._database, name)
+        if name == "client":
+            raise DatabaseWriteProhibitedError("Direct client access from ReadOnlyDatabaseProxy is prohibited.")
+        # Any collection accessed via attribute (e.g. db.customers, db.accounts) is wrapped
+        return self.get_collection(name)
 
 
 class MongoDBManager:
@@ -296,19 +389,22 @@ def check_mongo_connection(timeout_ms: int = 3000) -> Dict[str, Any]:
 def get_collection_inventory(db_name: Optional[str] = None) -> Dict[str, int]:
     """Retrieves document counts for all collections in the target database."""
     target_db = db_name or settings.MONGO_BANKING_DB
-    client = MongoClient(settings.MONGO_URI, serverSelectionTimeoutMS=3000)
+    if target_db == settings.MONGO_BANKING_DB:
+        db = mongo_manager.get_banking_db(enforce_proxy=True)
+        return {col: db[col].count_documents({}) for col in sorted(db.list_collection_names())}
+    client = mongo_manager.get_metadata_client()
     db = client[target_db]
-    inventory = {col: db[col].count_documents({}) for col in sorted(db.list_collection_names())}
-    client.close()
-    return inventory
+    return {col: db[col].count_documents({}) for col in sorted(db.list_collection_names())}
 
 
 def get_bounded_samples(collection_name: str, limit: int = 3, db_name: Optional[str] = None) -> List[Dict[str, Any]]:
     """Retrieves bounded sample documents without modifying any records."""
     target_db = db_name or settings.MONGO_BANKING_DB
-    client = MongoClient(settings.MONGO_URI, serverSelectionTimeoutMS=3000)
+    if target_db == settings.MONGO_BANKING_DB:
+        db = mongo_manager.get_banking_db(enforce_proxy=True)
+        cursor = db[collection_name].find({}, {"_id": 0}).limit(limit)
+        return list(cursor)
+    client = mongo_manager.get_metadata_client()
     db = client[target_db]
     cursor = db[collection_name].find({}, {"_id": 0}).limit(limit)
-    samples = list(cursor)
-    client.close()
-    return samples
+    return list(cursor)

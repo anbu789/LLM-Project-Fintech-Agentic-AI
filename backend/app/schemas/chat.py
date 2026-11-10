@@ -1,10 +1,14 @@
 """
 FinTech Agent — Pydantic Request & Response Schemas
 Defines structured API contracts for health and conversational endpoints.
+Includes strict input sanitization, conversation ID validation, and latency tracking.
 """
 
+import re
 from typing import Optional
 from pydantic import BaseModel, Field, field_validator
+
+CONVERSATION_ID_REGEX = re.compile(r"^[a-zA-Z0-9_\-]{1,64}$")
 
 
 class ChatRequest(BaseModel):
@@ -22,6 +26,22 @@ class ChatRequest(BaseModel):
             raise ValueError(f"Message exceeds maximum allowed length of 2000 characters (received {len(trimmed)}).")
         return trimmed
 
+    @field_validator("conversation_id")
+    @classmethod
+    def validate_conversation_id(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return None
+        cleaned = v.strip()
+        if not cleaned:
+            return None
+        if "\r" in cleaned or "\n" in cleaned:
+            raise ValueError("conversation_id contains prohibited CRLF characters.")
+        if len(cleaned) > 64:
+            raise ValueError(f"conversation_id exceeds maximum length of 64 characters (received {len(cleaned)}).")
+        if not CONVERSATION_ID_REGEX.match(cleaned):
+            raise ValueError("conversation_id must be 1-64 alphanumeric characters, hyphens, or underscores only.")
+        return cleaned
+
 
 class ChatResponse(BaseModel):
     """Normalized response payload returned to the frontend."""
@@ -31,6 +51,7 @@ class ChatResponse(BaseModel):
     message: str = Field(..., description="LLM generated conversational response")
     provider: str = Field(..., description="Configured LLM provider name")
     model: str = Field(..., description="Configured LLM model name")
+    latency_ms: Optional[float] = Field(default=None, description="Total execution duration in milliseconds")
 
 
 class HealthResponse(BaseModel):

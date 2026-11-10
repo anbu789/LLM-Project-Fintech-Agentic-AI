@@ -52,6 +52,11 @@ class ChatResponse(BaseModel):
     provider: str = Field(..., description="Configured LLM provider name")
     model: str = Field(..., description="Configured LLM model name")
     latency_ms: Optional[float] = Field(default=None, description="Total execution duration in milliseconds")
+    # Phase 4 — Agent metadata fields (backward-compatible Optional additions)
+    intent: Optional[str] = Field(default=None, description="Detected request mode from LangGraph agent")
+    intent_reason: Optional[str] = Field(default=None, description="Brief explanation of intent classification")
+    guardrail_status: Optional[str] = Field(default=None, description="Node 1 guardrail outcome: allowed or rejected")
+    request_mode: Optional[str] = Field(default=None, description="Canonical request mode string from agent state")
 
 
 class HealthResponse(BaseModel):

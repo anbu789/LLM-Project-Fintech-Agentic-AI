@@ -10,6 +10,7 @@ from typing import List
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from backend.app.agent.graph import agent_graph
 from backend.app.config import settings
 from backend.app.core.deadline import RequestDeadline
 from backend.app.core.exceptions import FinTechAgentException
@@ -25,7 +26,6 @@ from backend.app.schemas.chat import (
     DeleteConversationResponse,
     ErrorResponse,
 )
-from backend.app.services.llm_service import llm_service
 
 router = APIRouter(tags=["Chat"])
 
@@ -66,8 +66,34 @@ async def chat_endpoint(request: ChatRequest):
         except Exception as e:
             logger.warning(f"[{request_id}] Could not fetch history from metadata db: {e}")
 
-        deadline.check_deadline("llm_dispatch")
-        reply_text = await llm_service.ask(request.message, conversation_history=history_messages)
+        deadline.check_deadline("agent_dispatch")
+
+        # Build the initial LangGraph agent state
+        initial_state = {
+            "request_id": request_id,
+            "natural_language_query": request.message,
+            "conversation_history": history_messages,
+            "thread_id": conv_id,
+            "request_started_at": datetime.now(timezone.utc).isoformat(),
+            "retry_count": 0,
+            "max_retries": settings.MAX_RETRY_ATTEMPTS,
+            "trace": [],
+            "all_attempts": [],
+            "result_truncated": False,
+            "dry_run": False,
+            "schedule_approved": False,
+        }
+
+        # Invoke the 9-node LangGraph pipeline
+        final_state = await agent_graph.ainvoke(initial_state)
+
+        # Extract the composed reply; fall back gracefully if composer did not run
+        reply_text = (
+            final_state.get("graph_response")
+            or final_state.get("formatted_response")
+            or "I was unable to process your request. Please try again."
+        )
+
         deadline.check_deadline("response_assembly")
 
         duration_ms = round((time.time() - start_time) * 1000, 2)
@@ -112,6 +138,10 @@ async def chat_endpoint(request: ChatRequest):
         except Exception as persist_err:
             logger.warning(f"[{request_id}] Failed to persist conversation history: {persist_err}")
 
+        req_mode = final_state.get("request_mode")
+        intent_reason = final_state.get("intent_reason")
+        guardrail_status = final_state.get("guardrail_status")
+
         return ChatResponse(
             success=True,
             conversation_id=conv_id,
@@ -119,7 +149,11 @@ async def chat_endpoint(request: ChatRequest):
             message=reply_text,
             provider=settings.LLM_PROVIDER,
             model=settings.LLM_MODEL,
-            latency_ms=duration_ms
+            latency_ms=duration_ms,
+            intent=req_mode,
+            intent_reason=intent_reason,
+            guardrail_status=guardrail_status,
+            request_mode=req_mode,
         )
     except FinTechAgentException as fae:
         duration_ms = round((time.time() - start_time) * 1000, 2)

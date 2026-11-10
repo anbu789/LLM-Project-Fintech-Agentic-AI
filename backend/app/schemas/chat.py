@@ -46,17 +46,31 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     """Normalized response payload returned to the frontend."""
     success: bool = Field(default=True, description="Whether the request succeeded")
+    status: str = Field(default="success", description="Status string: success or error")
     conversation_id: str = Field(..., description="Conversation session identifier")
     request_id: str = Field(..., description="Unique request tracing identifier")
     message: str = Field(..., description="LLM generated conversational response")
+    response: Optional[str] = Field(default=None, description="Alias for message")
     provider: str = Field(..., description="Configured LLM provider name")
     model: str = Field(..., description="Configured LLM model name")
     latency_ms: Optional[float] = Field(default=None, description="Total execution duration in milliseconds")
-    # Phase 4 — Agent metadata fields (backward-compatible Optional additions)
+    # Phase 4 — Agent metadata fields
     intent: Optional[str] = Field(default=None, description="Detected request mode from LangGraph agent")
     intent_reason: Optional[str] = Field(default=None, description="Brief explanation of intent classification")
     guardrail_status: Optional[str] = Field(default=None, description="Node 1 guardrail outcome: allowed or rejected")
     request_mode: Optional[str] = Field(default=None, description="Canonical request mode string from agent state")
+    # Phase 5 — MQL Query synthesis & validation metadata
+    pipeline_spec: Optional[list] = Field(default=None, description="Synthesized and validated MongoDB aggregation pipeline")
+    selected_collection: Optional[str] = Field(default=None, description="Target collection for the pipeline")
+    validation_status: Optional[str] = Field(default=None, description="Deterministic MQL validation status: passed or failed")
+    query_explanation: Optional[str] = Field(default=None, description="Natural language explanation of the generated query")
+    trace: Optional[list] = Field(default=None, description="Agent execution audit trace")
+
+    def model_post_init(self, __context) -> None:
+        if self.response is None and self.message is not None:
+            self.response = self.message
+        elif self.message is None and self.response is not None:
+            self.message = self.response
 
 
 class HealthResponse(BaseModel):

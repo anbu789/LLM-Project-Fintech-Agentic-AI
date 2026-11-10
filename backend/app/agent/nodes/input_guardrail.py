@@ -103,11 +103,11 @@ async def input_guardrail_node(state: "dict[str, Any]") -> Dict[str, Any]:
         also set so the graph can terminate cleanly via END.
     """
     request_id = state.get("request_id", "unknown")
-    query: str = state.get("natural_language_query") or ""
+    query: str = state.get("natural_language_query") or state.get("user_message") or ""
     trace: list = list(state.get("trace") or [])
 
     def _reject(reason: str, user_msg: str) -> Dict[str, Any]:
-        logger.warning(f"[{request_id}] Guardrail REJECTED — {reason}")
+        logger.warning(f"[{request_id}] Guardrail REJECTED - {reason}")
         trace.append(_trace_entry("input_guardrail", "rejected", reason))
         return {
             "guardrail_status": "rejected",
@@ -175,9 +175,12 @@ async def input_guardrail_node(state: "dict[str, Any]") -> Dict[str, Any]:
             )
 
     # -- All checks passed --------------------------------------------------
-    logger.info(f"[{request_id}] Guardrail ALLOWED — query length={len(query)}")
+    logger.info(f"[{request_id}] Guardrail ALLOWED - query length={len(query)}")
     trace.append(_trace_entry("input_guardrail", "allowed", "All guardrail checks passed."))
     return {
         "guardrail_status": "allowed",
+        "rejection_reason": None,
+        "natural_language_query": query,
+        "user_message": query,
         "trace": trace,
     }

@@ -142,11 +142,20 @@ async def chat_endpoint(request: ChatRequest):
         intent_reason = final_state.get("intent_reason")
         guardrail_status = final_state.get("guardrail_status")
 
+        pipeline_spec = final_state.get("pipeline_spec") or final_state.get("generated_pipeline")
+        target_col = final_state.get("selected_collection") or final_state.get("target_collection")
+        is_valid = final_state.get("is_pipeline_valid") or (final_state.get("validation_status") == "VALID")
+        val_status = "passed" if is_valid else ("failed" if pipeline_spec else None)
+        query_expl = final_state.get("pipeline_explanation") or final_state.get("query_explanation")
+        trace_data = final_state.get("trace")
+
         return ChatResponse(
             success=True,
+            status="success",
             conversation_id=conv_id,
             request_id=request_id,
             message=reply_text,
+            response=reply_text,
             provider=settings.LLM_PROVIDER,
             model=settings.LLM_MODEL,
             latency_ms=duration_ms,
@@ -154,6 +163,11 @@ async def chat_endpoint(request: ChatRequest):
             intent_reason=intent_reason,
             guardrail_status=guardrail_status,
             request_mode=req_mode,
+            pipeline_spec=pipeline_spec,
+            selected_collection=target_col,
+            validation_status=val_status,
+            query_explanation=query_expl,
+            trace=trace_data,
         )
     except FinTechAgentException as fae:
         duration_ms = round((time.time() - start_time) * 1000, 2)

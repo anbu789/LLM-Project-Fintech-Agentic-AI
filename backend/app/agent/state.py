@@ -73,12 +73,18 @@ class AgentState(TypedDict, total=False):
     # ---- Node 4 — Query Synthesizer ----------------------------------------
     generated_pipeline: Optional[list[dict[str, Any]]]
     target_collection: Optional[str]
+    selected_collection: Optional[str]
+    pipeline_spec: Optional[list[dict[str, Any]]]
     query_parameters: dict[str, Any]
     temporal_spec: Optional[dict[str, Any]]
+    query_explanation: Optional[str]
+    assumptions_made: list[str]
 
     # ---- Node 5 — MQL Policy Validator -------------------------------------
     validation_status: str
     validation_errors: list[str]
+    validation_warnings: list[str]
+    is_pipeline_valid: bool
     query_plan_summary: Optional[dict[str, Any]]
 
     # ---- Node 6 — Read-only Query Executor ---------------------------------
@@ -97,6 +103,7 @@ class AgentState(TypedDict, total=False):
 
     # ---- Node 8 — Response Composer ----------------------------------------
     formatted_response: Optional[str]
+    final_response: Optional[str]
     pipeline_explanation: Optional[str]
     safe_result_summary: Optional[dict[str, Any]]
 

@@ -323,6 +323,11 @@ class MongoDBManager:
         raw_db = client[settings.MONGO_BANKING_DB]
         return ReadOnlyDatabaseProxy(raw_db) if enforce_proxy else raw_db
 
+    @property
+    def banking_db(self) -> Any:
+        """Convenience property for get_banking_db()."""
+        return self.get_banking_db()
+
     def get_metadata_db(self) -> Database:
         """
         Returns the application metadata database (agent_metadata_db).
@@ -330,6 +335,11 @@ class MongoDBManager:
         """
         client = self.get_metadata_client()
         return client[settings.MONGO_METADATA_DB]
+
+    @property
+    def metadata_db(self) -> Database:
+        """Convenience property for get_metadata_db()."""
+        return self.get_metadata_db()
 
     def get_security_status(self) -> Dict[str, Any]:
         """Returns the current MongoDB security posture and timeout configuration."""

@@ -1,19 +1,18 @@
 """
-FinTech Agent — Node 8: Response Composer (Phase 4, Basic Implementation)
-Assembles the final user-facing message from agent state.
+FinTech Agent — Node 8: Response Composer (Phase 5, Full Implementation)
+Assembles the final user-facing response from AgentState.
 
-Phase 4 scope: Composes appropriate responses for all RequestMode outcomes.
-  - QUERY_ONLY → Confirms intent, explains Phase 5 pipeline generation is pending.
-  - QUERY_AND_SCHEDULE → Confirms dual intent, explains both Phase 5 and scheduling pending.
-  - SCHEDULE_ONLY → Confirms scheduling intent, explains future phase pending.
-  - CLARIFICATION_REQUIRED → Forwards the clarification_question to the user.
-  - OUT_OF_SCOPE → Explains system scope and suggests valid queries.
-
-Phase 5+ will replace QUERY_ONLY/QUERY_AND_SCHEDULE/SCHEDULE_ONLY responses with
-actual data results once pipeline generation and execution are implemented.
+Phase 5 responsibilities:
+  - Formats validated MongoDB aggregation pipelines and plain-language explanations.
+  - Explains validation errors when candidate pipelines fail MQL security policy.
+  - Highlights unsupported business concepts (e.g. loans.overdue_amount, days_past_due).
+  - Explicitly states that database query execution has NOT occurred (Phase 6 scope).
+  - Preserves legacy Phase 2/4 response contracts for greetings, clarifications,
+    out-of-scope guidance, and mock terminology explanations.
 """
 
 from datetime import datetime, timezone
+import json
 from typing import Any, Dict
 
 from backend.app.config import settings
@@ -21,50 +20,70 @@ from backend.app.core.logging import logger
 from backend.app.services.llm_service import llm_service
 
 # ---------------------------------------------------------------------------
-# Phase 4 response templates
+# Phase 5 Response Templates
 # ---------------------------------------------------------------------------
 
-_QUERY_ONLY_TEMPLATE = """\
-✅ **Query Understood** (Phase 4 — Intent Confirmed)
+_VALIDATED_PIPELINE_TEMPLATE = """\
+✅ **Query Understood & Validated** (Phase 5 — Pipeline Generated)
 
-I've identified your request as a **data query**:
+**Target Collection:** `{target_collection}`  
+**Explanation:** {pipeline_explanation}
 
-> {query_description}
+```json
+{formatted_pipeline}
+```
 
-**Current system status:** Pipeline generation (Phase 5) is not yet implemented. \
-In Phase 5, I will generate a sandboxed MongoDB aggregation pipeline and return \
-real data from the banking database.
+**MQL Security Validation Summary:**
+- Validation Status: `{validation_status}`
+- Stage Count: {stage_count} ({stages_used})
+- Policy: Deterministically verified against canonical schema. Zero unsafe operators.
 
-*Intent confidence: {intent_reason}*
+> ℹ️ **Phase 5 Execution Notice:** The aggregation pipeline above has been validated and prepared for execution. In accordance with Phase 5 boundaries, database query execution has NOT occurred (scheduled for Phase 6).
+"""
+
+_INVALID_PIPELINE_TEMPLATE = """\
+❌ **Query Validation Failed** (Phase 5)
+
+The generated query plan for collection `{target_collection}` could not pass deterministic security validation.
+
+**Validation Errors:**
+{formatted_errors}
+
+Please refine your query or ensure that only canonical banking fields and relationships are requested.
+"""
+
+_UNSUPPORTED_CONCEPT_TEMPLATE = """\
+⚠️ **Unsupported Banking Concept** (Phase 5)
+
+{unsupported_explanations}
+
+**Canonical Schema Guidance:**
+- `loans.outstanding_amount` exists and represents remaining principal.
+- `loans.overdue_amount` and `loans.days_past_due` do NOT exist.
+- To analyze defaulted or delinquent loans, use `loans.status = 'defaulted'`.
 """
 
 _QUERY_AND_SCHEDULE_TEMPLATE = """\
-✅ **Query + Schedule Request Understood** (Phase 4 — Intent Confirmed)
+✅ **Query Understood & Validated (Schedule Request Pending)** (Phase 5)
 
-I've identified your request as: **retrieve data now AND schedule recurring delivery**.
+**Target Collection:** `{target_collection}`  
+**Explanation:** {pipeline_explanation}
 
-> {query_description}
+```json
+{formatted_pipeline}
+```
 
-**Current system status:**
-- Pipeline generation and execution (Phase 5) is not yet implemented.
-- Recurring scheduling and job registration (future phase) is not yet implemented.
-
-Both will be available in upcoming phases.
-
-*Intent confidence: {intent_reason}*
+> ℹ️ **Scheduling Status:** Query pipeline validated. Recurring scheduling and job registration are planned for a future phase after query execution (Phase 6) is established.
 """
 
 _SCHEDULE_ONLY_TEMPLATE = """\
-✅ **Schedule Request Understood** (Phase 4 — Intent Confirmed)
+✅ **Schedule Request Understood** (Phase 5)
 
 I've identified your request as: **set up a recurring scheduled report**.
 
 > {query_description}
 
-**Current system status:** Scheduled job registration is planned for a future phase \
-after pipeline generation and execution are implemented.
-
-*Intent confidence: {intent_reason}*
+**Current system status:** Scheduled job registration is planned for a future phase after pipeline generation (Phase 5) and execution (Phase 6) are implemented.
 """
 
 _CLARIFICATION_TEMPLATE = """\
@@ -72,8 +91,7 @@ _CLARIFICATION_TEMPLATE = """\
 
 {clarification_question}
 
-Please provide more details so I can generate the right banking data query for you. \
-For example:
+Please provide more details so I can generate the right banking data query for you. For example:
 - "Show me active loans above ₹10 lakhs in the last 30 days"
 - "List customers with high credit risk score in Mumbai branch"
 - "Total outstanding amount by loan product category"
@@ -84,9 +102,7 @@ _OUT_OF_SCOPE_TEMPLATE = """\
 
 {intent_reason}
 
-**FinTech Agent** is designed for banking data analytics queries. Here are some \
-things I can help with:
-
+**FinTech Agent** is designed for banking data analytics queries. Here are some things I can help with:
 - Loan portfolio analysis (outstanding amounts, delinquency rates, NPA classification)
 - Customer risk profiling and credit score distributions
 - Transaction monitoring and AML/fraud alert summaries
@@ -109,8 +125,7 @@ For assistance with banking data queries, please submit a valid request such as:
 _UNKNOWN_TEMPLATE = """\
 ⚠️ **Processing Error**
 
-An unexpected error occurred while processing your request (status: {final_status}). \
-Please try again or contact support if the problem persists.
+An unexpected error occurred while processing your request (status: {final_status}). Please try again or contact support if the problem persists.
 """
 
 
@@ -119,17 +134,13 @@ Please try again or contact support if the problem persists.
 # ---------------------------------------------------------------------------
 
 async def response_composer_node(state: Dict[str, Any]) -> Dict[str, Any]:
-    """Node 8: Assembles the final user-facing response from AgentState.
-
-    Reads request_mode, intent fields, and guardrail results to compose an
-    appropriate message.  In Phase 4 this is primarily informational — real
-    data results will be incorporated in Phase 5+.
+    """Node 8: Assembles final user-facing response from AgentState.
 
     Args:
         state: Incoming AgentState dict.
 
     Returns:
-        Partial AgentState with graph_response and formatted_response set.
+        Partial AgentState with graph_response and formatted_response populated.
     """
     request_id = state.get("request_id", "unknown")
     trace: list = list(state.get("trace") or [])
@@ -142,7 +153,17 @@ async def response_composer_node(state: Dict[str, Any]) -> Dict[str, Any]:
     clarification_question = state.get("clarification_question", "")
     rejection_reason = state.get("rejection_reason", "")
 
-    # -- Check for mock provider explanations (e.g. definitions of NPA, KYC in tests)
+    # Phase 5 pipeline state
+    validation_status = state.get("validation_status", "")
+    validation_errors = state.get("validation_errors") or []
+    generated_pipeline = state.get("generated_pipeline")
+    target_collection = state.get("target_collection") or "unknown"
+    pipeline_explanation = state.get("pipeline_explanation") or "Read-only aggregation pipeline."
+    query_plan_summary = state.get("query_plan_summary") or {}
+    query_parameters = state.get("query_parameters") or {}
+    unsupported_concepts = query_parameters.get("unsupported_concepts") or []
+
+    # Mock provider backward-compatibility preamble (e.g. definitions of NPA, KYC in tests)
     mock_preamble = ""
     if (settings.LLM_PROVIDER or "").lower().strip() == "mock" and guardrail_status != "rejected":
         try:
@@ -155,58 +176,88 @@ async def response_composer_node(state: Dict[str, Any]) -> Dict[str, Any]:
         except Exception:
             pass
 
-    # -- Case 1: Guardrail already rejected (should not reach here, but be safe)
+    # -- Case 1: Guardrail rejected
     if guardrail_status == "rejected" or final_status == "rejected":
         msg = _REJECTED_TEMPLATE.format(
             rejection_reason=rejection_reason or "Request did not pass safety checks."
         )
 
-    # -- Case 2: Mode-based composition
-    elif request_mode == "QUERY_ONLY":
-        msg = mock_preamble + _QUERY_ONLY_TEMPLATE.format(
-            query_description=query_description,
-            intent_reason=intent_reason,
+    # -- Case 2: Phase 5 Validated Pipeline (QUERY_ONLY or QUERY_AND_SCHEDULE)
+    elif request_mode in ("QUERY_ONLY", "QUERY_AND_SCHEDULE") and validation_status == "VALID":
+        formatted_json = json.dumps(generated_pipeline or [], indent=2)
+        stages_used = ", ".join(query_plan_summary.get("stages_used", []))
+        stage_count = query_plan_summary.get("stage_count", len(generated_pipeline or []))
+
+        if request_mode == "QUERY_AND_SCHEDULE":
+            msg = mock_preamble + _QUERY_AND_SCHEDULE_TEMPLATE.format(
+                target_collection=target_collection,
+                pipeline_explanation=pipeline_explanation,
+                formatted_pipeline=formatted_json,
+            )
+        else:
+            msg = mock_preamble + _VALIDATED_PIPELINE_TEMPLATE.format(
+                target_collection=target_collection,
+                pipeline_explanation=pipeline_explanation,
+                formatted_pipeline=formatted_json,
+                validation_status=validation_status,
+                stage_count=stage_count,
+                stages_used=stages_used or "read-only",
+            )
+
+    # -- Case 3: Pipeline Failed Validation
+    elif request_mode in ("QUERY_ONLY", "QUERY_AND_SCHEDULE") and validation_status == "INVALID":
+        err_lines = "\n".join(f"- {e}" for e in validation_errors) or "- General validation policy rejection."
+        msg = mock_preamble + _INVALID_PIPELINE_TEMPLATE.format(
+            target_collection=target_collection,
+            formatted_errors=err_lines,
         )
-    elif request_mode == "QUERY_AND_SCHEDULE":
-        msg = mock_preamble + _QUERY_AND_SCHEDULE_TEMPLATE.format(
-            query_description=query_description,
-            intent_reason=intent_reason,
+
+    # -- Case 4: Unsupported Concepts
+    elif unsupported_concepts and validation_status == "UNSUPPORTED":
+        warn_lines = "\n".join(f"- Requested concept '{c}' is not present in schema." for c in unsupported_concepts)
+        msg = mock_preamble + _UNSUPPORTED_CONCEPT_TEMPLATE.format(
+            unsupported_explanations=warn_lines
         )
+
+    # -- Case 5: Schedule Only
     elif request_mode == "SCHEDULE_ONLY":
         msg = mock_preamble + _SCHEDULE_ONLY_TEMPLATE.format(
             query_description=query_description,
             intent_reason=intent_reason,
         )
+
+    # -- Case 6: Clarification Required
     elif request_mode == "CLARIFICATION_REQUIRED":
-        msg = (
-            mock_preamble
-            + _CLARIFICATION_TEMPLATE.format(
-                clarification_question=clarification_question
-                or "Could you describe what banking data you need in more detail?",
-            )
+        msg = mock_preamble + _CLARIFICATION_TEMPLATE.format(
+            clarification_question=clarification_question
+            or "Could you describe what banking data you need in more detail?",
         )
+
+    # -- Case 7: Out of Scope
     elif request_mode == "OUT_OF_SCOPE":
         msg = mock_preamble + _OUT_OF_SCOPE_TEMPLATE.format(intent_reason=intent_reason)
 
-    # -- Case 3: Unexpected state
+    # -- Case 8: Fallback / Unexpected
     else:
         logger.warning(
             f"[{request_id}] Response composer received unexpected state: "
-            f"request_mode='{request_mode}', final_status='{final_status}'"
+            f"request_mode='{request_mode}', validation_status='{validation_status}', "
+            f"final_status='{final_status}'"
         )
         msg = _UNKNOWN_TEMPLATE.format(final_status=final_status or "unknown")
 
-    logger.info(f"[{request_id}] Response composer — mode='{request_mode}', len={len(msg)}")
+    logger.info(f"[{request_id}] Response composer composed message length={len(msg)}")
     trace.append({
         "node": "response_composer",
         "status": "composed",
-        "detail": f"Composed response for mode='{request_mode}'",
+        "detail": f"Composed response for mode='{request_mode}', validation='{validation_status}'",
         "timestamp": datetime.now(timezone.utc).isoformat(),
     })
 
     return {
         "graph_response": msg.strip(),
         "formatted_response": msg.strip(),
+        "final_response": msg.strip(),
         "final_status": final_status or "complete",
         "trace": trace,
     }

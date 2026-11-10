@@ -150,13 +150,13 @@ async def intent_router_node(state: Dict[str, Any]) -> Dict[str, Any]:
     if provider_name == "mock":
         result = mock_classify_intent(query, history)
         logger.info(
-            f"[{request_id}] Mock intent classification → mode='{result['request_mode']}'"
+            f"[{request_id}] Mock intent classification -> mode='{result['request_mode']}'"
         )
         trace.append(
             _trace_entry(
                 "intent_router",
                 "mock",
-                f"Mock classification → {result['request_mode']}",
+                f"Mock classification -> {result['request_mode']}",
             )
         )
         return {**result, "trace": trace}
@@ -186,13 +186,13 @@ async def intent_router_node(state: Dict[str, Any]) -> Dict[str, Any]:
             return {**fallback, "trace": trace}
 
         logger.info(
-            f"[{request_id}] LLM intent classification → mode='{classification.request_mode}'"
+            f"[{request_id}] LLM intent classification -> mode='{classification.request_mode}'"
         )
         trace.append(
             _trace_entry(
                 "intent_router",
                 "success",
-                f"LLM classification → {classification.request_mode}",
+                f"LLM classification -> {classification.request_mode}",
             )
         )
         return {

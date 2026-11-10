@@ -384,3 +384,168 @@ def test_embedding_provider_error_handling():
     with pytest.raises(ProviderConfigurationError):
         get_embedding_provider(provider_type="unsupported_provider_xyz")
 
+
+# ==============================================================================
+# 7. Milestone C: LLM Conversation Handling & Persistence Tests
+# ==============================================================================
+
+def test_multi_turn_conversation_persistence_and_routes(monkeypatch):
+    """Verify chat endpoint stores multi-turn conversation in agent_metadata_db and exposes CRUD routes."""
+    monkeypatch.setattr(settings, "LLM_PROVIDER", "mock")
+
+    test_conv_id = "conv-test-remediation-turn-1"
+
+    # Turn 1
+    resp1 = client.post("/api/v1/chat", json={
+        "message": "What is KYC?",
+        "conversation_id": test_conv_id
+    })
+    assert resp1.status_code == 200
+    assert resp1.json()["conversation_id"] == test_conv_id
+
+    # Turn 2 (Follow-up)
+    resp2 = client.post("/api/v1/chat", json={
+        "message": "Can you explain more about that?",
+        "conversation_id": test_conv_id
+    })
+    assert resp2.status_code == 200
+
+    # Retrieve conversation detail
+    detail_resp = client.get(f"/api/v1/chat/conversations/{test_conv_id}")
+    assert detail_resp.status_code == 200
+    detail = detail_resp.json()
+    assert detail["conversation_id"] == test_conv_id
+    # Should have 4 messages (2 user + 2 assistant)
+    assert len(detail["messages"]) == 4
+    assert detail["messages"][0]["role"] == "user"
+    assert detail["messages"][1]["role"] == "assistant"
+    assert detail["messages"][2]["role"] == "user"
+    assert detail["messages"][3]["role"] == "assistant"
+
+    # List conversations
+    list_resp = client.get("/api/v1/chat/conversations")
+    assert list_resp.status_code == 200
+    conv_ids = [c["conversation_id"] for c in list_resp.json()]
+    assert test_conv_id in conv_ids
+
+    # Delete conversation
+    del_resp = client.delete(f"/api/v1/chat/conversations/{test_conv_id}")
+    assert del_resp.status_code == 200
+    assert del_resp.json()["success"] is True
+
+    # Confirm 404 after deletion
+    detail_after = client.get(f"/api/v1/chat/conversations/{test_conv_id}")
+    assert detail_after.status_code == 404
+
+
+def test_fail_fast_production_configuration(monkeypatch):
+    """Verify production environment rejects mock provider or empty LLM configuration."""
+    from backend.app.core.exceptions import ProviderConfigurationError
+    from backend.app.services.llm_service import llm_service
+
+    monkeypatch.setattr(settings, "APP_ENV", "production")
+    monkeypatch.setattr(settings, "LLM_PROVIDER", "mock")
+
+    with pytest.raises(ProviderConfigurationError) as exc_info:
+        llm_service.get_provider()
+    assert "prohibited in production" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_anthropic_multiple_content_blocks_handling(monkeypatch):
+    """Verify Anthropic provider correctly extracts text block from thinking or mixed blocks."""
+    from backend.app.services.llm_service import AnthropicProvider
+
+    provider = AnthropicProvider(model="claude-3-5-sonnet-20241022", api_key="dummy_key")
+
+    mock_response_data = {
+        "content": [
+            {"type": "thinking", "thinking": "Internal reasoning step..."},
+            {"type": "text", "text": "Extracted banking explanation."}
+        ]
+    }
+
+    import httpx
+    class MockAsyncResponse:
+        status_code = 200
+        def json(self):
+            return mock_response_data
+
+    class MockAsyncClient:
+        def __init__(self, *args, **kwargs):
+            pass
+        async def __aenter__(self):
+            return self
+        async def __aexit__(self, *args):
+            pass
+        async def post(self, *args, **kwargs):
+            return MockAsyncResponse()
+
+    monkeypatch.setattr(httpx, "AsyncClient", MockAsyncClient)
+
+    text = await provider.generate_response("Explain NPA")
+    assert text == "Extracted banking explanation."
+
+
+@pytest.mark.asyncio
+async def test_openai_refusal_and_safety_filter(monkeypatch):
+    """Verify OpenAI adapter handles safety filter finish_reason and refusals safely."""
+    from backend.app.core.exceptions import ProviderAPIError
+    from backend.app.services.llm_service import OpenAICompatibleProvider
+
+    provider = OpenAICompatibleProvider(model="gpt-4o", api_key="dummy_key")
+
+    import httpx
+
+    # 1. Content filter response
+    class MockContentFilterResponse:
+        status_code = 200
+        def json(self):
+            return {
+                "choices": [{
+                    "finish_reason": "content_filter",
+                    "message": {"role": "assistant", "content": None}
+                }]
+            }
+
+    class MockClientContentFilter:
+        def __init__(self, *args, **kwargs):
+            pass
+        async def __aenter__(self):
+            return self
+        async def __aexit__(self, *args):
+            pass
+        async def post(self, *args, **kwargs):
+            return MockContentFilterResponse()
+
+    monkeypatch.setattr(httpx, "AsyncClient", MockClientContentFilter)
+    with pytest.raises(ProviderAPIError) as exc:
+        await provider.generate_response("Unsafe prompt")
+    assert "safety controls" in str(exc.value)
+
+    # 2. Refusal in message
+    class MockRefusalResponse:
+        status_code = 200
+        def json(self):
+            return {
+                "choices": [{
+                    "finish_reason": "stop",
+                    "message": {"role": "assistant", "content": None, "refusal": "I cannot fulfill this financial advice request."}
+                }]
+            }
+
+    class MockClientRefusal:
+        def __init__(self, *args, **kwargs):
+            pass
+        async def __aenter__(self):
+            return self
+        async def __aexit__(self, *args):
+            pass
+        async def post(self, *args, **kwargs):
+            return MockRefusalResponse()
+
+    monkeypatch.setattr(httpx, "AsyncClient", MockClientRefusal)
+    res = await provider.generate_response("Question")
+    assert "[Refusal]:" in res
+
+

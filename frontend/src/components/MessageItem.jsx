@@ -1,5 +1,7 @@
 import React from 'react';
 import { Bot, User, Clock, AlertCircle } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function MessageItem({ message }) {
   const isUser = message.role === 'user';
@@ -28,7 +30,39 @@ export default function MessageItem({ message }) {
                 : 'bg-white text-slate-800 border border-slate-200/80 rounded-tl-none'
             }`}
           >
-            <div className="whitespace-pre-wrap break-words">{message.text}</div>
+            {isUser ? (
+              <div className="whitespace-pre-wrap break-words">{message.text}</div>
+            ) : isError ? (
+              <div className="whitespace-pre-wrap break-words text-rose-800 font-medium">{message.text}</div>
+            ) : (
+              <div className="prose prose-sm max-w-none text-slate-800 leading-relaxed break-words">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    table: ({ node, ...props }) => (
+                      <div className="overflow-x-auto my-2 border border-slate-200 rounded-lg">
+                        <table className="min-w-full divide-y divide-slate-200 text-xs" {...props} />
+                      </div>
+                    ),
+                    thead: ({ node, ...props }) => <thead className="bg-slate-50 text-slate-700 font-semibold" {...props} />,
+                    th: ({ node, ...props }) => <th className="px-3 py-2 text-left font-semibold text-slate-700" {...props} />,
+                    td: ({ node, ...props }) => <td className="px-3 py-1.5 border-t border-slate-100" {...props} />,
+                    code: ({ node, inline, className, children, ...props }) => {
+                      if (inline) {
+                        return <code className="bg-slate-100 text-pink-600 px-1 py-0.5 rounded font-mono text-xs" {...props}>{children}</code>;
+                      }
+                      return (
+                        <pre className="bg-slate-900 text-slate-100 p-3 rounded-lg overflow-x-auto text-xs my-2 font-mono">
+                          <code {...props}>{children}</code>
+                        </pre>
+                      );
+                    },
+                  }}
+                >
+                  {message.text}
+                </ReactMarkdown>
+              </div>
+            )}
           </div>
 
           {/* Metadata badges for Assistant */}
@@ -41,6 +75,9 @@ export default function MessageItem({ message }) {
               )}
               {message.requestId && (
                 <span className="text-slate-400">id:{message.requestId}</span>
+              )}
+              {message.latencyMs && (
+                <span className="text-slate-400">{message.latencyMs}ms</span>
               )}
               {message.timestamp && (
                 <span className="flex items-center space-x-0.5 text-slate-400">

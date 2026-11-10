@@ -1,10 +1,12 @@
 """
 FinTech Agent — Conversational Chat API Route
-Provides basic conversational LLM shell endpoint with request tracing,
-deadline monitoring, rate limiting, and error shielding.
+Provides conversational LLM endpoint with request tracing, multi-turn history,
+conversation persistence in agent_metadata_db, rate limiting, and error shielding.
 """
 
+from datetime import datetime, timezone
 import time
+from typing import List
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 
@@ -13,7 +15,16 @@ from backend.app.core.deadline import RequestDeadline
 from backend.app.core.exceptions import FinTechAgentException
 from backend.app.core.logging import logger, sanitize_error_message
 from backend.app.core.rate_limit import chat_rate_limiter
-from backend.app.schemas.chat import ChatRequest, ChatResponse, ErrorResponse
+from backend.app.db.mongo_client import mongo_manager
+from backend.app.schemas.chat import (
+    CONVERSATION_ID_REGEX,
+    ChatRequest,
+    ChatResponse,
+    ConversationDetail,
+    ConversationSummary,
+    DeleteConversationResponse,
+    ErrorResponse,
+)
 from backend.app.services.llm_service import llm_service
 
 router = APIRouter(tags=["Chat"])
@@ -45,12 +56,61 @@ async def chat_endpoint(request: ChatRequest):
     logger.info(f"[{request_id}] Received chat request for conversation='{conv_id}', length={len(request.message)}")
 
     try:
+        # Load conversation history from agent_metadata_db for multi-turn context
+        history_messages = []
+        try:
+            meta_db = mongo_manager.get_metadata_db()
+            existing_conv = meta_db.conversations.find_one({"conversation_id": conv_id})
+            if existing_conv:
+                history_messages = existing_conv.get("messages", [])
+        except Exception as e:
+            logger.warning(f"[{request_id}] Could not fetch history from metadata db: {e}")
+
         deadline.check_deadline("llm_dispatch")
-        reply_text = await llm_service.ask(request.message)
+        reply_text = await llm_service.ask(request.message, conversation_history=history_messages)
         deadline.check_deadline("response_assembly")
 
         duration_ms = round((time.time() - start_time) * 1000, 2)
         logger.info(f"[{request_id}] Successfully generated response in {duration_ms}ms")
+
+        # Persist conversation turn in agent_metadata_db
+        try:
+            now_iso = datetime.now(timezone.utc).isoformat()
+            user_entry = {
+                "role": "user",
+                "content": request.message,
+                "timestamp": now_iso,
+                "request_id": request_id
+            }
+            assistant_entry = {
+                "role": "assistant",
+                "content": reply_text,
+                "timestamp": now_iso,
+                "request_id": request_id,
+                "provider": settings.LLM_PROVIDER,
+                "model": settings.LLM_MODEL,
+                "latency_ms": duration_ms
+            }
+            meta_db = mongo_manager.get_metadata_db()
+            meta_db.conversations.update_one(
+                {"conversation_id": conv_id},
+                {
+                    "$setOnInsert": {
+                        "conversation_id": conv_id,
+                        "title": request.message[:50] + ("..." if len(request.message) > 50 else ""),
+                        "created_at": now_iso
+                    },
+                    "$set": {
+                        "updated_at": now_iso
+                    },
+                    "$push": {
+                        "messages": {"$each": [user_entry, assistant_entry]}
+                    }
+                },
+                upsert=True
+            )
+        except Exception as persist_err:
+            logger.warning(f"[{request_id}] Failed to persist conversation history: {persist_err}")
 
         return ChatResponse(
             success=True,
@@ -87,3 +147,68 @@ async def chat_endpoint(request: ChatRequest):
                 "request_id": request_id,
             }
         )
+
+
+@router.get("/chat/conversations", response_model=List[ConversationSummary])
+async def list_conversations():
+    """Returns a list of recent conversations stored in agent_metadata_db."""
+    try:
+        meta_db = mongo_manager.get_metadata_db()
+        cursor = meta_db.conversations.find(
+            {},
+            {"conversation_id": 1, "title": 1, "created_at": 1, "updated_at": 1, "messages": 1, "_id": 0}
+        ).sort("updated_at", -1).limit(50)
+
+        summaries = []
+        for doc in cursor:
+            summaries.append(ConversationSummary(
+                conversation_id=doc.get("conversation_id", ""),
+                title=doc.get("title", "Untitled Conversation"),
+                message_count=len(doc.get("messages", [])),
+                created_at=doc.get("created_at", ""),
+                updated_at=doc.get("updated_at", "")
+            ))
+        return summaries
+    except Exception as e:
+        logger.error(f"Failed to list conversations: {e}")
+        return []
+
+
+@router.get("/chat/conversations/{conversation_id}", response_model=ConversationDetail)
+async def get_conversation(conversation_id: str):
+    """Retrieves full conversation history by conversation_id."""
+    clean_id = conversation_id.strip()
+    if not CONVERSATION_ID_REGEX.match(clean_id):
+        raise HTTPException(status_code=422, detail="Invalid conversation_id format.")
+
+    meta_db = mongo_manager.get_metadata_db()
+    conv = meta_db.conversations.find_one({"conversation_id": clean_id}, {"_id": 0})
+    if not conv:
+        raise HTTPException(status_code=404, detail=f"Conversation '{clean_id}' not found.")
+
+    return ConversationDetail(
+        conversation_id=conv.get("conversation_id", clean_id),
+        title=conv.get("title", "Untitled"),
+        created_at=conv.get("created_at", ""),
+        updated_at=conv.get("updated_at", ""),
+        messages=conv.get("messages", [])
+    )
+
+
+@router.delete("/chat/conversations/{conversation_id}", response_model=DeleteConversationResponse)
+async def delete_conversation(conversation_id: str):
+    """Deletes a conversation from agent_metadata_db."""
+    clean_id = conversation_id.strip()
+    if not CONVERSATION_ID_REGEX.match(clean_id):
+        raise HTTPException(status_code=422, detail="Invalid conversation_id format.")
+
+    meta_db = mongo_manager.get_metadata_db()
+    res = meta_db.conversations.delete_one({"conversation_id": clean_id})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail=f"Conversation '{clean_id}' not found.")
+
+    return DeleteConversationResponse(
+        success=True,
+        conversation_id=clean_id,
+        message=f"Conversation '{clean_id}' deleted successfully."
+    )

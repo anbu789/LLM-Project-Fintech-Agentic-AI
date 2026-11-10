@@ -1,10 +1,11 @@
 """
 FinTech Agent — LLM Provider Service
 Provider-independent adapter supporting Mock, Anthropic, OpenAI, Groq, and Gemini.
+Includes multi-turn history handling, provider response safety shields, and fail-fast production checks.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 import httpx
 
 from backend.app.config import settings
@@ -35,16 +36,62 @@ class BaseLLMProvider(ABC):
         self.timeout = timeout
 
     @abstractmethod
-    async def generate_response(self, user_message: str, system_prompt: str = SYSTEM_PROMPT) -> str:
-        """Sends prompt to provider and extracts text completion."""
+    async def generate_response(
+        self,
+        user_message: str,
+        conversation_history: Optional[List[Dict[str, str]]] = None,
+        system_prompt: str = SYSTEM_PROMPT
+    ) -> str:
+        """Sends prompt/conversation to provider and extracts text completion."""
         pass
+
+    def _build_messages_payload(
+        self,
+        user_message: str,
+        conversation_history: Optional[List[Dict[str, str]]] = None,
+        include_system_role: bool = False,
+        system_prompt: str = SYSTEM_PROMPT
+    ) -> List[Dict[str, str]]:
+        """Constructs a sliding window of conversation messages within configured turn limits."""
+        msgs: List[Dict[str, str]] = []
+        if include_system_role and system_prompt:
+            msgs.append({"role": "system", "content": system_prompt})
+
+        if conversation_history:
+            max_msgs = settings.MAX_CONVERSATION_HISTORY_TURNS * 2
+            recent = conversation_history[-max_msgs:]
+            for item in recent:
+                role = item.get("role", "user")
+                content = item.get("content", "")
+                if role in {"user", "assistant"} and content:
+                    msgs.append({"role": role, "content": content})
+
+        if user_message:
+            msgs.append({"role": "user", "content": user_message})
+
+        return msgs
 
 
 class MockLLMProvider(BaseLLMProvider):
     """Deterministic offline provider for unit testing and local development without API keys."""
 
-    async def generate_response(self, user_message: str, system_prompt: str = SYSTEM_PROMPT) -> str:
+    async def generate_response(
+        self,
+        user_message: str,
+        conversation_history: Optional[List[Dict[str, str]]] = None,
+        system_prompt: str = SYSTEM_PROMPT
+    ) -> str:
         msg_lower = user_message.lower()
+
+        # Context-aware follow-up recognition
+        if conversation_history and any(k in msg_lower for k in ("explain more", "what about", "elaborate", "tell me more")):
+            last_asst = next((m.get("content", "") for m in reversed(conversation_history) if m.get("role") == "assistant"), None)
+            if last_asst:
+                return (
+                    f"[FinTech Agent Follow-up] Building upon previous discussion: '{last_asst[:80]}...'. "
+                    "Ensure ongoing compliance with regulatory guidelines and internal audit procedures."
+                )
+
         if "npa" in msg_lower:
             return (
                 "A Non-Performing Asset (NPA) is a loan or advance for which the principal or interest "
@@ -72,7 +119,12 @@ class AnthropicProvider(BaseLLMProvider):
 
     ENDPOINT = "https://api.anthropic.com/v1/messages"
 
-    async def generate_response(self, user_message: str, system_prompt: str = SYSTEM_PROMPT) -> str:
+    async def generate_response(
+        self,
+        user_message: str,
+        conversation_history: Optional[List[Dict[str, str]]] = None,
+        system_prompt: str = SYSTEM_PROMPT
+    ) -> str:
         if not self.api_key:
             raise MissingAPIKeyError("anthropic")
 
@@ -81,11 +133,25 @@ class AnthropicProvider(BaseLLMProvider):
             "anthropic-version": "2023-06-01",
             "content-type": "application/json",
         }
+
+        msgs = self._build_messages_payload(
+            user_message=user_message,
+            conversation_history=conversation_history,
+            include_system_role=False,
+            system_prompt=system_prompt
+        )
+
+        # Anthropic requires messages list to begin with a user turn
+        if msgs and msgs[0]["role"] != "user":
+            msgs = msgs[1:]
+        if not msgs:
+            msgs = [{"role": "user", "content": user_message}]
+
         payload = {
             "model": self.model,
             "max_tokens": 1024,
             "system": system_prompt,
-            "messages": [{"role": "user", "content": user_message}],
+            "messages": msgs,
         }
 
         try:
@@ -100,9 +166,14 @@ class AnthropicProvider(BaseLLMProvider):
 
                 data = res.json()
                 content = data.get("content", [])
-                if content and isinstance(content, list) and "text" in content[0]:
-                    return content[0]["text"]
-                raise ProviderAPIError("anthropic", "Malformed response structure from Anthropic API.")
+                text_blocks = [
+                    item.get("text", "")
+                    for item in content
+                    if isinstance(item, dict) and (item.get("type") == "text" or "text" in item)
+                ]
+                if text_blocks:
+                    return "".join(text_blocks).strip()
+                raise ProviderAPIError("anthropic", "Malformed response structure: no text content blocks returned from Anthropic API.")
         except httpx.TimeoutException:
             raise ProviderTimeoutError("anthropic", self.timeout)
         except httpx.RequestError as e:
@@ -117,7 +188,12 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         self.provider_name = provider_name
         self.base_url = (base_url or "https://api.openai.com/v1").rstrip("/")
 
-    async def generate_response(self, user_message: str, system_prompt: str = SYSTEM_PROMPT) -> str:
+    async def generate_response(
+        self,
+        user_message: str,
+        conversation_history: Optional[List[Dict[str, str]]] = None,
+        system_prompt: str = SYSTEM_PROMPT
+    ) -> str:
         if not self.api_key and "localhost" not in self.base_url and "127.0.0.1" not in self.base_url:
             raise MissingAPIKeyError(self.provider_name)
 
@@ -125,12 +201,19 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             "Authorization": f"Bearer {self.api_key or 'none'}",
             "Content-Type": "application/json",
         }
+        if self.provider_name == "gemini" and self.api_key:
+            headers["x-goog-api-key"] = self.api_key
+
+        msgs = self._build_messages_payload(
+            user_message=user_message,
+            conversation_history=conversation_history,
+            include_system_role=True,
+            system_prompt=system_prompt
+        )
+
         payload = {
             "model": self.model,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_message},
-            ],
+            "messages": msgs,
             "max_tokens": 1024,
             "temperature": 0.2,
         }
@@ -148,9 +231,22 @@ class OpenAICompatibleProvider(BaseLLMProvider):
 
                 data = res.json()
                 choices = data.get("choices", [])
-                if choices and len(choices) > 0 and "message" in choices[0]:
-                    return choices[0]["message"].get("content", "")
-                raise ProviderAPIError(self.provider_name, "Malformed response structure from chat completion endpoint.")
+                if not choices:
+                    raise ProviderAPIError(self.provider_name, "Empty choices returned from chat completion endpoint.")
+
+                first_choice = choices[0]
+                finish_reason = first_choice.get("finish_reason")
+                if finish_reason == "content_filter":
+                    raise ProviderAPIError(self.provider_name, "Response was filtered by provider safety controls.", status_code=400)
+
+                message_obj = first_choice.get("message", {})
+                content_text = message_obj.get("content")
+                if content_text is None:
+                    refusal = message_obj.get("refusal")
+                    if refusal:
+                        return f"[Refusal]: {refusal}"
+                    raise ProviderAPIError(self.provider_name, "Null content received in chat completion response.")
+                return content_text.strip()
         except httpx.TimeoutException:
             raise ProviderTimeoutError(self.provider_name, self.timeout)
         except httpx.RequestError as e:
@@ -164,9 +260,18 @@ class LLMService:
         self._provider_instance: Optional[BaseLLMProvider] = None
 
     def get_provider(self) -> BaseLLMProvider:
-        provider_name = (settings.LLM_PROVIDER or "mock").lower().strip()
+        provider_name = (settings.LLM_PROVIDER or "").lower().strip()
+
+        # Fail-fast check for production environment
+        if settings.APP_ENV == "production":
+            if not provider_name or provider_name == "mock":
+                raise ProviderConfigurationError("Mock provider or unconfigured LLM_PROVIDER is prohibited in production environment.")
+
+        if not provider_name:
+            provider_name = "mock"
+
         model = settings.LLM_MODEL
-        api_key = settings.LLM_API_KEY
+        api_key = settings.get_provider_api_key(provider_name)
         timeout = settings.LLM_TIMEOUT_SECONDS
 
         if provider_name == "mock":
@@ -190,7 +295,6 @@ class LLMService:
                 provider_name="groq"
             )
         elif provider_name in {"gemini", "google"}:
-            # Standard Google GenAI endpoint via OpenAI-compatible endpoint or REST
             base_url = settings.LLM_API_BASE_URL or "https://generativelanguage.googleapis.com/v1beta/openai"
             return OpenAICompatibleProvider(
                 model=model,
@@ -202,11 +306,16 @@ class LLMService:
         else:
             raise ProviderConfigurationError(f"Unsupported LLM provider: '{provider_name}'. Supported: mock, anthropic, openai, groq, gemini.")
 
-    async def ask(self, user_message: str) -> str:
-        """Dispatches message to configured provider adapter."""
+    async def ask(
+        self,
+        user_message: str,
+        conversation_history: Optional[List[Dict[str, str]]] = None
+    ) -> str:
+        """Dispatches message and optional history to configured provider adapter."""
         provider = self.get_provider()
-        logger.info(f"Dispatching query to provider='{settings.LLM_PROVIDER}', model='{settings.LLM_MODEL}'")
-        return await provider.generate_response(user_message)
+        history_len = len(conversation_history) if conversation_history else 0
+        logger.info(f"Dispatching query to provider='{settings.LLM_PROVIDER}', model='{settings.LLM_MODEL}', history_turns={history_len}")
+        return await provider.generate_response(user_message, conversation_history=conversation_history)
 
 
 # Global singleton instance

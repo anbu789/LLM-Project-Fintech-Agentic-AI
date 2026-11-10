@@ -47,4 +47,37 @@ export const sendChatMessage = async (message, conversationId) => {
   }
 };
 
+export const fetchConversations = async () => {
+  try {
+    const response = await apiClient.get('/chat/conversations');
+    return response.data;
+  } catch (error) {
+    return [];
+  }
+};
+
+export const fetchConversation = async (conversationId) => {
+  try {
+    const response = await apiClient.get(`/chat/conversations/${conversationId}`);
+    return response.data;
+  } catch (error) {
+    if (error.response?.data?.detail) {
+      throw error.response.data.detail;
+    }
+    throw error;
+  }
+};
+
+export const deleteConversation = async (conversationId) => {
+  try {
+    const response = await apiClient.delete(`/chat/conversations/${conversationId}`);
+    return response.data;
+  } catch (error) {
+    if (error.response?.data?.detail) {
+      throw error.response.data.detail;
+    }
+    throw error;
+  }
+};
+
 export default apiClient;

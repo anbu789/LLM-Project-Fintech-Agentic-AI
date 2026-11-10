@@ -61,6 +61,31 @@ class HealthResponse(BaseModel):
     version: str = Field(default="1.0.0", description="API version")
 
 
+class ConversationSummary(BaseModel):
+    """Summary of a stored conversation session."""
+    conversation_id: str
+    title: str
+    message_count: int
+    created_at: str
+    updated_at: str
+
+
+class ConversationDetail(BaseModel):
+    """Full detail of a stored conversation with its message history."""
+    conversation_id: str
+    title: str
+    created_at: str
+    updated_at: str
+    messages: list = Field(default_factory=list)
+
+
+class DeleteConversationResponse(BaseModel):
+    """Result of deleting a conversation."""
+    success: bool = True
+    conversation_id: str
+    message: str = "Conversation deleted"
+
+
 class ErrorResponse(BaseModel):
     """Structured error contract returned on validation or provider failures."""
     success: bool = Field(default=False, description="Failure status flag")

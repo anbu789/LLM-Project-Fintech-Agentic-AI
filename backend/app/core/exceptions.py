@@ -3,7 +3,7 @@ FinTech Agent — Core Exceptions
 Standardized exception classes for LLM provider, validation, and API errors.
 """
 
-from typing import Optional
+from typing import Dict, List, Optional
 
 
 class FinTechAgentException(Exception):
@@ -44,14 +44,87 @@ class ProviderRateLimitError(FinTechAgentException):
 
 class ProviderTimeoutError(FinTechAgentException):
     """Raised when the LLM provider call times out."""
-    def __init__(self, provider: str, timeout: int):
-        super().__init__(f"Call to {provider} timed out after {timeout} seconds.", error_code="PROVIDER_TIMEOUT", status_code=504)
+    def __init__(
+        self,
+        provider: str,
+        timeout: float,
+        message: Optional[str] = None,
+        error_code: str = "PROVIDER_TIMEOUT",
+    ):
+        msg = message or f"Call to {provider} timed out after {timeout} seconds."
+        super().__init__(msg, error_code=error_code, status_code=504)
 
 
 class ProviderAPIError(FinTechAgentException):
     """Raised when the LLM provider returns a non-transient API failure."""
-    def __init__(self, provider: str, message: str, status_code: int = 502):
-        super().__init__(f"{provider} API error: {message}", error_code="PROVIDER_API_ERROR", status_code=status_code)
+    def __init__(
+        self,
+        provider: str,
+        message: str,
+        status_code: int = 502,
+        error_code: str = "PROVIDER_API_ERROR",
+    ):
+        super().__init__(f"{provider} API error: {message}", error_code=error_code, status_code=status_code)
+
+
+class ProviderUnavailableError(ProviderAPIError):
+    """Raised when the LLM provider is temporarily unavailable (e.g., HTTP 503)."""
+    def __init__(self, provider: str, message: str = "Provider service unavailable.", status_code: int = 503):
+        super().__init__(
+            provider=provider,
+            message=message,
+            status_code=status_code,
+            error_code="PROVIDER_UNAVAILABLE",
+        )
+
+
+class ProviderRetryExhaustedError(ProviderAPIError):
+    """Raised when all retry attempts to an LLM provider are exhausted."""
+    def __init__(
+        self,
+        provider: str,
+        message: str,
+        status_code: int = 503,
+        error_code: str = "PROVIDER_RETRY_EXHAUSTED",
+    ):
+        super().__init__(
+            provider=provider,
+            message=message,
+            status_code=status_code,
+            error_code=error_code,
+        )
+
+
+class LLMFallbackExhaustedError(ProviderRetryExhaustedError):
+    """Raised when the primary LLM provider and all configured fallback providers have failed or been skipped."""
+    def __init__(
+        self,
+        attempted_providers: List[str],
+        failure_reasons: Dict[str, str],
+        deadline_exhausted: bool = False,
+        skipped_providers: Optional[Dict[str, str]] = None,
+        status_code: int = 503,
+    ):
+        self.attempted_providers = list(attempted_providers)
+        self.failure_reasons = dict(failure_reasons)
+        self.deadline_exhausted = deadline_exhausted
+        self.skipped_providers = dict(skipped_providers or {})
+
+        details = []
+        for p in self.attempted_providers:
+            details.append(f"{p} (failed: {self.failure_reasons.get(p, 'unknown')})")
+        for p, r in self.skipped_providers.items():
+            details.append(f"{p} (skipped: {r})")
+
+        summary = "; ".join(details) if details else "All configured providers failed."
+        msg = f"All LLM providers in fallback chain failed: {summary}"
+        err_code = "PROVIDER_TIMEOUT" if deadline_exhausted else "LLM_FALLBACK_EXHAUSTED"
+        super().__init__(
+            provider="fallback_manager",
+            message=msg,
+            status_code=504 if deadline_exhausted else status_code,
+            error_code=err_code,
+        )
 
 
 class InvalidRequestError(FinTechAgentException):

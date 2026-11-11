@@ -4,16 +4,29 @@ Provides conversational LLM endpoint with request tracing, multi-turn history,
 conversation persistence in agent_metadata_db, rate limiting, and error shielding.
 """
 
+import asyncio
 from datetime import datetime, timezone
+import json
 import time
-from typing import List
+from typing import Any, List, Optional
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 
 from backend.app.agent.graph import agent_graph
 from backend.app.config import settings
-from backend.app.core.deadline import RequestDeadline
-from backend.app.core.exceptions import FinTechAgentException
+from backend.app.core.auth import AuthenticatedUser, get_optional_authenticated_user
+from backend.app.core.deadline import (
+    ActiveRequestContext,
+    RequestDeadline,
+    reset_active_request_context,
+    set_active_request_context,
+    get_request_preferred_provider,
+    set_request_preferred_provider,
+    reset_request_preferred_provider,
+)
+from backend.app.core.exceptions import FinTechAgentException, RequestTimeoutError
+from backend.app.core.execution_monitor import execution_monitor, summarize_query_safely
 from backend.app.core.logging import logger, sanitize_error_message
 from backend.app.core.rate_limit import chat_rate_limiter
 from backend.app.db.mongo_client import mongo_manager
@@ -30,6 +43,20 @@ from backend.app.schemas.chat import (
 router = APIRouter(tags=["Chat"])
 
 
+def _sanitize_message_metadata(value: Any) -> Any:
+    """Normalizes structured metadata into plain JSON primitives for safe persistence."""
+    if value is None:
+        return None
+    if isinstance(value, BaseModel):
+        return value.model_dump(mode="json")
+    return json.loads(
+        json.dumps(
+            value,
+            default=lambda obj: obj.model_dump(mode="json") if isinstance(obj, BaseModel) else str(obj),
+        )
+    )
+
+
 @router.post(
     "/chat",
     response_model=ChatResponse,
@@ -43,17 +70,36 @@ router = APIRouter(tags=["Chat"])
         429: {"model": ErrorResponse, "description": "Provider or client rate limit exceeded"},
         500: {"model": ErrorResponse, "description": "Internal server error"},
         502: {"model": ErrorResponse, "description": "LLM provider communication error"},
+        503: {"model": ErrorResponse, "description": "LLM provider temporarily unavailable"},
         504: {"model": ErrorResponse, "description": "Request or query deadline exceeded"},
     }
 )
-async def chat_endpoint(request: ChatRequest):
+async def chat_endpoint(
+    request: ChatRequest,
+    current_user: Optional[AuthenticatedUser] = Depends(get_optional_authenticated_user),
+):
     """Processes natural language inquiries via the configured LLM provider under deadline tracking."""
     request_id = f"req-{uuid.uuid4().hex}"
     conv_id = request.conversation_id or f"conv-{uuid.uuid4().hex[:12]}"
     start_time = time.time()
     deadline = RequestDeadline(settings.REQUEST_TIMEOUT_SECONDS, request_id)
+    ctx_token = set_active_request_context(
+        ActiveRequestContext(request_id=request_id, conversation_id=conv_id, deadline=deadline)
+    )
+    pref_token = set_request_preferred_provider(None)
 
     logger.info(f"[{request_id}] Received chat request for conversation='{conv_id}', length={len(request.message)}")
+    execution_monitor.emit(
+        "REQUEST_STARTED",
+        request_id=request_id,
+        conversation_id=conv_id,
+        status="STARTED",
+        details={
+            "provider": settings.LLM_PROVIDER,
+            "model": settings.LLM_MODEL,
+            **summarize_query_safely(request.message),
+        },
+    )
 
     try:
         # Load conversation history from agent_metadata_db for multi-turn context
@@ -68,15 +114,16 @@ async def chat_endpoint(request: ChatRequest):
 
         deadline.check_deadline("agent_dispatch")
 
-        # Build the initial LangGraph agent state
+        # Build the initial LangGraph agent state (query_max_retries=0 enforces at-most-once execution per request)
         initial_state = {
             "request_id": request_id,
             "natural_language_query": request.message,
             "conversation_history": history_messages,
             "thread_id": conv_id,
+            "selected_provider": None,
             "request_started_at": datetime.now(timezone.utc).isoformat(),
             "retry_count": 0,
-            "max_retries": settings.MAX_RETRY_ATTEMPTS,
+            "max_retries": settings.QUERY_MAX_RETRY_ATTEMPTS,
             "trace": [],
             "all_attempts": [],
             "result_truncated": False,
@@ -84,9 +131,22 @@ async def chat_endpoint(request: ChatRequest):
             "schedule_approved": False,
             "is_api_request": True,
         }
+        if current_user is not None:
+            initial_state["user_id"] = current_user.user_id
+            initial_state["owner_id"] = current_user.user_id
 
-        # Invoke the 9-node LangGraph pipeline
-        final_state = await agent_graph.ainvoke(initial_state)
+        # Invoke the 9-node LangGraph pipeline strictly bounded by overall request deadline
+        try:
+            final_state = await asyncio.wait_for(
+                agent_graph.ainvoke(initial_state),
+                timeout=max(0.25, deadline.remaining_seconds()),
+            )
+        except asyncio.TimeoutError:
+            raise RequestTimeoutError(
+                elapsed_seconds=time.time() - start_time,
+                limit_seconds=settings.REQUEST_TIMEOUT_SECONDS,
+                stage="agent_pipeline",
+            )
 
         # Extract the composed reply; fall back gracefully if composer did not run
         reply_text = (
@@ -99,6 +159,28 @@ async def chat_endpoint(request: ChatRequest):
 
         duration_ms = round((time.time() - start_time) * 1000, 2)
         logger.info(f"[{request_id}] Successfully generated response in {duration_ms}ms")
+
+        req_mode = final_state.get("request_mode")
+        intent_reason = final_state.get("intent_reason")
+        guardrail_status = final_state.get("guardrail_status")
+
+        pipeline_spec = _sanitize_message_metadata(
+            final_state.get("pipeline_spec") or final_state.get("generated_pipeline")
+        )
+        target_col = final_state.get("selected_collection") or final_state.get("target_collection")
+        is_valid = final_state.get("is_pipeline_valid") or (final_state.get("validation_status") == "VALID")
+        val_status = "passed" if is_valid else ("failed" if pipeline_spec else None)
+        query_expl = final_state.get("pipeline_explanation") or final_state.get("query_explanation")
+        trace_data = final_state.get("trace")
+        schedule_preview_data = _sanitize_message_metadata(final_state.get("schedule_preview"))
+        preview_id = final_state.get("preview_id")
+
+        actual_provider = (
+            final_state.get("selected_provider")
+            or final_state.get("llm_provider")
+            or settings.LLM_PROVIDER
+        )
+        actual_model = final_state.get("llm_model") or settings.LLM_MODEL
 
         # Persist conversation turn in agent_metadata_db
         try:
@@ -114,10 +196,23 @@ async def chat_endpoint(request: ChatRequest):
                 "content": reply_text,
                 "timestamp": now_iso,
                 "request_id": request_id,
-                "provider": settings.LLM_PROVIDER,
-                "model": settings.LLM_MODEL,
-                "latency_ms": duration_ms
+                "provider": actual_provider,
+                "model": actual_model,
+                "latency_ms": duration_ms,
             }
+            if pipeline_spec is not None:
+                assistant_entry["pipeline_spec"] = pipeline_spec
+            if target_col is not None:
+                assistant_entry["selected_collection"] = str(target_col)
+            if val_status is not None:
+                assistant_entry["validation_status"] = val_status
+            if query_expl is not None:
+                assistant_entry["query_explanation"] = str(query_expl)
+            if schedule_preview_data is not None:
+                assistant_entry["schedule_preview"] = schedule_preview_data
+            if preview_id is not None:
+                assistant_entry["preview_id"] = str(preview_id)
+
             meta_db = mongo_manager.get_metadata_db()
             meta_db.conversations.update_one(
                 {"conversation_id": conv_id},
@@ -139,16 +234,24 @@ async def chat_endpoint(request: ChatRequest):
         except Exception as persist_err:
             logger.warning(f"[{request_id}] Failed to persist conversation history: {persist_err}")
 
-        req_mode = final_state.get("request_mode")
-        intent_reason = final_state.get("intent_reason")
-        guardrail_status = final_state.get("guardrail_status")
-
-        pipeline_spec = final_state.get("pipeline_spec") or final_state.get("generated_pipeline")
-        target_col = final_state.get("selected_collection") or final_state.get("target_collection")
-        is_valid = final_state.get("is_pipeline_valid") or (final_state.get("validation_status") == "VALID")
-        val_status = "passed" if is_valid else ("failed" if pipeline_spec else None)
-        query_expl = final_state.get("pipeline_explanation") or final_state.get("query_explanation")
-        trace_data = final_state.get("trace")
+        execution_monitor.emit(
+            "REQUEST_COMPLETED",
+            request_id=request_id,
+            conversation_id=conv_id,
+            status=final_state.get("final_status") or "success",
+            elapsed_ms=duration_ms,
+            details={
+                "http_status": 200,
+                "provider": actual_provider,
+                "model": actual_model,
+                "request_mode": req_mode,
+                "guardrail_status": guardrail_status,
+                "validation_status": final_state.get("validation_status"),
+                "selected_collection": target_col,
+                "execution_status": final_state.get("execution_status"),
+                "verification_status": final_state.get("verification_status"),
+            },
+        )
 
         return ChatResponse(
             success=True,
@@ -157,8 +260,8 @@ async def chat_endpoint(request: ChatRequest):
             request_id=request_id,
             message=reply_text,
             response=reply_text,
-            provider=settings.LLM_PROVIDER,
-            model=settings.LLM_MODEL,
+            provider=actual_provider,
+            model=actual_model,
             latency_ms=duration_ms,
             intent=req_mode,
             intent_reason=intent_reason,
@@ -169,12 +272,42 @@ async def chat_endpoint(request: ChatRequest):
             validation_status=val_status,
             query_explanation=query_expl,
             trace=trace_data,
-            schedule_preview=final_state.get("schedule_preview"),
-            preview_id=final_state.get("preview_id"),
+            schedule_preview=schedule_preview_data,
+            preview_id=preview_id,
         )
+    except asyncio.CancelledError:
+        duration_ms = round((time.time() - start_time) * 1000, 2)
+        execution_monitor.emit(
+            "REQUEST_CANCELLED",
+            request_id=request_id,
+            conversation_id=conv_id,
+            status="CANCELLED",
+            elapsed_ms=duration_ms,
+            details={
+                "provider": settings.LLM_PROVIDER,
+                "model": settings.LLM_MODEL,
+                "error_code": "REQUEST_CANCELLED",
+            },
+        )
+        raise
     except FinTechAgentException as fae:
         duration_ms = round((time.time() - start_time) * 1000, 2)
         safe_msg = sanitize_error_message(fae.message)
+        is_timeout = fae.error_code in ("PROVIDER_TIMEOUT", "REQUEST_TIMEOUT", "DATABASE_TIMEOUT")
+        execution_monitor.emit(
+            "REQUEST_TIMEOUT" if is_timeout else "REQUEST_FAILED",
+            request_id=request_id,
+            conversation_id=conv_id,
+            status="TIMEOUT" if is_timeout else "FAILED",
+            elapsed_ms=duration_ms,
+            details={
+                "http_status": fae.status_code,
+                "provider": settings.LLM_PROVIDER,
+                "model": settings.LLM_MODEL,
+                "error_code": fae.error_code,
+                "error_message": safe_msg,
+            },
+        )
         logger.warning(f"[{request_id}] Handled application error ({fae.error_code}) in {duration_ms}ms: {safe_msg}")
         raise HTTPException(
             status_code=fae.status_code,
@@ -188,6 +321,20 @@ async def chat_endpoint(request: ChatRequest):
     except Exception as exc:
         duration_ms = round((time.time() - start_time) * 1000, 2)
         safe_exc = sanitize_error_message(str(exc))
+        execution_monitor.emit(
+            "REQUEST_FAILED",
+            request_id=request_id,
+            conversation_id=conv_id,
+            status="FAILED",
+            elapsed_ms=duration_ms,
+            details={
+                "http_status": 500,
+                "provider": settings.LLM_PROVIDER,
+                "model": settings.LLM_MODEL,
+                "error_code": "INTERNAL_SERVER_ERROR",
+                "error_message": safe_exc,
+            },
+        )
         logger.error(f"[{request_id}] Unexpected error in {duration_ms}ms: {safe_exc}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -198,6 +345,9 @@ async def chat_endpoint(request: ChatRequest):
                 "request_id": request_id,
             }
         )
+    finally:
+        reset_active_request_context(ctx_token)
+        reset_request_preferred_provider(pref_token)
 
 
 @router.get("/chat/conversations", response_model=List[ConversationSummary])

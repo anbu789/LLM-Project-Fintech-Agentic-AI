@@ -6,15 +6,18 @@ Provides basic service status without leaking configuration or credentials.
 from fastapi import APIRouter
 from backend.app.config import settings
 from backend.app.schemas.chat import HealthResponse
+from backend.app.services.llm_service import llm_service
 
 router = APIRouter(tags=["Health"])
 
 
 @router.get("/health", response_model=HealthResponse)
 async def health_check():
-    """Returns application health status."""
+    """Returns application health status including non-generative LLM provider connectivity."""
+    llm_health = await llm_service.check_provider_health()
     return HealthResponse(
         status="healthy",
         service="fintech-agent-api",
-        version=settings.APP_VERSION
+        version=settings.APP_VERSION,
+        llm_health=llm_health,
     )

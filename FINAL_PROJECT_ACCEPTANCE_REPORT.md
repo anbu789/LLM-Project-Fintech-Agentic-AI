@@ -56,7 +56,7 @@ The project repository delivers a fully realized, verifiable software system:
 2. **Comprehensive Test Suite (`backend/tests/`, `frontend/src/test/`):**
    - 331 total automated tests executing across unit, integration, security, and edge-case scenarios.
 3. **Automated Windows Infrastructure:**
-   - `start_project.bat` — Launches API backend on port 8000 and React UI on port 5173.
+   - `start_project.bat` — Launches API backend on port 8001 and React UI on port 5173 with health verification.
    - `start_scheduler.bat` — Safely launches the background scheduler service with gate verification.
    - `run_tests.bat` — Executes full regression testing with pass/fail exit codes.
 4. **Final Documentation Suite:**

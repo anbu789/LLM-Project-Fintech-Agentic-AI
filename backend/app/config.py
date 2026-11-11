@@ -28,10 +28,11 @@ class Settings(BaseSettings):
     APP_ENV: str = Field(default="development", description="Application environment")
     APP_NAME: str = Field(default="FinTech Agent API", description="Application name")
     APP_VERSION: str = Field(default="1.0.0", description="API version")
+    APP_PORT: int = Field(default=8001, description="Application server port")
 
     # CORS
     CORS_ORIGINS: str = Field(
-        default="http://localhost:5173,http://127.0.0.1:5173",
+        default="http://localhost:5173,http://127.0.0.1:5173,http://localhost:8001,http://127.0.0.1:8001",
         description="Comma-separated allowed origins"
     )
 
@@ -82,17 +83,45 @@ class Settings(BaseSettings):
     )
 
     # LLM Provider Configuration
-    LLM_PROVIDER: str = Field(default="anthropic", description="LLM provider: mock, anthropic, openai, gemini, groq")
+    LLM_PROVIDER: str = Field(default="gemini", description="LLM provider: mock, anthropic, openai, gemini, groq, ollama")
     LLM_MODEL: str = Field(default="claude-3-5-sonnet-20241022", description="LLM model identifier")
     LLM_API_KEY: Optional[str] = Field(default=None, description="Generic fallback LLM API key")
     LLM_API_BASE_URL: Optional[str] = Field(default=None, description="Custom base URL for OpenAI-compatible APIs")
-    LLM_TIMEOUT_SECONDS: int = Field(default=30, description="LLM API timeout in seconds")
+    LLM_TIMEOUT_SECONDS: int = Field(default=30, description="Legacy per-provider timeout ceiling in seconds")
+    LLM_ATTEMPT_TIMEOUT_SECONDS: float = Field(default=12.0, description="Per-attempt HTTP timeout ceiling for LLM calls in seconds")
+    LLM_MAX_ATTEMPTS: int = Field(default=2, description="Maximum total attempts per LLM provider call (initial attempt + at most 1 retry)")
+    LLM_RETRY_BASE_DELAY_SECONDS: float = Field(default=0.8, description="Base exponential backoff delay for retryable LLM errors in seconds")
+    LLM_RETRY_MAX_DELAY_SECONDS: float = Field(default=1.5, description="Maximum backoff delay between retryable LLM attempts in seconds")
+    LLM_OPERATION_TIMEOUT_SECONDS: float = Field(default=24.0, description="Total deadline across all retries for one LLM operation in seconds")
+    LLM_MIN_RETRY_BUDGET_SECONDS: float = Field(default=4.0, description="Minimum remaining operation budget in seconds required to permit a retry attempt")
+    LLM_ATTEMPT_RESERVE_SECONDS: float = Field(default=1.0, description="Reserve buffer in seconds kept at operation deadline boundary for cleanup and error delivery")
 
     # Provider-Specific API Keys (Isolated Credentials)
     ANTHROPIC_API_KEY: Optional[str] = Field(default=None, description="Dedicated Anthropic API key")
     OPENAI_API_KEY: Optional[str] = Field(default=None, description="Dedicated OpenAI API key")
     GEMINI_API_KEY: Optional[str] = Field(default=None, description="Dedicated Gemini/Google API key")
     GROQ_API_KEY: Optional[str] = Field(default=None, description="Dedicated Groq API key")
+
+    # Groq Fallback Provider Configuration
+    GROQ_MODEL: str = Field(default="openai/gpt-oss-120b", description="Default Groq model identifier")
+    GROQ_BASE_URL: str = Field(default="https://api.groq.com/openai/v1", description="Groq API base URL")
+
+    # Local Ollama Fallback Provider Configuration
+    OLLAMA_ENABLED: bool = Field(default=True, description="Enable local Ollama fallback provider")
+    OLLAMA_BASE_URL: str = Field(default="http://127.0.0.1:11434", description="Local Ollama server base URL")
+    OLLAMA_MODEL: str = Field(
+        default="hf.co/mradermacher/K2-Horizon-3.7B-i1-GGUF:Q3_K_M",
+        description="Local Ollama model identifier",
+    )
+
+    # Multi-Provider Fallback Orchestration
+    LLM_FALLBACK_ENABLED: bool = Field(default=True, description="Enable multi-provider LLM fallback chain")
+    LLM_FALLBACK_ORDER: str = Field(default="groq,ollama", description="Comma-separated secondary provider fallback order")
+
+    @property
+    def llm_fallback_order_list(self) -> List[str]:
+        """Parsed list of fallback providers in sequence (e.g. ['groq', 'ollama'])."""
+        return [p.strip().lower() for p in self.LLM_FALLBACK_ORDER.split(",") if p.strip()]
 
     def get_provider_api_key(self, provider: str) -> Optional[str]:
         """Resolves provider-specific API key, falling back to LLM_API_KEY if unset."""
@@ -104,7 +133,9 @@ class Settings(BaseSettings):
         elif prov in {"gemini", "google"}:
             return self.GEMINI_API_KEY or self.LLM_API_KEY
         elif prov == "groq":
-            return self.GROQ_API_KEY or self.LLM_API_KEY
+            return self.GROQ_API_KEY
+        elif prov == "ollama":
+            return None
         return self.LLM_API_KEY
 
     # Chat API Limits & Security
@@ -125,7 +156,20 @@ class Settings(BaseSettings):
     MAX_RESULT_NESTING_DEPTH: int = Field(default=10, description="Max allowed document/expression nesting depth")
     PHASE6_LIVE_EXECUTION_ENABLED: bool = Field(default=False, description="Fail-closed execution gate for Phase 6 live queries")
     MAX_RETRY_ATTEMPTS: int = Field(default=3, description="Maximum agent retry attempts")
+    QUERY_MAX_RETRY_ATTEMPTS: int = Field(default=0, description="Maximum database execution retries for API chat requests (0 enforces at-most-once execution)")
     REQUEST_TIMEOUT_SECONDS: int = Field(default=30, description="Overall request deadline in seconds")
+    BACKEND_PROCESSING_RESERVE_SECONDS: float = Field(default=4.0, description="Time reserved inside REQUEST_TIMEOUT_SECONDS for non-LLM stages and error response delivery")
+
+    # Execution Monitor Configuration (Local Rotating JSONL Stream)
+    MONITORING_ENABLED: bool = Field(default=True, description="Enable non-blocking local JSONL execution monitoring")
+    MONITORING_LOG_PATH: str = Field(
+        default=str(PROJECT_ROOT / "logs" / "execution_events.jsonl"),
+        description="Local filesystem path for execution monitor JSONL events",
+    )
+    MONITORING_QUEUE_MAX_SIZE: int = Field(default=2048, description="Bounded async-safe monitoring event queue size")
+    MONITORING_LOG_MAX_BYTES: int = Field(default=5_242_880, description="Maximum size in bytes per monitor log file before rotation")
+    MONITORING_LOG_BACKUP_COUNT: int = Field(default=5, description="Number of rotated monitor log backup files to retain")
+    MONITORING_LOG_FULL_QUERY: bool = Field(default=False, description="When False (default), store privacy-safe redacted/truncated query summaries instead of full user text")
 
     # ChromaDB & Schema Vector Store Configuration (Phase 3)
     CHROMA_PERSIST_DIR: str = Field(
@@ -182,6 +226,33 @@ class Settings(BaseSettings):
 
         if self.MAX_RETRY_ATTEMPTS < 0 or self.MAX_RETRY_ATTEMPTS > 10:
             raise ValueError(f"MAX_RETRY_ATTEMPTS must be between 0 and 10, got {self.MAX_RETRY_ATTEMPTS}")
+
+        if self.LLM_ATTEMPT_TIMEOUT_SECONDS <= 0 or self.LLM_ATTEMPT_TIMEOUT_SECONDS > 120:
+            raise ValueError(f"LLM_ATTEMPT_TIMEOUT_SECONDS must be between 0 and 120, got {self.LLM_ATTEMPT_TIMEOUT_SECONDS}")
+
+        if self.LLM_MAX_ATTEMPTS < 1 or self.LLM_MAX_ATTEMPTS > 10:
+            raise ValueError(f"LLM_MAX_ATTEMPTS must be between 1 and 10, got {self.LLM_MAX_ATTEMPTS}")
+
+        if self.LLM_RETRY_BASE_DELAY_SECONDS < 0 or self.LLM_RETRY_MAX_DELAY_SECONDS < self.LLM_RETRY_BASE_DELAY_SECONDS:
+            raise ValueError("Invalid LLM retry backoff delay configuration.")
+
+        if self.LLM_OPERATION_TIMEOUT_SECONDS <= 0 or self.LLM_OPERATION_TIMEOUT_SECONDS > 300:
+            raise ValueError(f"LLM_OPERATION_TIMEOUT_SECONDS must be between 0 and 300, got {self.LLM_OPERATION_TIMEOUT_SECONDS}")
+
+        if self.BACKEND_PROCESSING_RESERVE_SECONDS < 0 or self.BACKEND_PROCESSING_RESERVE_SECONDS > 60:
+            raise ValueError("BACKEND_PROCESSING_RESERVE_SECONDS must be between 0 and 60.")
+
+        if self.QUERY_MAX_RETRY_ATTEMPTS < 0 or self.QUERY_MAX_RETRY_ATTEMPTS > 5:
+            raise ValueError(f"QUERY_MAX_RETRY_ATTEMPTS must be between 0 and 5, got {self.QUERY_MAX_RETRY_ATTEMPTS}")
+
+        if self.MONITORING_QUEUE_MAX_SIZE < 16:
+            raise ValueError("MONITORING_QUEUE_MAX_SIZE must be at least 16.")
+
+        if self.MONITORING_LOG_MAX_BYTES < 1024:
+            raise ValueError("MONITORING_LOG_MAX_BYTES must be at least 1024 bytes.")
+
+        if self.MONITORING_LOG_BACKUP_COUNT < 1:
+            raise ValueError("MONITORING_LOG_BACKUP_COUNT must be at least 1.")
 
         # Check CORS configuration
         origins = self.cors_origins_list

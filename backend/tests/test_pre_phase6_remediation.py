@@ -305,6 +305,7 @@ async def test_gemini_503_retry_and_recovery():
         base_url="https://generativelanguage.googleapis.com/v1beta/openai",
         timeout=10,
         provider_name="gemini",
+        max_attempts=3,
     )
 
     resp_503 = httpx.Response(503, text="Service Unavailable: High demand")
@@ -328,6 +329,7 @@ async def test_gemini_503_exhausted_retries_raises_api_error():
         base_url="https://generativelanguage.googleapis.com/v1beta/openai",
         timeout=10,
         provider_name="gemini",
+        max_attempts=3,
     )
 
     resp_503 = httpx.Response(503, text="Service Unavailable: High demand")
@@ -348,6 +350,7 @@ async def test_gemini_auth_error_fails_fast_without_retries():
         base_url="https://generativelanguage.googleapis.com/v1beta/openai",
         timeout=10,
         provider_name="gemini",
+        max_attempts=3,
     )
 
     resp_401 = httpx.Response(401, text="Unauthorized: Invalid API key")
@@ -367,6 +370,7 @@ async def test_gemini_quota_exhaustion_fails_fast():
         base_url="https://generativelanguage.googleapis.com/v1beta/openai",
         timeout=10,
         provider_name="gemini",
+        max_attempts=3,
     )
 
     resp_429 = httpx.Response(429, text="Resource has been exhausted: insufficient_quota")

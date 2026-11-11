@@ -460,6 +460,16 @@ def test_task3_schema_drift_config_failure(mock_db):
     assert updated["status"] == "FAILED_CONFIGURATION"
 
 
+def test_root_health_endpoint():
+    """Verifies that top-level /health endpoint responds with 200 OK and healthy status."""
+    client = TestClient(app)
+    resp = client.get("/health")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["status"] == "healthy"
+    assert data["service"] == "fintech-agent-api"
+
+
 def test_task3_scheduler_job_defaults_coalesce():
     runner = SchedulerRunner()
     defaults = runner.scheduler._job_defaults

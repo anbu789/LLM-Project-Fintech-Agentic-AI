@@ -35,9 +35,10 @@ start_project.bat
 **What this script does:**
 1. Verifies the existence of `.\.venv_clean\Scripts\python.exe`.
 2. Verifies `npm` in the Windows system PATH.
-3. Launches the FastAPI backend on port 8000 (`http://127.0.0.1:8000`).
+3. Launches the FastAPI backend on port 8001 (`http://127.0.0.1:8001`).
 4. Launches the React Vite frontend dev server on port 5173 (`http://localhost:5173`).
-5. Displays interactive service URLs and remains open for monitoring.
+5. Verifies backend health on `http://127.0.0.1:8001/health` before reporting startup success.
+6. Displays interactive service URLs and remains open for monitoring.
 
 ### 2.2 Run Full Regression Test Suite: `run_tests.bat`
 Executes the full end-to-end verification pipeline:
@@ -69,12 +70,12 @@ If you prefer to start services individually from PowerShell or Command Prompt:
 ### 3.1 Launch FastAPI Backend API
 Open a PowerShell terminal in the project root:
 ```powershell
-.\.venv_clean\Scripts\python.exe -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
+.\.venv_clean\Scripts\python.exe -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8001 --reload
 ```
-- API Base: `http://127.0.0.1:8000`
-- Swagger Interactive Documentation: `http://127.0.0.1:8000/docs`
-- ReDoc Documentation: `http://127.0.0.1:8000/redoc`
-- Health Check: `http://127.0.0.1:8000/api/v1/health`
+- API Base: `http://127.0.0.1:8001`
+- Swagger Interactive Documentation: `http://127.0.0.1:8001/docs`
+- ReDoc Documentation: `http://127.0.0.1:8001/redoc`
+- Health Check: `http://127.0.0.1:8001/health` or `http://127.0.0.1:8001/api/v1/health`
 
 ### 3.2 Launch React Frontend Web UI
 Open a second terminal in the `frontend/` directory:
@@ -93,7 +94,7 @@ All schedule management operations require a cryptographically signed HMAC-SHA25
 ### 4.1 Step 1: Obtain a Token
 Send a `POST` request to `/api/v1/auth/token`:
 ```bash
-curl -X POST "http://127.0.0.1:8000/api/v1/auth/token" \
+curl -X POST "http://127.0.0.1:8001/api/v1/auth/token" \
      -H "Content-Type: application/json" \
      -d "{\"user_id\": \"alice\", \"role\": \"analyst\"}"
 ```
@@ -111,14 +112,14 @@ curl -X POST "http://127.0.0.1:8000/api/v1/auth/token" \
 ### 4.2 Step 2: Use Token in Requests
 Pass the token in the `Authorization` header:
 ```bash
-curl -X GET "http://127.0.0.1:8000/api/v1/schedules" \
+curl -X GET "http://127.0.0.1:8001/api/v1/schedules" \
      -H "Authorization: Bearer <access_token>"
 ```
 
 ### 4.3 Step 3: Identity Spoofing Protection (Verified)
 If a user attempts to spoof another user's identity:
 ```bash
-curl -X GET "http://127.0.0.1:8000/api/v1/schedules" \
+curl -X GET "http://127.0.0.1:8001/api/v1/schedules" \
      -H "Authorization: Bearer <alice_token>" \
      -H "X-User-ID: bob"
 ```
@@ -181,7 +182,7 @@ MONGO_AUTH_ENABLED=False
 
 | Symptom | Cause | Resolution |
 | :--- | :--- | :--- |
-| `Address already in use: 8000` | Another process is occupying port 8000 | Run `netstat -ano \| findstr :8000` in PowerShell and terminate the PID with `taskkill /PID <pid> /F`. |
+| `Address already in use: 8001` | Another process is occupying port 8001 | Run `netstat -ano \| findstr :8001` in PowerShell and terminate the conflicting PID with `taskkill /PID <pid> /F`. |
 | `Address already in use: 5173` | Vite server already running | Vite will automatically offer port 5174, or terminate the existing Node process. |
 | `HTTP 401 Unauthorized` | Missing or expired Bearer token | Call `POST /api/v1/auth/token` to acquire a fresh 1-hour access token. |
 | `HTTP 403 Forbidden` | Identity mismatch or tenant access denial | Ensure `X-User-ID` matches the token claim `sub`, or omit `X-User-ID` header. |

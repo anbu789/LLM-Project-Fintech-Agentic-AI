@@ -27,6 +27,10 @@ from backend.app.agent.prompts.intent_classification import (
 )
 from backend.app.agent.state import RequestMode
 from backend.app.config import settings
+from backend.app.core.deadline import (
+    get_request_preferred_provider,
+    set_request_preferred_provider,
+)
 from backend.app.core.exceptions import FinTechAgentException
 from backend.app.core.logging import logger
 from backend.app.services.llm_service import llm_service
@@ -159,19 +163,30 @@ async def intent_router_node(state: Dict[str, Any]) -> Dict[str, Any]:
                 f"Mock classification -> {result['request_mode']}",
             )
         )
-        return {**result, "trace": trace}
+        return {**result, "trace": trace, "llm_provider": "mock", "llm_model": "mock"}
 
     # -------------------------------------------------------------------
     # Path B: real LLM provider — structured JSON output
     # -------------------------------------------------------------------
     user_prompt = build_intent_classification_prompt(query, history)
+    preferred_provider = (
+        state.get("selected_provider")
+        or state.get("llm_provider")
+        or get_request_preferred_provider()
+    )
 
     try:
         raw_response = await llm_service.get_provider().generate_response(
             user_message=user_prompt,
             conversation_history=None,  # history is already embedded in the prompt
             system_prompt=INTENT_CLASSIFICATION_SYSTEM_PROMPT,
+            reasoning_effort="low",
+            preferred_provider=preferred_provider,
         )
+
+        actual_provider = getattr(raw_response, "provider", provider_name)
+        actual_model = getattr(raw_response, "model", getattr(settings, "LLM_MODEL", "unknown"))
+        set_request_preferred_provider(actual_provider)
 
         classification = _parse_llm_intent(raw_response)
         if classification is None:
@@ -183,16 +198,22 @@ async def intent_router_node(state: Dict[str, Any]) -> Dict[str, Any]:
             trace.append(
                 _trace_entry("intent_router", "parse_failure", fallback["intent_reason"])
             )
-            return {**fallback, "trace": trace}
+            return {
+                **fallback,
+                "selected_provider": actual_provider,
+                "llm_provider": actual_provider,
+                "llm_model": actual_model,
+                "trace": trace,
+            }
 
         logger.info(
-            f"[{request_id}] LLM intent classification -> mode='{classification.request_mode}'"
+            f"[{request_id}] LLM intent classification -> mode='{classification.request_mode}' (provider='{actual_provider}')"
         )
         trace.append(
             _trace_entry(
                 "intent_router",
                 "success",
-                f"LLM classification -> {classification.request_mode}",
+                f"LLM classification -> {classification.request_mode} (via {actual_provider})",
             )
         )
         return {
@@ -200,6 +221,9 @@ async def intent_router_node(state: Dict[str, Any]) -> Dict[str, Any]:
             "intent_reason": classification.intent_reason,
             "query_description": classification.query_description,
             "clarification_question": classification.clarification_question,
+            "selected_provider": actual_provider,
+            "llm_provider": actual_provider,
+            "llm_model": actual_model,
             "trace": trace,
         }
 

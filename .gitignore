@@ -63,3 +63,7 @@ Thumbs.db
 
 # Temporary office cache
 .lo_profile/
+
+# Runtime execution monitor logs
+logs/
+execution_events.jsonl*

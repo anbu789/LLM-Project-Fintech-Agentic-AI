@@ -101,6 +101,8 @@ def build_query_synthesis_prompt(
     # 2. Schema Context
     parts.append("## Retrieved Schema Context")
     collections = schema_context.get("collections", {})
+    if isinstance(collections, list):
+        collections = {c: {} for c in collections}
     if collections:
         for col_name, col_meta in collections.items():
             parts.append(f"### Collection: `{col_name}` (Primary Key: `{col_meta.get('primary_key')}`)")

@@ -212,8 +212,27 @@ async def query_executor_node(state: Dict[str, Any]) -> Dict[str, Any]:
         }
 
     # -------------------------------------------------------------------------
-    # 2. Central Fail-Closed Execution Gate
+    # 2. Central Fail-Closed Execution Gate & At-Most-Once API Safeguard
     # -------------------------------------------------------------------------
+    prior_attempts = state.get("all_attempts") or []
+    if state.get("is_api_request") is True and len(prior_attempts) >= 1:
+        logger.warning(f"[{request_id}] Node 6 blocked repeat query execution attempt for API chat request.")
+        trace.append({
+            "node": "query_executor",
+            "status": "execution_error",
+            "detail": "Duplicate execution prevented: validated query may execute at most once per chat request.",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        })
+        return {
+            "raw_results": None,
+            "execution_time_ms": 0,
+            "result_row_count": 0,
+            "execution_error": "Duplicate query execution prevented for single chat request.",
+            "execution_status": "EXECUTION_ERROR",
+            "result_truncated": False,
+            "trace": trace,
+        }
+
     test_db = state.get("test_db") or state.get("mock_db")
 
     # Defense-in-depth: untrusted external/API requests are strictly prohibited from injecting test_db or mock_db

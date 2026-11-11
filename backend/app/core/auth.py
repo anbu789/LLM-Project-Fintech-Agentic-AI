@@ -210,3 +210,26 @@ async def get_current_authenticated_user(
         )
 
     return user
+
+
+async def get_optional_authenticated_user(
+    auth_creds: Optional[HTTPAuthorizationCredentials] = Depends(_http_bearer_scheme),
+    x_user_id: Optional[str] = Header(None, alias="X-User-ID"),
+    user_id_query: Optional[str] = Query(None, alias="user_id"),
+) -> Optional[AuthenticatedUser]:
+    """Resolves an authenticated user when credentials are supplied, or returns None for anonymous callers.
+
+    Never trusts caller-controlled identity headers or query parameters without a valid
+    cryptographic Bearer token: if an unsigned X-User-ID / user_id or invalid/conflicting
+    token is sent, delegates to get_current_authenticated_user which rejects with 401/403.
+    """
+    token = auth_creds.credentials if auth_creds else None
+    if not token and not x_user_id and not user_id_query:
+        return None
+
+    return await get_current_authenticated_user(
+        auth_creds=auth_creds,
+        x_user_id=x_user_id,
+        user_id_query=user_id_query,
+    )
+

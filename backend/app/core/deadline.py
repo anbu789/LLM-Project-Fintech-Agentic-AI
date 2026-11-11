@@ -3,7 +3,9 @@ FinTech Agent — Request Deadline and Timeout Enforcement
 Monitors request deadlines across pipeline stages and evaluates retry eligibility.
 """
 
+import contextvars
 import time
+from dataclasses import dataclass
 from typing import Optional
 from backend.app.core.exceptions import (
     FinTechAgentException,
@@ -15,6 +17,56 @@ from backend.app.core.exceptions import (
     NonRetryableError,
     RequestTimeoutError,
 )
+
+
+@dataclass(frozen=True)
+class ActiveRequestContext:
+    """Async-safe request context propagated across LangGraph nodes and LLM calls."""
+
+    request_id: str
+    conversation_id: Optional[str] = None
+    deadline: Optional["RequestDeadline"] = None
+
+
+_active_request_ctx: contextvars.ContextVar[Optional[ActiveRequestContext]] = contextvars.ContextVar(
+    "fintech_agent_active_request",
+    default=None,
+)
+
+_request_preferred_provider: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar(
+    "fintech_agent_preferred_provider",
+    default=None,
+)
+
+
+def set_active_request_context(ctx: Optional[ActiveRequestContext]) -> contextvars.Token:
+    """Binds ActiveRequestContext to the current async context and returns the reset token."""
+    return _active_request_ctx.set(ctx)
+
+
+def reset_active_request_context(token: contextvars.Token) -> None:
+    """Restores the prior ActiveRequestContext after request completion."""
+    _active_request_ctx.reset(token)
+
+
+def get_active_request_context() -> Optional[ActiveRequestContext]:
+    """Returns the currently bound ActiveRequestContext, if any."""
+    return _active_request_ctx.get()
+
+
+def set_request_preferred_provider(provider: Optional[str]) -> contextvars.Token:
+    """Sets the preferred healthy LLM provider for the current request context."""
+    return _request_preferred_provider.set(provider)
+
+
+def get_request_preferred_provider() -> Optional[str]:
+    """Returns the preferred healthy LLM provider recorded for the current request context."""
+    return _request_preferred_provider.get()
+
+
+def reset_request_preferred_provider(token: contextvars.Token) -> None:
+    """Resets the preferred provider context variable."""
+    _request_preferred_provider.reset(token)
 
 
 class RequestDeadline:

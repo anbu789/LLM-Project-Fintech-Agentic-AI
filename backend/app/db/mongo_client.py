@@ -372,19 +372,45 @@ mongo_manager = MongoDBManager()
 
 
 def check_mongo_connection(timeout_ms: int = 3000) -> Dict[str, Any]:
-    """Inspects connection status, server info, and available databases."""
+    """Verify banking and metadata access independently using their least-privilege accounts."""
+    banking_client = None
+    metadata_client = None
     try:
-        uri = settings.get_banking_uri()
-        client = MongoClient(uri, serverSelectionTimeoutMS=timeout_ms)
-        info = client.server_info()
-        databases = client.list_database_names()
-        client.close()
+        # Banking verification uses only the dedicated read-only banking identity.
+        banking_client = MongoClient(
+            settings.get_banking_uri(),
+            serverSelectionTimeoutMS=timeout_ms,
+        )
+        banking_client.admin.command("ping")
+        banking_collections = banking_client[settings.MONGO_BANKING_DB].list_collection_names()
+
+        # Metadata verification uses its separate read-write application identity.
+        metadata_client = MongoClient(
+            settings.get_metadata_uri(),
+            serverSelectionTimeoutMS=timeout_ms,
+        )
+        metadata_client.admin.command("ping")
+        metadata_collections = metadata_client[settings.MONGO_METADATA_DB].list_collection_names()
+
+        # buildInfo is optional: a restricted read account may not have this privilege.
+        version = None
+        try:
+            version = banking_client.admin.command("buildInfo").get("version")
+        except pymongo.errors.PyMongoError:
+            pass
+
+        databases = []
+        if banking_collections:
+            databases.append(settings.MONGO_BANKING_DB)
+        if metadata_collections:
+            databases.append(settings.MONGO_METADATA_DB)
+
         return {
             "status": "connected",
-            "version": info.get("version"),
+            "version": version,
             "databases": databases,
-            "banking_db_exists": settings.MONGO_BANKING_DB in databases,
-            "metadata_db_exists": settings.MONGO_METADATA_DB in databases,
+            "banking_db_exists": bool(banking_collections),
+            "metadata_db_exists": bool(metadata_collections),
             "auth_enabled": settings.MONGO_AUTH_ENABLED,
             "query_timeout_ms": settings.QUERY_TIMEOUT_MS,
         }
@@ -394,7 +420,11 @@ def check_mongo_connection(timeout_ms: int = 3000) -> Dict[str, Any]:
             "error_type": type(e).__name__,
             "error_message": str(e)
         }
-
+    finally:
+        if banking_client is not None:
+            banking_client.close()
+        if metadata_client is not None:
+            metadata_client.close()
 
 def get_collection_inventory(db_name: Optional[str] = None) -> Dict[str, int]:
     """Retrieves document counts for all collections in the target database."""

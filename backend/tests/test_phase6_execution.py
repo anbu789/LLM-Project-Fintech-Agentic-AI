@@ -64,6 +64,7 @@ def gemini_provider():
         api_key="test_api_key_valid",
         model="gemini-3.8-flash",
         base_url="https://generativelanguage.googleapis.com/v1beta/openai",
+        max_attempts=3,
     )
 
 

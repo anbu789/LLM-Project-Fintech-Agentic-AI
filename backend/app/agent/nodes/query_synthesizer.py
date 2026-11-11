@@ -28,6 +28,10 @@ from backend.app.agent.prompts.query_synthesis import (
     mock_synthesize_query,
 )
 from backend.app.config import settings
+from backend.app.core.deadline import (
+    get_request_preferred_provider,
+    set_request_preferred_provider,
+)
 from backend.app.core.exceptions import FinTechAgentException
 from backend.app.core.logging import logger
 from backend.app.services.llm_service import llm_service
@@ -95,9 +99,15 @@ async def query_synthesizer_node(state: Dict[str, Any]) -> Dict[str, Any]:
     schema_context: Dict[str, Any] = state.get("schema_context") or {}
     conversation_history: List[Dict[str, Any]] = state.get("conversation_history") or []
 
+    preferred_provider = (
+        state.get("selected_provider")
+        or state.get("llm_provider")
+        or get_request_preferred_provider()
+    )
     provider_name = (settings.LLM_PROVIDER or "mock").lower().strip()
+    effective_provider = preferred_provider or provider_name
     logger.info(
-        f"[{request_id}] Node 4 (Query Synthesizer) starting — provider='{provider_name}'"
+        f"[{request_id}] Node 4 (Query Synthesizer) starting — provider='{effective_provider}'"
     )
 
     # -----------------------------------------------------------------------
@@ -132,6 +142,8 @@ async def query_synthesizer_node(state: Dict[str, Any]) -> Dict[str, Any]:
                 "unsupported_concepts": output.unsupported_concepts_identified,
                 "assumptions": output.assumptions,
             },
+            "llm_provider": "mock",
+            "llm_model": "mock",
             "trace": trace,
         }
 
@@ -143,13 +155,28 @@ async def query_synthesizer_node(state: Dict[str, Any]) -> Dict[str, Any]:
         schema_context=schema_context,
         conversation_history=conversation_history,
     )
+    preferred_provider = (
+        state.get("selected_provider")
+        or state.get("llm_provider")
+        or get_request_preferred_provider()
+    )
+    logger.info(
+        f"[{request_id}] Node 4 (Query Synthesizer) starting — "
+        f"preferred_provider='{preferred_provider or 'default'}'"
+    )
 
     try:
         raw_response = await llm_service.get_provider().generate_response(
             user_message=user_prompt,
             conversation_history=None,  # History is already embedded in user_prompt
             system_prompt=QUERY_SYNTHESIS_SYSTEM_PROMPT,
+            reasoning_effort="medium",
+            preferred_provider=preferred_provider,
         )
+
+        actual_provider = getattr(raw_response, "provider", provider_name)
+        actual_model = getattr(raw_response, "model", getattr(settings, "LLM_MODEL", "unknown"))
+        set_request_preferred_provider(actual_provider)
 
         parsed_output = _extract_json_pipeline(raw_response)
         if parsed_output is None:
@@ -169,18 +196,21 @@ async def query_synthesizer_node(state: Dict[str, Any]) -> Dict[str, Any]:
                 "generated_pipeline": None,
                 "pipeline_explanation": "Failed to synthesize pipeline: model produced invalid JSON format.",
                 "query_parameters": {"error": "unparseable_output"},
+                "selected_provider": actual_provider,
+                "llm_provider": actual_provider,
+                "llm_model": actual_model,
                 "trace": trace,
             }
 
         logger.info(
             f"[{request_id}] LLM synthesized pipeline for collection '{parsed_output.target_collection}' "
-            f"with {len(parsed_output.pipeline)} stages."
+            f"with {len(parsed_output.pipeline)} stages (provider='{actual_provider}')."
         )
         trace.append(
             _trace_entry(
                 "query_synthesizer",
                 "success",
-                f"Generated pipeline for '{parsed_output.target_collection}' with {len(parsed_output.pipeline)} stages.",
+                f"Generated pipeline for '{parsed_output.target_collection}' with {len(parsed_output.pipeline)} stages via {actual_provider}.",
             )
         )
         return {
@@ -195,6 +225,9 @@ async def query_synthesizer_node(state: Dict[str, Any]) -> Dict[str, Any]:
                 "unsupported_concepts": parsed_output.unsupported_concepts_identified,
                 "assumptions": parsed_output.assumptions,
             },
+            "selected_provider": actual_provider,
+            "llm_provider": actual_provider,
+            "llm_model": actual_model,
             "trace": trace,
         }
 

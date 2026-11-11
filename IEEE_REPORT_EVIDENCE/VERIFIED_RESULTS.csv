@@ -1,0 +1,19 @@
+case_id,query_description,category,expected_collections,hit_rate,recall_at_5,reciprocal_rank,precision_at_5,shield_triggered,verification_status
+Q01,Show customers from Chennai,Single Filter,customers,1.00,1.00,1.00,1.00,No,VERIFIED
+Q02,Find transactions above INR 10000,Numeric Range,transactions,1.00,1.00,1.00,0.80,No,VERIFIED
+Q03,Show customers with active loans,Multi-Join,"customers,loans",1.00,1.00,1.00,1.00,No,VERIFIED
+Q04,Accounts of customers in Coimbatore,Multi-Join,"accounts,customers",1.00,1.00,0.50,0.40,No,VERIFIED
+Q05,Credit cards expiring this month,Date / Attribute,cards,1.00,1.00,1.00,1.00,No,VERIFIED
+Q06,Merchants with high transaction volumes,Join / Aggregate,"merchants,transactions",1.00,1.00,1.00,0.80,No,VERIFIED
+Q07,Employees working at a branch,Hierarchy Join,"employees,branches",1.00,1.00,0.33,0.20,No,VERIFIED
+Q08,KYC documents belonging to customers,Compliance Join,"kyc_documents,customers",1.00,1.00,1.00,0.20,No,VERIFIED
+Q09,Show outstanding loan balances,Loan Balances,loans,1.00,1.00,1.00,1.00,No,VERIFIED
+Q10,Overdue loans with DPD and overdue amount,Shielding Test,loans,1.00,1.00,1.00,1.00,Yes,VERIFIED
+Q11,Delinquent borrowers with loans in arrears,Synonym Shielding,loans,1.00,1.00,1.00,0.80,Yes,VERIFIED
+Q12,List NPA accounts with late payments,Regulatory Shielding,loans,1.00,1.00,1.00,0.60,Yes,VERIFIED
+Q13,Customers with outstanding loans,Control (Clean),"customers,loans",1.00,1.00,1.00,1.00,No,VERIFIED
+Q14,Fraud alerts for suspicious transactions,Risk Analysis,"fraud_alerts,transactions",1.00,1.00,1.00,1.00,No,VERIFIED
+Q15,Customer investments in stocks,Wealth / Join,"investments,customers",1.00,1.00,1.00,0.60,No,VERIFIED
+Q16,Support tickets assigned to employees,Operations / Join,"support_tickets,employees",1.00,1.00,1.00,0.80,No,VERIFIED
+Q17,Active contactless credit cards,Card Filtering,cards,1.00,1.00,1.00,1.00,No,VERIFIED
+Q18,Branch managers for all branches,Management Join,"branches,employees",1.00,0.50,0.50,0.80,No,VERIFIED

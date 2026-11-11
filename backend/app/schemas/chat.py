@@ -81,6 +81,7 @@ class HealthResponse(BaseModel):
     status: str = Field(default="healthy", description="Application service status")
     service: str = Field(default="fintech-agent-api", description="Service identifier")
     version: str = Field(default="1.0.0", description="API version")
+    llm_health: Optional[dict] = Field(default=None, description="Non-generative provider connectivity status")
 
 
 class ConversationSummary(BaseModel):

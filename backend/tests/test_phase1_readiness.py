@@ -192,7 +192,7 @@ def test_schema_verification_against_actual_db():
 
 def test_loan_fields_distinction_and_absence():
     """Verify outstanding_amount presence and complete absence of days_past_due/overdue_amount."""
-    client = MongoClient(settings.MONGO_URI, serverSelectionTimeoutMS=3000)
+    client = MongoClient(settings.get_banking_uri(), serverSelectionTimeoutMS=3000)
     db = client[settings.MONGO_BANKING_DB]
     loans = db["loans"]
 
@@ -222,7 +222,7 @@ def test_loan_fields_distinction_and_absence():
 
 def test_all_22_cross_collection_relationships():
     """Verify all 22 foreign key relationships across 100% of documents with zero orphans."""
-    client = MongoClient(settings.MONGO_URI, serverSelectionTimeoutMS=3000)
+    client = MongoClient(settings.get_banking_uri(), serverSelectionTimeoutMS=3000)
     db = client[settings.MONGO_BANKING_DB]
 
     relationships = [

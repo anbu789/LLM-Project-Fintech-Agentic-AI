@@ -150,5 +150,10 @@ class AgentState(TypedDict, total=False):
     # ---- Conversation context (Phase 4 addition) ---------------------------
     conversation_history: list[dict[str, Any]]
 
+    # ---- Provider attribution (Multi-provider fallback) -------------------
+    selected_provider: Optional[str]
+    llm_provider: Optional[str]
+    llm_model: Optional[str]
+
     # ---- Final graph response (populated by Node 8) -----------------------
     graph_response: Optional[str]

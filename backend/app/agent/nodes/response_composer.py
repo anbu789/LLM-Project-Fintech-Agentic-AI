@@ -24,7 +24,7 @@ from backend.app.services.llm_service import llm_service
 # ---------------------------------------------------------------------------
 
 _VALIDATED_PIPELINE_TEMPLATE = """\
-✅ **Query Understood & Validated** (Phase 5/6 — Pipeline Validated)
+✅ **Query Understood & Validated** (Phase 5 — Read-only query execution plan validated)
 
 **Target Collection:** `{target_collection}`  
 **Explanation:** {pipeline_explanation}
@@ -38,11 +38,11 @@ _VALIDATED_PIPELINE_TEMPLATE = """\
 - Stage Count: {stage_count} ({stages_used})
 - Policy: Deterministically verified against canonical schema. Zero unsafe operators.
 
-> 🔒 **Execution Gate Status:** Database query execution has not occurred. Live database execution is currently gated (`PHASE6_LIVE_EXECUTION_ENABLED=False`) pending manual activation of MongoDB RBAC authentication.
+> 🔒 **Execution Gate Status:** Database query execution has not occurred. Live database execution is currently gated pending administrative authorization.
 """
 
 _EXECUTION_SUCCESS_WITH_DATA_TEMPLATE = """\
-✅ **Query Executed Successfully** (Phase 6)
+✅ **Query Executed Successfully** (Database query executed successfully)
 
 **Target Collection:** `{target_collection}`
 **Execution Metrics:** {row_count} records returned in {execution_time_ms} ms.
@@ -55,7 +55,7 @@ _EXECUTION_SUCCESS_WITH_DATA_TEMPLATE = """\
 """
 
 _EXECUTION_SUCCESS_EMPTY_TEMPLATE = """\
-✅ **Query Executed Successfully** (Phase 6)
+✅ **Query Executed Successfully** (Database query executed successfully)
 
 **Target Collection:** `{target_collection}`
 **Execution Metrics:** 0 records returned in {execution_time_ms} ms.
@@ -65,7 +65,7 @@ _EXECUTION_SUCCESS_EMPTY_TEMPLATE = """\
 """
 
 _EXECUTION_SUCCESS_LIMITED_TEMPLATE = """\
-⚠️ **Query Executed (Results Capped)** (Phase 6)
+⚠️ **Query Executed (Results Capped)** (Read-only query execution)
 
 **Target Collection:** `{target_collection}`
 **Execution Metrics:** {row_count} records returned in {execution_time_ms} ms (capped at limit of {result_limit}).
@@ -80,7 +80,7 @@ _EXECUTION_SUCCESS_LIMITED_TEMPLATE = """\
 """
 
 _EXECUTION_ERROR_TEMPLATE = """\
-❌ **Query Execution Failed** (Phase 6)
+❌ **Query Execution Failed** (Read-only query execution)
 
 **Target Collection:** `{target_collection}`
 **Status:** `{verification_status}`
@@ -458,5 +458,8 @@ async def response_composer_node(state: Dict[str, Any]) -> Dict[str, Any]:
         "final_status": final_status or "complete",
         "schedule_preview": schedule_preview,
         "preview_id": schedule_preview.get("preview_id") if isinstance(schedule_preview, dict) else state.get("preview_id"),
+        "selected_provider": state.get("selected_provider") or state.get("llm_provider"),
+        "llm_provider": state.get("selected_provider") or state.get("llm_provider"),
+        "llm_model": state.get("llm_model"),
         "trace": trace,
     }

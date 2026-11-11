@@ -1,0 +1,178 @@
+{
+  "ieee_paper_metadata": {
+    "title": "FinTech Agent: Natural Language to Sandboxed MongoDB Query Agent for Banking Operations",
+    "short_title": "FinTech Agent",
+    "course_code": "INT450",
+    "course_name": "Large Language Models and Agentic AI",
+    "institution": "School of Computing, SASTRA Deemed University",
+    "location": "Thanjavur, Tamil Nadu, India",
+    "academic_term": "Fall 2026",
+    "team_id": "Team T11",
+    "authors": [
+      {
+        "name": "Guru S",
+        "register_number": "125003001",
+        "role": "Lead Architect & Agent Orchestration",
+        "email": "125003001@sastra.ac.in"
+      },
+      {
+        "name": "Jayavignesh J",
+        "register_number": "125003002",
+        "role": "Security Engineering & Sandboxed Execution",
+        "email": "125003002@sastra.ac.in"
+      },
+      {
+        "name": "Anbu Selvan M",
+        "register_number": "125003003",
+        "role": "Data Engineering, RAG & Frontend UI",
+        "email": "125003003@sastra.ac.in"
+      }
+    ],
+    "faculty_guide": {
+      "name": "Dr. K. Ramkumar",
+      "designation": "Course Faculty, School of Computing",
+      "institution": "SASTRA Deemed University"
+    },
+    "industry_mentorship": {
+      "program": "Goldman Sachs Engineering Mentorship Programme",
+      "mentor_title": "Goldman Sachs Engineering Mentor",
+      "affiliation": "Goldman Sachs"
+    }
+  },
+  "dataset_summary": {
+    "database_name": "fintech_agent_db",
+    "is_synthetic": true,
+    "generation_library": "Faker (en_IN)",
+    "random_seed": 42,
+    "currency": "INR",
+    "date_range": "2010-2026",
+    "total_collections": 12,
+    "total_documents": 19120,
+    "reported_in_readme": "~18,700 (rounded early estimate)",
+    "verified_document_count": 19120,
+    "collections": [
+      {"name": "branches", "count": 20, "pk": "branch_id", "description": "Bank branches"},
+      {"name": "employees", "count": 100, "pk": "employee_id", "description": "Bank staff and managers"},
+      {"name": "merchants", "count": 200, "pk": "merchant_id", "description": "Commercial merchant partners"},
+      {"name": "customers", "count": 1000, "pk": "customer_id", "description": "Retail and corporate customers"},
+      {"name": "accounts", "count": 1500, "pk": "account_id", "description": "Deposit, current and savings accounts"},
+      {"name": "transactions", "count": 10000, "pk": "transaction_id", "description": "Financial ledger transactions"},
+      {"name": "cards", "count": 1000, "pk": "card_id", "description": "Credit and debit cards"},
+      {"name": "loans", "count": 500, "pk": "loan_id", "description": "Retail loan facilities"},
+      {"name": "kyc_documents", "count": 1500, "pk": "document_id", "description": "Customer verification documents"},
+      {"name": "support_tickets", "count": 2000, "pk": "ticket_id", "description": "Customer service tickets"},
+      {"name": "fraud_alerts", "count": 300, "pk": "alert_id", "description": "Risk and suspicious activity alerts"},
+      {"name": "investments", "count": 1000, "pk": "investment_id", "description": "Customer investment portfolios"}
+    ],
+    "foreign_key_relationships_count": 22
+  },
+  "rag_subsystem": {
+    "engine": "ChromaDB (v1.5.9)",
+    "collection_name": "fintech_schema_catalog_cosine",
+    "distance_metric": "cosine",
+    "total_indexed_chunks": 269,
+    "collection_level_chunks": 12,
+    "field_level_chunks": 257,
+    "embedding_dimension": 384,
+    "embedding_model": "all-MiniLM-L6-v2",
+    "test_embedding_provider": "mock",
+    "benchmark_metrics": {
+      "cases_evaluated": 18,
+      "hit_rate": 1.00,
+      "recall_at_5": 0.9722,
+      "mrr": 0.9074,
+      "precision_at_5": 0.7778,
+      "unsupported_loan_shield_rate": 1.00,
+      "shield_false_positive_rate": 0.00
+    }
+  },
+  "agent_architecture": {
+    "orchestration_framework": "LangGraph (v1.2.20)",
+    "state_contract": "AgentState (TypedDict, 30+ fields)",
+    "total_workflow_nodes": 9,
+    "llm_nodes_count": 2,
+    "deterministic_nodes_count": 7,
+    "nodes": [
+      {"name": "input_guardrail", "type": "deterministic", "responsibility": "Regex safety filtering of length, prompt injection, and destructive commands"},
+      {"name": "intent_router", "type": "llm_or_mock", "responsibility": "Classify user intent into 5 discrete RequestMode categories"},
+      {"name": "schema_retriever", "type": "deterministic", "responsibility": "Vector search over ChromaDB schema catalog with glossary expansion"},
+      {"name": "query_synthesizer", "type": "llm_or_mock", "responsibility": "Synthesize candidate MQL aggregation pipeline conforming to retrieved schema"},
+      {"name": "mql_policy_validator", "type": "deterministic", "responsibility": "AST policy traversal: enforces collections, read-only stages, limits, and fields"},
+      {"name": "query_executor", "type": "deterministic_gated", "responsibility": "Execute validated aggregation with 15s timeout and fail-closed live gate"},
+      {"name": "result_verifier", "type": "deterministic", "responsibility": "Classify outcomes, sanitize BSON types, and coordinate bounded transient retry"},
+      {"name": "schedule_planner", "type": "deterministic", "responsibility": "Parse recurrence grammar, validate IANA timezone, and project next 3 runs"},
+      {"name": "response_composer", "type": "deterministic_or_llm", "responsibility": "Assemble plain-language user explanation, metrics badge, and MQL code box"}
+    ],
+    "routing_edges": {
+      "after_guardrail": "allowed -> intent_router | rejected -> END",
+      "after_intent": "QUERY_ONLY/QUERY_AND_SCHEDULE/SCHEDULE_ONLY -> schema_retriever | OUT_OF_SCOPE/CLARIFICATION -> response_composer",
+      "after_validator": "VALID -> query_executor | INVALID/UNSUPPORTED -> response_composer",
+      "after_verifier": "RETRYABLE_ERROR (retry <= max) -> query_executor | SCHEDULE -> schedule_planner | DEFAULT -> response_composer"
+    }
+  },
+  "llm_configuration": {
+    "primary_provider": "gemini",
+    "primary_model": "gemini-3.8-flash",
+    "primary_endpoint": "https://generativelanguage.googleapis.com/v1beta/openai",
+    "fallback_chain": ["groq (openai/gpt-oss-120b)", "ollama (hf.co/mradermacher/K2-Horizon-3.7B-i1-GGUF:Q3_K_M)"],
+    "operation_deadline_seconds": 24.0,
+    "attempt_timeout_seconds": 12.0,
+    "max_attempts": 2,
+    "reasoning_effort": {
+      "intent_router": "low",
+      "query_synthesizer": "medium"
+    }
+  },
+  "security_and_gates": {
+    "total_controls_audited": 25,
+    "live_execution_gate": {
+      "setting": "PHASE6_LIVE_EXECUTION_ENABLED",
+      "current_value": false,
+      "status": "FAIL_CLOSED_GATED"
+    },
+    "scheduler_execution_gate": {
+      "setting": "PHASE7_SCHEDULER_ENABLED",
+      "current_value": false,
+      "status": "FAIL_CLOSED_GATED"
+    },
+    "native_mongo_auth": {
+      "setting": "MONGO_AUTH_ENABLED",
+      "current_value": false,
+      "status": "SCRIPT_EXISTS_RUNTIME_INACTIVE"
+    },
+    "active_database_protection": "Python Application-Level AST Validation and ReadOnly Proxies",
+    "prohibited_operators_blocked": ["$out", "$merge", "$where", "$accumulator", "$function", "drop", "deleteMany", "remove"]
+  },
+  "verified_test_metrics": {
+    "backend_pytest_tests": {
+      "collected": 368,
+      "passed": 368,
+      "failed": 0,
+      "pass_rate": "100.0%",
+      "test_modules": 17
+    },
+    "frontend_vitest_tests": {
+      "collected": 21,
+      "passed": 21,
+      "failed": 0,
+      "pass_rate": "100.0%"
+    },
+    "data_immutability": {
+      "baseline_documents": 19120,
+      "post_test_documents": 19120,
+      "mutations": 0,
+      "immutability_rate": "100.0%"
+    }
+  },
+  "evaluation_unverified_claims_register": {
+    "55_question_benchmark": {
+      "claimed_agent_accuracy": "90.9% (50/55)",
+      "claimed_baseline_accuracy": "61.8% (34/55)",
+      "claimed_self_correction": "75.0% (9/12)",
+      "claimed_p50_latency": "2.4s",
+      "claimed_p90_latency": "3.2s",
+      "verification_status": "REPORTED_NOT_VERIFIED",
+      "notes": "Originates from historical proposal draft in SYSTEM_ARCHITECTURE_UPDATED.md. No raw execution logs, gold pipelines, or runner scripts exist in repo."
+    }
+  }
+}

@@ -342,10 +342,10 @@ async def test_synthesizer_mock_unsupported_concept_handling():
     # MUST NOT reference overdue_amount
     assert "overdue_amount" not in pipeline_str
     assert "days_past_due" not in pipeline_str
-    # Must use proxy status='defaulted'
-    assert pipeline[0]["$match"]["status"] == "defaulted"
-    # Assumptions must explain the substitution
-    assert len(result["assumptions_made"]) > 0
+    # Must NOT map to defaulted loans proxy
+    assert pipeline is None or len(pipeline) == 0
+    # Unsupported concepts must be identified
+    assert "overdue_amount" in result["query_parameters"]["unsupported_concepts"]
 
 
 @pytest.mark.asyncio
@@ -735,9 +735,9 @@ async def test_graph_executes_phase5_banking_query_end_to_end():
     assert "mql_policy_validator" in trace_nodes
     assert "response_composer" in trace_nodes
 
-    # 8. Future phase stubs were NOT executed
-    assert "query_executor" not in trace_nodes
-    assert "result_verifier" not in trace_nodes
+    # 8. Phase 6 nodes active; future phase stub (Node 9) was NOT executed
+    assert "query_executor" in trace_nodes
+    assert "result_verifier" in trace_nodes
     assert "schedule_planner" not in trace_nodes
 
 

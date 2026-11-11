@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
+import SchedulesDashboard from './components/SchedulesDashboard';
 import { useChatStore } from './store/useChatStore';
 
 export default function App() {
+  const [isSchedulesOpen, setIsSchedulesOpen] = useState(false);
   const conversationId = useChatStore((s) => s.conversationId);
   const conversations = useChatStore((s) => s.conversations);
   const messages = useChatStore((s) => s.messages);
@@ -29,6 +31,7 @@ export default function App() {
     <div className="flex h-screen w-screen overflow-hidden bg-slate-100 antialiased font-sans">
       <Sidebar
         onNewChat={newChat}
+        onOpenSchedules={() => setIsSchedulesOpen(true)}
         backendStatus={backendStatus}
         activeModel={activeModel}
         conversations={conversations}
@@ -41,6 +44,10 @@ export default function App() {
         isLoading={isLoading}
         error={error}
         onClearError={() => setError(null)}
+      />
+      <SchedulesDashboard
+        isOpen={isSchedulesOpen}
+        onClose={() => setIsSchedulesOpen(false)}
       />
     </div>
   );

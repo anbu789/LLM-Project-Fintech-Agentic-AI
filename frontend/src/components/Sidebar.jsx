@@ -1,7 +1,7 @@
 import React from 'react';
-import { MessageSquarePlus, ShieldCheck, Database, Bot, Cpu } from 'lucide-react';
+import { MessageSquarePlus, ShieldCheck, Database, Bot, Cpu, Calendar } from 'lucide-react';
 
-export default function Sidebar({ onNewChat, backendStatus, activeModel, conversations, currentId, onSelectConv }) {
+export default function Sidebar({ onNewChat, onOpenSchedules, backendStatus, activeModel, conversations, currentId, onSelectConv }) {
   return (
     <aside className="w-72 bg-slate-900 text-slate-200 flex flex-col h-full border-r border-slate-800 select-none">
       {/* Branding */}
@@ -16,13 +16,20 @@ export default function Sidebar({ onNewChat, backendStatus, activeModel, convers
       </div>
 
       {/* Action */}
-      <div className="p-3">
+      <div className="p-3 space-y-2">
         <button
           onClick={onNewChat}
           className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white rounded-lg text-sm font-medium transition shadow-sm"
         >
           <MessageSquarePlus className="w-4 h-4" />
           <span>New Conversation</span>
+        </button>
+        <button
+          onClick={onOpenSchedules}
+          className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sky-300 rounded-lg text-xs font-medium transition border border-slate-700/60"
+        >
+          <Calendar className="w-3.5 h-3.5" />
+          <span>Scheduled Reports</span>
         </button>
       </div>
 

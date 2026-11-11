@@ -53,8 +53,10 @@ Your job is to translate natural language banking inquiries into read-only Mongo
    - `loans.outstanding_amount` exists and represents remaining principal.
    - `loans.overdue_amount` and `loans.days_past_due` do NOT exist in the schema.
    - Never interpret outstanding balance as overdue debt.
-   - For loan health or defaults, use `status: "defaulted"`.
-   - If the user asks for overdue amounts, delinquency buckets, or DPD, state clearly in `unsupported_concepts_identified` that the schema does not support it.
+   - If user asks for defaulted loans, use `status: "defaulted"`.
+   - If user asks for outstanding principal of defaulted loans, aggregate `loans.outstanding_amount` where `status: "defaulted"`, and clearly label the metric as "Total outstanding principal of defaulted loans".
+   - If user asks for overdue loans, overdue amounts, overdue debt, delinquency buckets, or days past due (DPD):
+     DO NOT generate a query. Set `pipeline: []`, state clearly in `unsupported_concepts_identified` that overdue amount and DPD are unsupported by the schema, and explain that in commercial banking, remaining principal on defaulted loans is fundamentally distinct from overdue installments and cannot be substituted as overdue debt.
 6. JOINS: Use $lookup ONLY when necessary, and join ONLY on verified relationship keys specified in the Schema Context.
 7. BOUNDED RESULTS: Always include a $limit stage (maximum 1000) for unbounded queries.
 
@@ -159,20 +161,71 @@ def mock_synthesize_query(
         if prior_user_msgs:
             prior_user_msg = prior_user_msgs[-1].lower()
 
-    # 1. Unsupported overdue debt check
-    if any(k in q for k in ("overdue debt", "overdue amount", "days past due", "dpd")):
+    # 1. Unsupported overdue debt / DPD check — strictly unmapped to defaulted loans
+    if any(k in q for k in ("overdue debt", "overdue amount", "overdue loan", "overdue loans", "days past due", "dpd", "past due")):
+        return PipelineSynthesisOutput(
+            target_collection="loans",
+            pipeline=[],
+            explanation=(
+                "The requested concepts ('overdue_amount', 'days_past_due') are unsupported by the available loans schema. "
+                "The schema contains only 'outstanding_amount' (remaining principal) and 'status' ('active', 'closed', 'defaulted'). "
+                "In commercial banking, remaining principal on defaulted loans is distinct from overdue arrears/missed installments "
+                "and cannot be substituted as overdue debt."
+            ),
+            unsupported_concepts_identified=["overdue_amount", "days_past_due"],
+            assumptions=[]
+        )
+
+    # 1b. Supported: Calculate outstanding principal of defaulted loans
+    if any(k in q for k in (
+        "outstanding principal of defaulted",
+        "defaulted loans and their outstanding principal",
+        "total remaining principal of defaulted",
+        "sum of outstanding for defaulted",
+        "principal of defaulted",
+        "outstanding amount of defaulted",
+    )):
         return PipelineSynthesisOutput(
             target_collection="loans",
             pipeline=[
                 {"$match": {"status": "defaulted"}},
-                {"$project": {"loan_id": 1, "customer_id": 1, "outstanding_amount": 1, "status": 1}}
+                {"$group": {"_id": None, "total_defaulted_principal": {"$sum": "$outstanding_amount"}}},
+                {"$limit": 1}
             ],
-            explanation=(
-                "Note: 'overdue_amount' and 'days_past_due' do NOT exist in the loans schema. "
-                "Filtered by loans.status = 'defaulted' using available loans.outstanding_amount."
-            ),
-            unsupported_concepts_identified=["overdue_amount", "days_past_due"],
-            assumptions=["Used loans.status = 'defaulted' as proxy for overdue loans"]
+            explanation="Calculated total outstanding principal of defaulted loans.",
+            unsupported_concepts_identified=[],
+            assumptions=["Aggregated loans.outstanding_amount for records where status is 'defaulted'"]
+        )
+
+    # 1c. Supported: Show defaulted loans list
+    if any(k in q for k in ("defaulted loan", "defaulted loans", "loans in default", "show defaults")):
+        return PipelineSynthesisOutput(
+            target_collection="loans",
+            pipeline=[
+                {"$match": {"status": "defaulted"}},
+                {"$project": {"loan_id": 1, "customer_id": 1, "loan_type": 1, "principal_amount": 1, "outstanding_amount": 1, "status": 1}},
+                {"$limit": 100}
+            ],
+            explanation="Retrieved loans with status 'defaulted'.",
+            unsupported_concepts_identified=[],
+            assumptions=["Filtered strictly by loans.status = 'defaulted'"]
+        )
+
+    # 1d. Multi-turn follow-up: "What about Coimbatore?" with city/customer context
+    if ("what about" in q or "how about" in q) and any(c in q for c in ("coimbatore", "chennai", "mumbai", "delhi", "bangalore")):
+        import re
+        city_m = re.search(r"\b(coimbatore|chennai|mumbai|delhi|bangalore|kolkata|hyderabad|pune)\b", q)
+        city_name = city_m.group(0).title() if city_m else "Coimbatore"
+        return PipelineSynthesisOutput(
+            target_collection="customers",
+            pipeline=[
+                {"$match": {"address.city": city_name}},
+                {"$project": {"customer_id": 1, "first_name": 1, "last_name": 1, "address.city": 1, "credit_score": 1}},
+                {"$limit": 100}
+            ],
+            explanation=f"Follow-up: Filtered customers located in {city_name}.",
+            unsupported_concepts_identified=[],
+            assumptions=[f"Inherited customer location query context from preceding turn for city '{city_name}'"]
         )
 
     # 2. Multi-turn follow-up: "Only show failed ones" with transaction context
@@ -363,7 +416,8 @@ def mock_synthesize_query(
             target_collection="accounts",
             pipeline=[
                 {"$group": {"_id": "$account_type", "count": {"$sum": 1}}},
-                {"$sort": {"count": -1}}
+                {"$sort": {"count": -1}},
+                {"$limit": 100}
             ],
             explanation="Grouped accounts by account_type and counted totals.",
             unsupported_concepts_identified=[],
@@ -415,7 +469,8 @@ def mock_synthesize_query(
             target_collection="accounts",
             pipeline=[
                 {"$group": {"_id": "$branch_id", "total_accounts": {"$sum": 1}}},
-                {"$sort": {"total_accounts": -1}}
+                {"$sort": {"total_accounts": -1}},
+                {"$limit": 100}
             ],
             explanation="Grouped accounts by branch_id to count accounts per branch.",
             unsupported_concepts_identified=[],

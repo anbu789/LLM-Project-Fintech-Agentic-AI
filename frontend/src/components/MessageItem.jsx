@@ -2,6 +2,7 @@ import React from 'react';
 import { Bot, User, Clock, AlertCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import SchedulePreviewCard from './SchedulePreviewCard';
 
 export default function MessageItem({ message }) {
   const isUser = message.role === 'user';
@@ -62,6 +63,10 @@ export default function MessageItem({ message }) {
                   {message.text}
                 </ReactMarkdown>
               </div>
+            )}
+            {/* Phase 7: Interactive Schedule Preview Card */}
+            {!isUser && message.schedulePreview && (
+              <SchedulePreviewCard preview={message.schedulePreview} />
             )}
           </div>
 

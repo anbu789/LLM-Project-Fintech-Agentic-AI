@@ -60,37 +60,39 @@ if (adminPassword && adminPassword.trim() !== "") {
 }
 
 // 3. Create Read-Only User on 'fintech_agent_db'
+const bankingUsername = process.env.BANKING_DB_USERNAME || "fintech_readonly_user";
 const bankingDb = db.getSiblingDB("fintech_agent_db");
-const readerExists = bankingDb.getUser("fintech_reader");
+const readerExists = bankingDb.getUser(bankingUsername) || bankingDb.getUser("fintech_reader");
 if (!readerExists) {
-  print("[INFO] Creating read-only user 'fintech_reader' on 'fintech_agent_db'...");
+  print(`[INFO] Creating read-only user '${bankingUsername}' on 'fintech_agent_db'...`);
   bankingDb.createUser({
-    user: "fintech_reader",
+    user: bankingUsername,
     pwd: bankingPassword,
     roles: [
       { role: "read", db: "fintech_agent_db" }
     ]
   });
-  print("[OK] User 'fintech_reader' successfully provisioned with role 'read' on 'fintech_agent_db'.");
+  print(`[OK] User '${bankingUsername}' successfully provisioned with role 'read' on 'fintech_agent_db'.`);
 } else {
-  print("[INFO] User 'fintech_reader' already exists on 'fintech_agent_db'.");
+  print(`[INFO] Read-only user already exists on 'fintech_agent_db'.`);
 }
 
 // 4. Create Read-Write Metadata User on 'agent_metadata_db'
+const metadataUsername = process.env.METADATA_DB_USERNAME || "agent_metadata_user";
 const metadataDb = db.getSiblingDB("agent_metadata_db");
-const writerExists = metadataDb.getUser("agent_metadata_writer");
+const writerExists = metadataDb.getUser(metadataUsername) || metadataDb.getUser("agent_metadata_writer");
 if (!writerExists) {
-  print("[INFO] Creating metadata user 'agent_metadata_writer' on 'agent_metadata_db'...");
+  print(`[INFO] Creating metadata user '${metadataUsername}' on 'agent_metadata_db'...`);
   metadataDb.createUser({
-    user: "agent_metadata_writer",
+    user: metadataUsername,
     pwd: metadataPassword,
     roles: [
       { role: "readWrite", db: "agent_metadata_db" }
     ]
   });
-  print("[OK] User 'agent_metadata_writer' successfully provisioned with role 'readWrite' on 'agent_metadata_db'.");
+  print(`[OK] User '${metadataUsername}' successfully provisioned with role 'readWrite' on 'agent_metadata_db'.`);
 } else {
-  print("[INFO] User 'agent_metadata_writer' already exists on 'agent_metadata_db'.");
+  print(`[INFO] Metadata user already exists on 'agent_metadata_db'.`);
 }
 
 print("[COMPLETED] MongoDB user provisioning finished successfully.");

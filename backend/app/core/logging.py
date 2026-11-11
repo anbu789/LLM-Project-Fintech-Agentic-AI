@@ -31,6 +31,35 @@ REDACT_RULES: List[Tuple[re.Pattern, str]] = [
 ]
 
 
+UNICODE_REPLACEMENTS = [
+    ("\u2192", "->"),
+    ("\u2190", "<-"),
+    ("\u20b9", "INR "),
+    ("\u2705", "[OK]"),
+    ("\u274c", "[FAIL]"),
+    ("\u26a0", "[WARN]"),
+    ("\u2139", "[INFO]"),
+    ("\U0001f6ab", "[BLOCKED]"),
+    ("\U0001f914", "[CLARIFICATION]"),
+]
+
+
+def make_ascii_safe(text: str) -> str:
+    """Replaces common Unicode decorative symbols with portable ASCII equivalents."""
+    if not text:
+        return ""
+    safe_text = str(text)
+    for u_char, ascii_equiv in UNICODE_REPLACEMENTS:
+        safe_text = safe_text.replace(u_char, ascii_equiv)
+    # Ensure strict encoding safety for Windows CP1252/ASCII console output
+    try:
+        encoding = getattr(sys.stdout, "encoding", None) or "utf-8"
+        safe_text.encode(encoding)
+    except (UnicodeEncodeError, LookupError):
+        safe_text = safe_text.encode("ascii", errors="replace").decode("ascii")
+    return safe_text
+
+
 def sanitize_error_message(msg: str) -> str:
     """Scrubs any potential keys, tokens, or credentials from user-facing error messages and logs."""
     if not msg:
@@ -38,7 +67,7 @@ def sanitize_error_message(msg: str) -> str:
     sanitized = str(msg)
     for pattern, replacement in REDACT_RULES:
         sanitized = pattern.sub(replacement, sanitized)
-    return sanitized
+    return make_ascii_safe(sanitized)
 
 
 class RedactingFormatter(logging.Formatter):

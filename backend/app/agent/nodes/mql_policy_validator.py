@@ -22,12 +22,43 @@ CRITICAL GUARANTEE:
 """
 
 from datetime import datetime, timezone
+import json
 import re
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+from pathlib import Path
 from backend.app.config import settings
 from backend.app.core.logging import logger
+from backend.app.db.indexes import RECOMMENDED_INDEXES
 from backend.app.schema.catalog_builder import schema_catalog_builder
+
+def _load_confirmed_unique_index_fields() -> Dict[str, Set[str]]:
+    """Loads verified unique index fields from actual index evidence artifact if present,
+    falling back to recommended index definitions."""
+    evidence_path = Path("PHASE6_VERIFIED_INDEX_EVIDENCE.json")
+    if evidence_path.exists():
+        try:
+            with open(evidence_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return {
+                    col: set(info.get("confirmed_unique_fields", []))
+                    for col, info in data.get("collections", {}).items()
+                }
+        except Exception as e:
+            logger.warning(f"Could not load index evidence artifact: {e}")
+    return {
+        col: {
+            fields[0][0]
+            for idx in idx_list
+            if idx.get("unique") is True
+            for fields in [idx.get("fields", [])]
+            if len(fields) == 1
+        }
+        for col, idx_list in RECOMMENDED_INDEXES.items()
+    }
+
+# Build canonical index-confirmed unique fields per collection
+CONFIRMED_UNIQUE_INDEX_FIELDS: Dict[str, Set[str]] = _load_confirmed_unique_index_fields()
 
 
 # ---------------------------------------------------------------------------
@@ -223,6 +254,27 @@ class MQLValidationResult:
         }
 
 
+def _inspect_aggregations_on_alias(expr: Any, alias: str) -> List[str]:
+    """Recursively audits expressions for operations that aggregate or count over a bounded join."""
+    violations: List[str] = []
+    if isinstance(expr, dict):
+        for op, val in expr.items():
+            if op in ("$size", "$reduce", "$map", "$sum", "$avg", "$min", "$max"):
+                val_str = json.dumps(val, default=str)
+                if (
+                    f"${alias}" in val_str
+                    or f"\"{alias}\"" in val_str
+                    or f"\"{alias}." in val_str
+                    or f"${alias}." in val_str
+                ):
+                    violations.append(op)
+            violations.extend(_inspect_aggregations_on_alias(val, alias))
+    elif isinstance(expr, list):
+        for item in expr:
+            violations.extend(_inspect_aggregations_on_alias(item, alias))
+    return violations
+
+
 class MQLPolicyValidator:
     """Deterministic policy validator for MongoDB aggregation pipelines."""
 
@@ -239,6 +291,7 @@ class MQLPolicyValidator:
         self,
         target_collection: Optional[str],
         pipeline: Optional[List[Dict[str, Any]]],
+        require_terminal_limit: bool = False,
     ) -> MQLValidationResult:
         """Validates collection, stages, fields, relationships, and complexity."""
         errors: List[str] = []
@@ -282,6 +335,8 @@ class MQLPolicyValidator:
         # Track computed fields created in pipeline stages (e.g. $group, $project, $lookup)
         dynamic_scope_fields: Set[str] = set(canonical_fields)
         lookup_count = 0
+        bounded_1_to_n_aliases: Dict[str, int] = {}
+        unwound_bounded_aliases: Dict[str, int] = {}
 
         # 4. Stage-by-Stage Recursive Inspection
         for idx, stage in enumerate(pipeline):
@@ -325,8 +380,8 @@ class MQLPolicyValidator:
                 if not isinstance(stage_body, int) or stage_body <= 0:
                     errors.append(f"$limit value must be a positive integer, got {stage_body}.")
                 elif stage_body > settings.RESULT_DOC_LIMIT:
-                    warnings.append(
-                        f"$limit {stage_body} exceeds recommended limit {settings.RESULT_DOC_LIMIT}."
+                    errors.append(
+                        f"$limit value {stage_body} exceeds maximum allowed result limit of {settings.RESULT_DOC_LIMIT}."
                     )
 
             elif stage_name == "$count":
@@ -347,6 +402,7 @@ class MQLPolicyValidator:
                     local_field = stage_body.get("localField")
                     foreign_field = stage_body.get("foreignField")
                     as_alias = stage_body.get("as")
+                    sub_pipe = stage_body.get("pipeline")
 
                     if not foreign_col or foreign_col not in CANONICAL_COLLECTIONS:
                         errors.append(f"$lookup stage at index {idx} cannot target unauthorized collection '{foreign_col}'.")
@@ -378,6 +434,43 @@ class MQLPolicyValidator:
                                 f"$lookup between '{target_col}' and '{foreign_col}' has no verified schema relationship."
                             )
 
+                        # Bounding analysis: 1:1 vs 1:N join
+                        # A lookup is inherently one-to-one ONLY if its foreignField is genuinely unique
+                        # (i.e. '_id' or confirmed unique index). Do not assume a field is unique merely
+                        # because schema catalog labels it a primary key.
+                        confirmed_uniques = CONFIRMED_UNIQUE_INDEX_FIELDS.get(foreign_col, set())
+                        is_genuinely_unique = (foreign_field == "_id") or (foreign_field in confirmed_uniques)
+
+                        if not is_genuinely_unique:
+                            # 1:N join requires bounded inner pipeline
+                            if not sub_pipe or not isinstance(sub_pipe, list):
+                                errors.append(
+                                    f"$lookup stage at index {idx} joins multiple documents from '{foreign_col}' on non-primary/non-unique field '{foreign_field}' without an inner pipeline $limit <= {settings.MAX_LOOKUP_RESULTS_PER_DOCUMENT}; unbounded joined document volume is prohibited."
+                                )
+                            else:
+                                inner_limits = [s.get("$limit") for s in sub_pipe if isinstance(s, dict) and "$limit" in s]
+                                if not inner_limits:
+                                    errors.append(
+                                        f"$lookup stage at index {idx} on collection '{foreign_col}' lacks an inner $limit stage (must be <= {settings.MAX_LOOKUP_RESULTS_PER_DOCUMENT}) to bound joined documents."
+                                    )
+                                else:
+                                    for lim_val in inner_limits:
+                                        if not isinstance(lim_val, int) or lim_val <= 0 or lim_val > settings.MAX_LOOKUP_RESULTS_PER_DOCUMENT:
+                                            errors.append(
+                                                f"Nested $lookup in stage {idx} has inner $limit of {lim_val}, exceeding maximum allowed limit of {settings.MAX_LOOKUP_RESULTS_PER_DOCUMENT} per parent document."
+                                            )
+                            if as_alias and isinstance(as_alias, str):
+                                bounded_1_to_n_aliases[as_alias] = idx
+                        else:
+                            # 1:1 join with custom sub-pipeline: validate limits if present
+                            if sub_pipe and isinstance(sub_pipe, list):
+                                inner_limits = [s.get("$limit") for s in sub_pipe if isinstance(s, dict) and "$limit" in s]
+                                for lim_val in inner_limits:
+                                    if not isinstance(lim_val, int) or lim_val <= 0 or lim_val > settings.MAX_LOOKUP_RESULTS_PER_DOCUMENT:
+                                        errors.append(
+                                            f"Nested $lookup in stage {idx} has inner $limit of {lim_val}, exceeding maximum allowed limit of {settings.MAX_LOOKUP_RESULTS_PER_DOCUMENT} per parent document."
+                                        )
+
                     if as_alias and isinstance(as_alias, str):
                         dynamic_scope_fields.add(as_alias)
 
@@ -388,14 +481,48 @@ class MQLPolicyValidator:
                             errors.extend([f"Nested $lookup: {e}" for e in nested_res.validation_errors])
 
             elif stage_name == "$unwind":
+                path_str = ""
                 if isinstance(stage_body, str):
-                    path = stage_body.lstrip("$")
-                    dynamic_scope_fields.add(path)
+                    path_str = stage_body.lstrip("$")
                 elif isinstance(stage_body, dict) and "path" in stage_body:
-                    path = stage_body["path"].lstrip("$")
-                    dynamic_scope_fields.add(path)
+                    path_str = str(stage_body["path"]).lstrip("$")
 
-            elif stage_name in ("$group", "$project", "$addFields", "$set"):
+                if path_str:
+                    dynamic_scope_fields.add(path_str)
+                    for alias in bounded_1_to_n_aliases:
+                        if path_str == alias or path_str.startswith(f"{alias}."):
+                            unwound_bounded_aliases[alias] = idx
+
+            elif stage_name == "$group":
+                # Check downstream aggregate correctness: calculating aggregates over truncated joined array produces financially incorrect results
+                for alias, u_idx in unwound_bounded_aliases.items():
+                    if idx > u_idx and isinstance(stage_body, dict):
+                        acc_ops = {"$sum", "$avg", "$min", "$max", "$stdDevPop", "$stdDevSamp"}
+                        for g_field, g_expr in stage_body.items():
+                            if g_field == "_id":
+                                continue
+                            if isinstance(g_expr, dict):
+                                used_accs = acc_ops.intersection(g_expr.keys())
+                                if used_accs:
+                                    errors.append(
+                                        f"Joined array '{alias}' (bounded to {settings.MAX_LOOKUP_RESULTS_PER_DOCUMENT} items) is unwound at stage {u_idx} and aggregated with {sorted(used_accs)} at stage {idx}. "
+                                        f"Calculating financial aggregates over a truncated join produces incomplete and mathematically incorrect results."
+                                    )
+                # Register newly created fields
+                if isinstance(stage_body, dict):
+                    for k, v in stage_body.items():
+                        if not k.startswith("$"):
+                            dynamic_scope_fields.add(k)
+
+            elif stage_name in ("$project", "$addFields", "$set"):
+                # Check for aggregations or counts over bounded 1:N joined arrays
+                for alias in bounded_1_to_n_aliases:
+                    violations = _inspect_aggregations_on_alias(stage_body, alias)
+                    if violations:
+                        errors.append(
+                            f"Joined array '{alias}' (bounded to {settings.MAX_LOOKUP_RESULTS_PER_DOCUMENT} items) is aggregated using {sorted(set(violations))} in stage '{stage_name}' at index {idx}. "
+                            f"Calculating financial aggregates or counts over a truncated join produces incomplete and mathematically incorrect results."
+                        )
                 # Register newly created fields
                 if isinstance(stage_body, dict):
                     for k, v in stage_body.items():
@@ -423,6 +550,84 @@ class MQLPolicyValidator:
                     errors.append(
                         f"Referenced unknown field '{ref}' does not exist in collection '{target_col}' schema."
                     )
+
+        # 5. Result-Volume Policy and Limit Analysis
+        limit_stages = [(i, s["$limit"]) for i, s in enumerate(pipeline) if isinstance(s, dict) and "$limit" in s]
+        unwind_stages = [i for i, s in enumerate(pipeline) if isinstance(s, dict) and "$unwind" in s]
+        sort_stages = [i for i, s in enumerate(pipeline) if isinstance(s, dict) and "$sort" in s]
+        skip_stages = [i for i, s in enumerate(pipeline) if isinstance(s, dict) and "$skip" in s]
+        group_stages = [i for i, s in enumerate(pipeline) if isinstance(s, dict) and "$group" in s]
+
+        # Check limit consistency if multiple limits exist
+        if len(limit_stages) > 1:
+            for k in range(len(limit_stages) - 1):
+                idx1, val1 = limit_stages[k]
+                idx2, val2 = limit_stages[k + 1]
+                if isinstance(val1, int) and isinstance(val2, int) and val2 > val1:
+                    errors.append(
+                        f"Inconsistent $limit stages: stage {idx2} ($limit: {val2}) cannot expand earlier stage {idx1} ($limit: {val1})."
+                    )
+
+        # Check $unwind after $limit without a subsequent $limit
+        if limit_stages and unwind_stages:
+            first_limit_idx = limit_stages[0][0]
+            last_limit_idx = limit_stages[-1][0]
+            for u_idx in unwind_stages:
+                if u_idx > first_limit_idx and u_idx >= last_limit_idx:
+                    errors.append(
+                        f"$limit stage at index {first_limit_idx} is followed by $unwind at index {u_idx} without a subsequent $limit; array expansion can produce unbounded document volume."
+                    )
+
+        # Check limit before sort: REJECT ($sort must precede $limit for safe top-N)
+        if limit_stages and sort_stages:
+            for l_idx, _ in limit_stages:
+                for s_idx in sort_stages:
+                    if l_idx < s_idx:
+                        errors.append(
+                            f"$limit at stage {l_idx} precedes $sort at stage {s_idx}. Semantically invalid: sorting after $limit orders an arbitrarily pre-truncated subset rather than producing true top-N results."
+                        )
+
+        # Check skip before sort: REJECT ($sort must precede $skip for deterministic pagination)
+        if skip_stages and sort_stages:
+            for k_idx in skip_stages:
+                for s_idx in sort_stages:
+                    if k_idx < s_idx:
+                        errors.append(
+                            f"$skip at stage {k_idx} precedes $sort at stage {s_idx}. Semantically invalid: skipping before sorting produces non-deterministic pagination."
+                        )
+
+        # Check limit before group
+        if limit_stages and group_stages:
+            for l_idx, _ in limit_stages:
+                for g_idx in group_stages:
+                    if l_idx < g_idx:
+                        warnings.append(
+                            f"$limit at stage {l_idx} precedes $group at stage {g_idx}. Aggregating after limit calculates metrics on partial data."
+                        )
+
+        # Terminal limit requirement
+        if require_terminal_limit:
+            last_stage = pipeline[-1]
+            last_stage_name = next(iter(last_stage.keys())) if isinstance(last_stage, dict) else ""
+            is_count = (last_stage_name == "$count")
+            is_scalar_group = False
+            if last_stage_name == "$group" and isinstance(last_stage.get("$group"), dict):
+                group_id = last_stage["$group"].get("_id")
+                if group_id is None:
+                    is_scalar_group = True
+
+            has_effective_terminal_limit = False
+            if last_stage_name == "$limit":
+                has_effective_terminal_limit = True
+            elif len(pipeline) >= 2 and last_stage_name == "$project":
+                penultimate = pipeline[-2]
+                if isinstance(penultimate, dict) and "$limit" in penultimate:
+                    has_effective_terminal_limit = True
+
+            if not is_count and not is_scalar_group and not has_effective_terminal_limit:
+                errors.append(
+                    f"Pipeline lacks an effective terminal $limit stage (must be <= {settings.RESULT_DOC_LIMIT}) to bound final result volume."
+                )
 
         status = "VALID" if not errors else "INVALID"
         approved = list(pipeline) if status == "VALID" else None
@@ -466,6 +671,31 @@ async def mql_policy_validator_node(state: Dict[str, Any]) -> Dict[str, Any]:
         f"for collection='{target_collection}'"
     )
 
+    # Check if query synthesizer identified unsupported banking concepts
+    query_params = state.get("query_parameters") or {}
+    unsupported_concepts = query_params.get("unsupported_concepts") or []
+    if unsupported_concepts and (not candidate_pipeline or len(candidate_pipeline) == 0):
+        logger.info(f"[{request_id}] Node 5: Unsupported banking concepts identified: {unsupported_concepts}.")
+        trace.append(
+            _trace_entry(
+                "mql_policy_validator",
+                "unsupported",
+                f"Requested banking concepts {unsupported_concepts} are unsupported by canonical schema.",
+            )
+        )
+        return {
+            "validation_status": "UNSUPPORTED",
+            "validation_errors": [
+                f"Requested concept '{c}' is unsupported by canonical schema." for c in unsupported_concepts
+            ],
+            "validation_warnings": [],
+            "is_pipeline_valid": False,
+            "approved_pipeline": None,
+            "pipeline_spec": None,
+            "query_plan_summary": None,
+            "trace": trace,
+        }
+
     # If query synthesizer failed to generate a pipeline
     if not candidate_pipeline:
         logger.warning(f"[{request_id}] Node 5: candidate_pipeline is None or empty. Validation FAILED.")
@@ -484,10 +714,11 @@ async def mql_policy_validator_node(state: Dict[str, Any]) -> Dict[str, Any]:
             "trace": trace,
         }
 
-    # Execute deterministic validation
+    # Execute deterministic validation with strict terminal limit enforcement
     val_res = mql_validator.validate_pipeline(
         target_collection=target_collection,
         pipeline=candidate_pipeline,
+        require_terminal_limit=True,
     )
 
     status = val_res.validation_status

@@ -25,6 +25,18 @@ ResultStatus = Literal[
     "VALID_EMPTY",
     "RETRYABLE_ERROR",
     "TERMINAL_FAILURE",
+    "EXECUTION_GATE_BLOCKED",
+    "SUCCESS_WITH_DATA",
+    "SUCCESS_EMPTY",
+    "SUCCESS_LIMITED",
+    "RESULT_OVERSIZED",
+    "TIMEOUT",
+    "CONNECTION_ERROR",
+    "AUTH_ERROR",
+    "UNSUPPORTED",
+    "VALIDATION_FAILED",
+    "INVALID_RESULT",
+    "stub",
 ]
 
 
@@ -92,11 +104,16 @@ class AgentState(TypedDict, total=False):
     execution_time_ms: Optional[int]
     result_row_count: Optional[int]
     execution_error: Optional[str]
+    execution_status: Optional[str]
     result_truncated: bool
     dry_run: bool
+    test_db: Optional[Any]
+    mock_db: Optional[Any]
 
     # ---- Node 7 — Result Verifier and Recovery -----------------------------
     result_status: ResultStatus
+    verification_status: Optional[str]
+    verified_results: Optional[list[dict[str, Any]]]
     correction_reason: Optional[str]
     semantic_verification: Optional[dict[str, Any]]
     interpretation_summary: Optional[str]
@@ -111,10 +128,15 @@ class AgentState(TypedDict, total=False):
     schedule_spec: Optional[dict[str, Any]]
     schedule_approved: bool
     schedule_job_id: Optional[str]
+    preview_id: Optional[str]
+    schedule_preview: Optional[dict[str, Any]]
     cron_expression: Optional[str]
     timezone: Optional[str]
     next_run_times: Optional[list[str]]
     delivery_spec: Optional[dict[str, Any]]
+    idempotency_key: Optional[str]
+    is_api_request: Optional[bool]
+    is_untrusted: Optional[bool]
 
     # ---- Clarification handling --------------------------------------------
     clarification_question: Optional[str]

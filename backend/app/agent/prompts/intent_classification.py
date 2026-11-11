@@ -203,19 +203,26 @@ _AMBIGUOUS_PATTERNS = [
 ]
 
 
+_FOLLOW_UP_PATTERNS = [
+    "what about", "how about", "only show", "sort them by", "sort by",
+    "filter by", "only failed", "failed ones", "active ones", "closed ones",
+    "which of those", "how many of them", "and also", "show failed ones",
+    "what of", "and for", "only for", "show them",
+]
+
+
 def mock_classify_intent(
     query: str,
     conversation_history: List[Dict[str, Any]] | None = None,
 ) -> Dict[str, Any]:
     """Deterministic keyword-based intent classification for mock provider.
 
-    This is used ONLY when LLM_PROVIDER is 'mock'.  It is NOT claimed to
-    demonstrate real LLM intelligence — it provides stable, reproducible
-    test behavior without requiring API credentials.
+    This is used ONLY when LLM_PROVIDER is 'mock'. It provides stable, reproducible
+    test behavior and context resolution across multi-turn sessions without requiring API credentials.
 
     Args:
         query: The current user message.
-        conversation_history: Optional prior conversation turns (unused in mock).
+        conversation_history: Optional prior conversation turns used for context resolution.
 
     Returns:
         A dict matching IntentClassification fields.
@@ -226,7 +233,7 @@ def mock_classify_intent(
     if any(q == g or q.startswith(g) for g in _GREETINGS) and len(q) < 60:
         return {
             "request_mode": "OUT_OF_SCOPE",
-            "intent_reason": "Greeting or chitchat — not a banking data query.",
+            "intent_reason": "Greeting or chitchat - not a banking data query.",
             "query_description": None,
             "clarification_question": None,
         }
@@ -250,36 +257,63 @@ def mock_classify_intent(
             "clarification_question": None,
         }
 
-    # 4. Banking query + scheduling together → QUERY_AND_SCHEDULE
+    # 4. Multi-turn conversation context resolution
+    # Check if this query is a follow-up referencing prior banking context
+    prior_banking_query = None
+    if conversation_history:
+        for msg in reversed(conversation_history):
+            if msg.get("role") == "user" and msg.get("content"):
+                c = msg["content"].lower()
+                if any(kw in c for kw in _BANKING_DATA_KEYWORDS) and not any(ind in c for ind in _OUT_OF_SCOPE_INDICATORS):
+                    prior_banking_query = msg["content"]
+                    break
+
     has_banking = any(kw in q for kw in _BANKING_DATA_KEYWORDS)
     has_schedule = any(kw in q for kw in _SCHEDULE_KEYWORDS)
 
+    # If query lacks explicit banking keywords but is a conversational follow-up to prior banking query
+    is_follow_up = False
+    if prior_banking_query:
+        if any(pat in q for pat in _FOLLOW_UP_PATTERNS):
+            is_follow_up = True
+        elif len(q.split()) <= 6 and not any(q == g or q.startswith(g) for g in _GREETINGS):
+            # Short elliptical query with prior banking context (e.g. "What about Coimbatore?", "In Mumbai?")
+            is_follow_up = True
+
+    if is_follow_up and prior_banking_query:
+        has_banking = True
+        composite_desc = f"{prior_banking_query} (follow-up: {query})"
+    else:
+        composite_desc = query
+
+    # 5. Banking query + scheduling together -> QUERY_AND_SCHEDULE
     if has_banking and has_schedule:
         return {
             "request_mode": "QUERY_AND_SCHEDULE",
             "intent_reason": "User wants to retrieve banking data AND schedule recurring delivery.",
-            "query_description": query,
+            "query_description": composite_desc,
             "clarification_question": None,
         }
 
-    # 5. Pure banking data query
+    # 6. Pure banking data query (standalone or contextual follow-up)
     if has_banking:
-        # Check for excessive vagueness
-        if any(pat in q for pat in _AMBIGUOUS_PATTERNS) and len(q) < 50:
+        # Check for excessive vagueness (only for standalone queries, not follow-ups)
+        if not is_follow_up and any(pat in q for pat in _AMBIGUOUS_PATTERNS) and len(q) < 50:
             return {
                 "request_mode": "CLARIFICATION_REQUIRED",
                 "intent_reason": "Banking topic detected but query is too vague to generate a pipeline.",
                 "query_description": None,
                 "clarification_question": "Could you provide more details? For example: which loan status, time range, branch, or customer segment are you interested in?",
             }
+        reason = "Contextual follow-up banking query identified." if is_follow_up else "Clear banking data query identified."
         return {
             "request_mode": "QUERY_ONLY",
-            "intent_reason": "Clear banking data query identified.",
-            "query_description": query,
+            "intent_reason": reason,
+            "query_description": composite_desc,
             "clarification_question": None,
         }
 
-    # 6. Has scheduling keywords but no clear banking subject → clarify
+    # 7. Has scheduling keywords but no clear banking subject -> clarify
     if has_schedule:
         return {
             "request_mode": "CLARIFICATION_REQUIRED",
@@ -288,7 +322,7 @@ def mock_classify_intent(
             "clarification_question": "What data or report would you like to schedule? Please specify the banking metric or collection you're interested in.",
         }
 
-    # 7. Very short or unclear input
+    # 8. Very short or unclear input without prior context
     if len(q) < 10:
         return {
             "request_mode": "CLARIFICATION_REQUIRED",
@@ -297,7 +331,7 @@ def mock_classify_intent(
             "clarification_question": "Could you describe what banking data or analysis you need in more detail?",
         }
 
-    # 8. Default — out of scope for unrecognised content
+    # 9. Default - out of scope for unrecognised content
     return {
         "request_mode": "OUT_OF_SCOPE",
         "intent_reason": "No banking data keywords or scheduling intent detected in the query.",

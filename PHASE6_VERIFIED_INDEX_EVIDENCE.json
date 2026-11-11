@@ -1,0 +1,766 @@
+{
+  "audit_metadata": {
+    "database": "fintech_agent_db",
+    "inspection_method": "list_indexes_metadata_only",
+    "inspection_timestamp": "2026-11-11T13:15:04.253510+00:00",
+    "collections_inspected": 12,
+    "document_data_read": false,
+    "index_modifications_made": false
+  },
+  "collections": {
+    "accounts": {
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": [
+            [
+              "_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "account_id_1",
+          "key": [
+            [
+              "account_id",
+              1
+            ]
+          ],
+          "unique": true,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "customer_id_1",
+          "key": [
+            [
+              "customer_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        },
+        {
+          "name": "branch_id_1",
+          "key": [
+            [
+              "branch_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        },
+        {
+          "name": "status_1",
+          "key": [
+            [
+              "status",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        }
+      ],
+      "confirmed_unique_fields": [
+        "_id",
+        "account_id"
+      ]
+    },
+    "branches": {
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": [
+            [
+              "_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "branch_id_1",
+          "key": [
+            [
+              "branch_id",
+              1
+            ]
+          ],
+          "unique": true,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        }
+      ],
+      "confirmed_unique_fields": [
+        "_id",
+        "branch_id"
+      ]
+    },
+    "cards": {
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": [
+            [
+              "_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "card_id_1",
+          "key": [
+            [
+              "card_id",
+              1
+            ]
+          ],
+          "unique": true,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "customer_id_1",
+          "key": [
+            [
+              "customer_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        },
+        {
+          "name": "account_id_1",
+          "key": [
+            [
+              "account_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        }
+      ],
+      "confirmed_unique_fields": [
+        "_id",
+        "card_id"
+      ]
+    },
+    "customers": {
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": [
+            [
+              "_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "customer_id_1",
+          "key": [
+            [
+              "customer_id",
+              1
+            ]
+          ],
+          "unique": true,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "status_1",
+          "key": [
+            [
+              "status",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        },
+        {
+          "name": "risk_category_1",
+          "key": [
+            [
+              "risk_category",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        }
+      ],
+      "confirmed_unique_fields": [
+        "_id",
+        "customer_id"
+      ]
+    },
+    "employees": {
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": [
+            [
+              "_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "employee_id_1",
+          "key": [
+            [
+              "employee_id",
+              1
+            ]
+          ],
+          "unique": true,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "branch_id_1",
+          "key": [
+            [
+              "branch_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        }
+      ],
+      "confirmed_unique_fields": [
+        "_id",
+        "employee_id"
+      ]
+    },
+    "fraud_alerts": {
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": [
+            [
+              "_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "alert_id_1",
+          "key": [
+            [
+              "alert_id",
+              1
+            ]
+          ],
+          "unique": true,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "transaction_id_1",
+          "key": [
+            [
+              "transaction_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        },
+        {
+          "name": "customer_id_1",
+          "key": [
+            [
+              "customer_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        }
+      ],
+      "confirmed_unique_fields": [
+        "_id",
+        "alert_id"
+      ]
+    },
+    "investments": {
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": [
+            [
+              "_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "investment_id_1",
+          "key": [
+            [
+              "investment_id",
+              1
+            ]
+          ],
+          "unique": true,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "customer_id_1",
+          "key": [
+            [
+              "customer_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        }
+      ],
+      "confirmed_unique_fields": [
+        "_id",
+        "investment_id"
+      ]
+    },
+    "kyc_documents": {
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": [
+            [
+              "_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "kyc_id_1",
+          "key": [
+            [
+              "kyc_id",
+              1
+            ]
+          ],
+          "unique": true,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "customer_id_1",
+          "key": [
+            [
+              "customer_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        }
+      ],
+      "confirmed_unique_fields": [
+        "_id",
+        "kyc_id"
+      ]
+    },
+    "loans": {
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": [
+            [
+              "_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "loan_id_1",
+          "key": [
+            [
+              "loan_id",
+              1
+            ]
+          ],
+          "unique": true,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "customer_id_1",
+          "key": [
+            [
+              "customer_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        },
+        {
+          "name": "sanctioning_branch_id_1",
+          "key": [
+            [
+              "sanctioning_branch_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        },
+        {
+          "name": "status_1",
+          "key": [
+            [
+              "status",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        }
+      ],
+      "confirmed_unique_fields": [
+        "_id",
+        "loan_id"
+      ]
+    },
+    "merchants": {
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": [
+            [
+              "_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "merchant_id_1",
+          "key": [
+            [
+              "merchant_id",
+              1
+            ]
+          ],
+          "unique": true,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        }
+      ],
+      "confirmed_unique_fields": [
+        "_id",
+        "merchant_id"
+      ]
+    },
+    "support_tickets": {
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": [
+            [
+              "_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "ticket_id_1",
+          "key": [
+            [
+              "ticket_id",
+              1
+            ]
+          ],
+          "unique": true,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "customer_id_1",
+          "key": [
+            [
+              "customer_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        },
+        {
+          "name": "status_1",
+          "key": [
+            [
+              "status",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        }
+      ],
+      "confirmed_unique_fields": [
+        "_id",
+        "ticket_id"
+      ]
+    },
+    "transactions": {
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": [
+            [
+              "_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "transaction_id_1",
+          "key": [
+            [
+              "transaction_id",
+              1
+            ]
+          ],
+          "unique": true,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": true
+        },
+        {
+          "name": "account_id_1",
+          "key": [
+            [
+              "account_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        },
+        {
+          "name": "customer_id_1",
+          "key": [
+            [
+              "customer_id",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        },
+        {
+          "name": "transaction_date_1",
+          "key": [
+            [
+              "transaction_date",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        },
+        {
+          "name": "transaction_mode_1",
+          "key": [
+            [
+              "transaction_mode",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        },
+        {
+          "name": "status_1",
+          "key": [
+            [
+              "status",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        },
+        {
+          "name": "is_flagged_1",
+          "key": [
+            [
+              "is_flagged",
+              1
+            ]
+          ],
+          "unique": false,
+          "sparse": false,
+          "partialFilterExpression": null,
+          "collation": null,
+          "is_engine_unique": false
+        }
+      ],
+      "confirmed_unique_fields": [
+        "_id",
+        "transaction_id"
+      ]
+    }
+  }
+}

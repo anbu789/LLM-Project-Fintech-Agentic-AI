@@ -82,6 +82,7 @@ async def chat_endpoint(request: ChatRequest):
             "result_truncated": False,
             "dry_run": False,
             "schedule_approved": False,
+            "is_api_request": True,
         }
 
         # Invoke the 9-node LangGraph pipeline
@@ -168,6 +169,8 @@ async def chat_endpoint(request: ChatRequest):
             validation_status=val_status,
             query_explanation=query_expl,
             trace=trace_data,
+            schedule_preview=final_state.get("schedule_preview"),
+            preview_id=final_state.get("preview_id"),
         )
     except FinTechAgentException as fae:
         duration_ms = round((time.time() - start_time) * 1000, 2)

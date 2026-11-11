@@ -80,4 +80,92 @@ export const deleteConversation = async (conversationId) => {
   }
 };
 
+// Phase 7 — Scheduled Queries & Reports
+export const approveSchedule = async (previewId, idempotencyKey = null) => {
+  try {
+    const response = await apiClient.post('/schedules/approve', {
+      preview_id: previewId,
+      idempotency_key: idempotencyKey || undefined,
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response?.data?.detail) {
+      throw error.response.data.detail;
+    }
+    throw error;
+  }
+};
+
+export const fetchSchedules = async () => {
+  try {
+    const response = await apiClient.get('/schedules');
+    return response.data;
+  } catch (error) {
+    if (error.response?.data?.detail) {
+      throw error.response.data.detail;
+    }
+    throw error;
+  }
+};
+
+export const fetchSchedule = async (jobId) => {
+  try {
+    const response = await apiClient.get(`/schedules/${jobId}`);
+    return response.data;
+  } catch (error) {
+    if (error.response?.data?.detail) {
+      throw error.response.data.detail;
+    }
+    throw error;
+  }
+};
+
+export const pauseSchedule = async (jobId) => {
+  try {
+    const response = await apiClient.post(`/schedules/${jobId}/pause`);
+    return response.data;
+  } catch (error) {
+    if (error.response?.data?.detail) {
+      throw error.response.data.detail;
+    }
+    throw error;
+  }
+};
+
+export const resumeSchedule = async (jobId) => {
+  try {
+    const response = await apiClient.post(`/schedules/${jobId}/resume`);
+    return response.data;
+  } catch (error) {
+    if (error.response?.data?.detail) {
+      throw error.response.data.detail;
+    }
+    throw error;
+  }
+};
+
+export const cancelSchedule = async (jobId) => {
+  try {
+    const response = await apiClient.post(`/schedules/${jobId}/cancel`);
+    return response.data;
+  } catch (error) {
+    if (error.response?.data?.detail) {
+      throw error.response.data.detail;
+    }
+    throw error;
+  }
+};
+
+export const fetchScheduleRuns = async (jobId, limit = 50) => {
+  try {
+    const response = await apiClient.get(`/schedules/${jobId}/runs?limit=${limit}`);
+    return response.data;
+  } catch (error) {
+    if (error.response?.data?.detail) {
+      throw error.response.data.detail;
+    }
+    throw error;
+  }
+};
+
 export default apiClient;

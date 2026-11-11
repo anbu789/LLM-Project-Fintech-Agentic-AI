@@ -14,25 +14,25 @@ const metadataDb = db.getSiblingDB("agent_metadata_db");
 print("[ROLLBACK] Initiating rollback of provisioned MongoDB users...");
 
 try {
-  if (bankingDb.getUser("fintech_reader")) {
-    bankingDb.dropUser("fintech_reader");
-    print("[OK] fintech_reader dropped from fintech_agent_db.");
-  } else {
-    print("[INFO] fintech_reader does not exist on fintech_agent_db.");
-  }
+  ["fintech_readonly_user", "fintech_reader"].forEach(u => {
+    if (bankingDb.getUser(u)) {
+      bankingDb.dropUser(u);
+      print(`[OK] ${u} dropped from fintech_agent_db.`);
+    }
+  });
 } catch (e) {
-  print("[WARN] Error dropping fintech_reader: " + e.message);
+  print("[WARN] Error dropping banking read-only users: " + e.message);
 }
 
 try {
-  if (metadataDb.getUser("agent_metadata_writer")) {
-    metadataDb.dropUser("agent_metadata_writer");
-    print("[OK] agent_metadata_writer dropped from agent_metadata_db.");
-  } else {
-    print("[INFO] agent_metadata_writer does not exist on agent_metadata_db.");
-  }
+  ["agent_metadata_user", "agent_metadata_writer"].forEach(u => {
+    if (metadataDb.getUser(u)) {
+      metadataDb.dropUser(u);
+      print(`[OK] ${u} dropped from agent_metadata_db.`);
+    }
+  });
 } catch (e) {
-  print("[WARN] Error dropping agent_metadata_writer: " + e.message);
+  print("[WARN] Error dropping metadata users: " + e.message);
 }
 
 try {

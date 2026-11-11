@@ -158,6 +158,7 @@ export const useChatStore = create((set, get) => ({
         model: response.model,
         requestId: response.request_id,
         latencyMs: response.latency_ms,
+        schedulePreview: response.schedule_preview,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       set((state) => ({

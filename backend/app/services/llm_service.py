@@ -5,6 +5,8 @@ Includes multi-turn history handling, provider response safety shields, and fail
 """
 
 from abc import ABC, abstractmethod
+import asyncio
+import random
 from typing import Any, Dict, List, Optional
 import httpx
 
@@ -219,38 +221,91 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         }
 
         url = f"{self.base_url}/chat/completions"
-        try:
-            async with httpx.AsyncClient(timeout=float(self.timeout)) as client:
-                res = await client.post(url, headers=headers, json=payload)
-                if res.status_code == 401:
-                    raise ProviderAuthenticationError(self.provider_name, "Invalid API key.")
-                elif res.status_code == 429:
-                    raise ProviderRateLimitError(self.provider_name, res.text)
-                elif res.status_code >= 400:
-                    raise ProviderAPIError(self.provider_name, f"Status {res.status_code}: {res.text}", status_code=res.status_code)
+        max_attempts = 3
+        last_exception = None
 
-                data = res.json()
-                choices = data.get("choices", [])
-                if not choices:
-                    raise ProviderAPIError(self.provider_name, "Empty choices returned from chat completion endpoint.")
+        for attempt in range(max_attempts):
+            try:
+                async with httpx.AsyncClient(timeout=float(self.timeout)) as client:
+                    res = await client.post(url, headers=headers, json=payload)
 
-                first_choice = choices[0]
-                finish_reason = first_choice.get("finish_reason")
-                if finish_reason == "content_filter":
-                    raise ProviderAPIError(self.provider_name, "Response was filtered by provider safety controls.", status_code=400)
+                    # 1. Non-retryable authentication & client errors
+                    if res.status_code == 401:
+                        raise ProviderAuthenticationError(self.provider_name, "Invalid API key.")
+                    elif res.status_code == 403:
+                        raise ProviderAuthenticationError(self.provider_name, f"Forbidden / Permission denied (403): {res.text}")
+                    elif res.status_code == 400:
+                        raise ProviderAPIError(self.provider_name, f"Status 400: {res.text}", status_code=400)
+                    elif res.status_code == 404:
+                        raise ProviderAPIError(self.provider_name, f"Status 404: {res.text}", status_code=404)
 
-                message_obj = first_choice.get("message", {})
-                content_text = message_obj.get("content")
-                if content_text is None:
-                    refusal = message_obj.get("refusal")
-                    if refusal:
-                        return f"[Refusal]: {refusal}"
-                    raise ProviderAPIError(self.provider_name, "Null content received in chat completion response.")
-                return content_text.strip()
-        except httpx.TimeoutException:
-            raise ProviderTimeoutError(self.provider_name, self.timeout)
-        except httpx.RequestError as e:
-            raise ProviderAPIError(self.provider_name, f"Network connection error: {str(e)}")
+                    # 2. Rate limit & quota errors
+                    elif res.status_code == 429:
+                        error_text = res.text.lower()
+                        if "insufficient_quota" in error_text or "quota_exceeded" in error_text or "billing" in error_text:
+                            raise ProviderRateLimitError(self.provider_name, f"Quota exhausted: {res.text}")
+                        # Transient 429: retry if attempts remain
+                        if attempt < max_attempts - 1:
+                            retry_hdr = res.headers.get("retry-after")
+                            wait_sec = float(retry_hdr) if retry_hdr and retry_hdr.isdigit() else (0.5 * (2 ** attempt) + random.uniform(0.1, 0.4))
+                            wait_sec = min(wait_sec, 4.0)
+                            logger.warning(f"[{self.provider_name}] Transient 429 rate limit. Retrying in {wait_sec:.2f}s (attempt {attempt + 1}/{max_attempts})...")
+                            await asyncio.sleep(wait_sec)
+                            continue
+                        raise ProviderRateLimitError(self.provider_name, res.text)
+
+                    # 3. Server-side transient errors (500, 502, 503, 504)
+                    elif res.status_code in (500, 502, 503, 504):
+                        if attempt < max_attempts - 1:
+                            wait_sec = 0.5 * (2 ** attempt) + random.uniform(0.1, 0.4)
+                            logger.warning(f"[{self.provider_name}] Transient status {res.status_code}. Retrying in {wait_sec:.2f}s (attempt {attempt + 1}/{max_attempts})...")
+                            await asyncio.sleep(wait_sec)
+                            continue
+                        raise ProviderAPIError(self.provider_name, f"Status {res.status_code}: {res.text}", status_code=res.status_code)
+
+                    elif res.status_code >= 400:
+                        raise ProviderAPIError(self.provider_name, f"Status {res.status_code}: {res.text}", status_code=res.status_code)
+
+                    data = res.json()
+                    choices = data.get("choices", [])
+                    if not choices:
+                        raise ProviderAPIError(self.provider_name, "Empty choices returned from chat completion endpoint.")
+
+                    first_choice = choices[0]
+                    finish_reason = first_choice.get("finish_reason")
+                    if finish_reason == "content_filter":
+                        raise ProviderAPIError(self.provider_name, "Response was filtered by provider safety controls.", status_code=400)
+
+                    message_obj = first_choice.get("message", {})
+                    content_text = message_obj.get("content")
+                    if content_text is None:
+                        refusal = message_obj.get("refusal")
+                        if refusal:
+                            return f"[Refusal]: {refusal}"
+                        raise ProviderAPIError(self.provider_name, "Null content received in chat completion response.")
+                    return content_text.strip()
+
+            except (ProviderAuthenticationError, ProviderRateLimitError, ProviderConfigurationError):
+                raise
+            except httpx.TimeoutException as exc:
+                last_exception = exc
+                if attempt < max_attempts - 1:
+                    wait_sec = 0.5 * (2 ** attempt) + random.uniform(0.1, 0.3)
+                    logger.warning(f"[{self.provider_name}] Timeout encountered. Retrying in {wait_sec:.2f}s (attempt {attempt + 1}/{max_attempts})...")
+                    await asyncio.sleep(wait_sec)
+                    continue
+                raise ProviderTimeoutError(self.provider_name, self.timeout)
+            except httpx.RequestError as exc:
+                last_exception = exc
+                if attempt < max_attempts - 1:
+                    wait_sec = 0.5 * (2 ** attempt) + random.uniform(0.1, 0.3)
+                    logger.warning(f"[{self.provider_name}] Network connection error: {exc}. Retrying in {wait_sec:.2f}s (attempt {attempt + 1}/{max_attempts})...")
+                    await asyncio.sleep(wait_sec)
+                    continue
+                raise ProviderAPIError(self.provider_name, f"Network connection error: {str(exc)}")
+
+        if last_exception:
+            raise ProviderAPIError(self.provider_name, f"Request failed after {max_attempts} attempts: {last_exception}")
 
 
 class LLMService:

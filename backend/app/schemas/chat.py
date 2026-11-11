@@ -65,6 +65,9 @@ class ChatResponse(BaseModel):
     validation_status: Optional[str] = Field(default=None, description="Deterministic MQL validation status: passed or failed")
     query_explanation: Optional[str] = Field(default=None, description="Natural language explanation of the generated query")
     trace: Optional[list] = Field(default=None, description="Agent execution audit trace")
+    # Phase 7 — Scheduling metadata fields
+    schedule_preview: Optional[dict] = Field(default=None, description="Structured schedule preview when request involves scheduling")
+    preview_id: Optional[str] = Field(default=None, description="Preview identifier for explicit schedule approval")
 
     def model_post_init(self, __context) -> None:
         if self.response is None and self.message is not None:

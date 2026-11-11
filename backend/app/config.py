@@ -48,6 +48,10 @@ class Settings(BaseSettings):
         default=False,
         description="Whether server-side MongoDB authentication is strictly enforced"
     )
+    MONGO_NATIVE_AUTH_VERIFIED: bool = Field(
+        default=False,
+        description="Whether native MongoDB server-side authentication has been explicitly verified"
+    )
     ALLOW_UNAUTHENTICATED_DEV: bool = Field(
         default=True,
         description="Explicit flag allowing unauthenticated local development"
@@ -116,6 +120,10 @@ class Settings(BaseSettings):
     DRY_RUN_RESULT_LIMIT: int = Field(default=10, description="Maximum documents returned for schedule dry-run")
     MAX_PIPELINE_STAGES: int = Field(default=20, description="Maximum allowed pipeline stages")
     MAX_PIPELINE_DEPTH: int = Field(default=10, description="Maximum allowed expression nesting depth")
+    MAX_LOOKUP_RESULTS_PER_DOCUMENT: int = Field(default=100, description="Max allowed documents per parent in $lookup joins")
+    MAX_RESULT_BYTES: int = Field(default=5242880, description="Max allowed execution result size in bytes (5MB)")
+    MAX_RESULT_NESTING_DEPTH: int = Field(default=10, description="Max allowed document/expression nesting depth")
+    PHASE6_LIVE_EXECUTION_ENABLED: bool = Field(default=False, description="Fail-closed execution gate for Phase 6 live queries")
     MAX_RETRY_ATTEMPTS: int = Field(default=3, description="Maximum agent retry attempts")
     REQUEST_TIMEOUT_SECONDS: int = Field(default=30, description="Overall request deadline in seconds")
 
@@ -140,11 +148,15 @@ class Settings(BaseSettings):
     )
     RETRIEVAL_TOP_K: int = Field(default=5, description="Default top-k documents to retrieve")
 
-    # Scheduler & Jobs
+    # Scheduler & Jobs (Phase 7)
     SCHEDULER_TIMEZONE: str = Field(default="Asia/Kolkata", description="Scheduler timezone")
     SCHEDULER_RECONCILE_INTERVAL_SECONDS: int = Field(default=30, description="Job reconciliation interval")
     SCHEDULER_MAX_INSTANCES: int = Field(default=1, description="Max concurrent scheduler instances")
     JOB_MAX_CONSECUTIVE_FAILURES: int = Field(default=3, description="Max consecutive job execution failures")
+    PHASE7_SCHEDULER_ENABLED: bool = Field(default=False, description="Fail-closed gate for background APScheduler runner")
+    PHASE7_LIVE_REGISTRATION_ENABLED: bool = Field(default=False, description="Fail-closed gate for live persistent job registration")
+    PHASE7_FAILURE_THRESHOLD: int = Field(default=3, description="Consecutive failure threshold before auto-pause")
+    PHASE7_DRY_RUN_RESULT_LIMIT: int = Field(default=10, description="Maximum documents returned for schedule dry-run preview")
 
     # Authentication & JWT Configuration
     JWT_SECRET_KEY: str = Field(default="dev_jwt_secret_key_minimum_32_chars_long_12345", description="JWT secret key")

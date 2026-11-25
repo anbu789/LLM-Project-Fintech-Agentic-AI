@@ -121,6 +121,24 @@ async def query_executor_node(state: Dict[str, Any]) -> Dict[str, Any]:
     # -------------------------------------------------------------------------
     # 1. Precondition Verification (Strict Fail-Safe Skip)
     # -------------------------------------------------------------------------
+    if state.get("request_mode") == "SCHEDULE_ONLY":
+        logger.info(f"[{request_id}] Node 6 skipping: SCHEDULE_ONLY request does not execute database query immediately.")
+        trace.append({
+            "node": "query_executor",
+            "status": "skipped",
+            "detail": "Skipped: SCHEDULE_ONLY request does not execute database query immediately.",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        })
+        return {
+            "raw_results": None,
+            "execution_time_ms": 0,
+            "result_row_count": 0,
+            "execution_error": None,
+            "execution_status": "SKIPPED",
+            "result_truncated": False,
+            "trace": trace,
+        }
+
     if guardrail_status == "rejected" or final_status == "rejected":
         logger.info(f"[{request_id}] Node 6 skipping: request was rejected by input guardrail.")
         trace.append({

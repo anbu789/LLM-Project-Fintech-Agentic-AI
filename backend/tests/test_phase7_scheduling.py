@@ -177,6 +177,14 @@ class MockMetadataDB:
         self.job_runs = InMemoryCollection()
         self.scheduler_leases = InMemoryCollection()
         self.conversations = InMemoryCollection()
+        self._collections = {}
+
+    def __getitem__(self, item):
+        if hasattr(self, item):
+            return getattr(self, item)
+        if item not in self._collections:
+            self._collections[item] = InMemoryCollection()
+        return self._collections[item]
 
 
 @pytest.fixture(autouse=True)
@@ -233,6 +241,28 @@ def test_parse_recurrence_standard_cron():
     spec = parse_recurrence("0 9 * * 1", timezone_name="Asia/Kolkata")
     assert spec.frequency == "cron"
     assert spec.cron_expression == "0 9 * * 1"
+
+
+def test_parse_recurrence_minute_and_hour_intervals():
+    # 1 minute
+    spec1 = parse_recurrence("every 1 minute", timezone_name="Asia/Kolkata")
+    assert spec1.frequency == "cron"
+    assert spec1.cron_expression == "* * * * *"
+
+    # 2 minutes
+    spec2 = parse_recurrence("every 2 minutes", timezone_name="Asia/Kolkata")
+    assert spec2.frequency == "cron"
+    assert spec2.cron_expression == "*/2 * * * *"
+
+    # 15 mins in query text
+    spec15 = parse_recurrence("schedule accounts report every 15 mins", timezone_name="Asia/Kolkata")
+    assert spec15.frequency == "cron"
+    assert spec15.cron_expression == "*/15 * * * *"
+
+    # Hourly interval
+    spec_hr = parse_recurrence("every 2 hours", timezone_name="Asia/Kolkata")
+    assert spec_hr.frequency == "cron"
+    assert spec_hr.cron_expression == "0 */2 * * *"
 
 
 def test_parse_recurrence_invalid_cron_raises():
@@ -783,3 +813,285 @@ async def test_graph_end_to_end_query_and_schedule_flow(mock_meta_db):
     final_resp = final_state.get("graph_response") or ""
     assert "Scheduled Report Preview" in final_resp
     assert "approve" in final_resp.lower()
+
+
+def test_parse_recurrence_natural_interval_and_timezone_abbreviations():
+    # 2-minute interval with IST
+    spec1 = parse_recurrence("run accounts report with a 2-minute interval at 10:39 PM IST")
+    assert spec1.frequency in ("cron", "interval")
+    assert spec1.cron_expression == "*/2 * * * *"
+    assert spec1.timezone == "Asia/Kolkata"
+
+    # interval of 5 minutes
+    spec2 = parse_recurrence("schedule this to run at interval of 5 minutes")
+    assert spec2.frequency in ("cron", "interval")
+    assert spec2.cron_expression == "*/5 * * * *"
+
+    # Weekday schedule
+    spec3 = parse_recurrence("send daily summary every weekday at 9am")
+    assert spec3.frequency == "weekly"
+    assert spec3.cron_expression == "0 9 * * mon-fri"
+    assert spec3.day_of_week == ["mon", "tue", "wed", "thu", "fri"]
+
+    # Timezone abbreviation UTC
+    spec4 = parse_recurrence("daily at 8:00 AM UTC")
+    assert spec4.timezone == "UTC"
+
+
+def test_parse_recurrence_markdown_and_complex_prompt():
+    prompt = (
+        "Schedule the same accounts aggregation query to run **2 times**, "
+        "starting today at **10:39 PM IST**, with a **2-minute interval** (10:39 PM and 10:45 PM). "
+        "Keep it read-only, do not run it immediately, and stop after the second execution."
+    )
+    spec = parse_recurrence(prompt)
+    assert spec.frequency in ("cron", "interval")
+    assert spec.cron_expression == "*/2 * * * *"
+    assert spec.timezone == "Asia/Kolkata"
+
+
+@pytest.mark.asyncio
+async def test_graph_e2e_complex_schedule_prompt_generates_preview(mock_meta_db):
+    prompt = (
+        "Schedule the same accounts aggregation query to run **2 times**, "
+        "starting today at **10:39 PM IST**, with a **2-minute interval** (10:39 PM and 10:45 PM). "
+        "Keep it read-only, do not run it immediately, and stop after the second execution."
+    )
+    initial_state = {
+        "request_id": "req-e2e-user-sched",
+        "user_id": "operator_1",
+        "natural_language_query": prompt,
+        "conversation_history": [],
+        "thread_id": "conv-user-1",
+        "retry_count": 0,
+        "max_retries": 3,
+        "trace": [],
+        "all_attempts": [],
+        "result_truncated": False,
+        "dry_run": False,
+        "schedule_approved": False,
+        "is_api_request": True,
+    }
+
+    final_state = await agent_graph.ainvoke(initial_state)
+
+    assert final_state.get("schedule_approved") is False
+    assert final_state.get("preview_id") is not None
+    assert final_state.get("schedule_preview") is not None
+
+    final_resp = final_state.get("graph_response") or ""
+    assert "Scheduled Report Preview" in final_resp
+    assert "Query Executed Successfully" not in final_resp
+    assert "approve" in final_resp.lower()
+
+
+# ==============================================================================
+# SECTION 8: FINITE SCHEDULES, ONE-TIME JOBS & EXECUTION LIMITS TESTS
+# ==============================================================================
+
+def test_parse_recurrence_one_time_scheduled_job():
+    spec = parse_recurrence("Schedule a loan delinquency report to run once today at 10:30 PM IST")
+    assert spec.frequency == "once"
+    assert spec.max_executions == 1
+    assert spec.timezone == "Asia/Kolkata"
+    assert spec.start_at is not None
+
+    # Calculate run times: one-time job must return exactly 1 timestamp
+    runs = calculate_next_run_times(spec, count=3)
+    assert len(runs) == 1
+    assert "T" in runs[0]
+
+
+def test_calculate_next_run_times_two_executions_at_interval():
+    prompt = (
+        "Schedule accounts aggregation to run 2 times, "
+        "starting today at 10:39 PM IST, with a 2-minute interval."
+    )
+    spec = parse_recurrence(prompt)
+    assert spec.frequency == "interval"
+    assert spec.interval_minutes == 2
+    assert spec.max_executions == 2
+
+    # Calculate next run times: must return exactly 2 timestamps (capped at max_executions)
+    runs = calculate_next_run_times(spec, count=3)
+    assert len(runs) == 2
+    dt1 = datetime.fromisoformat(runs[0])
+    dt2 = datetime.fromisoformat(runs[1])
+
+    # Must be strictly ascending
+    assert dt1 < dt2
+    # Spacing must be exactly 2 minutes
+    diff_seconds = (dt2 - dt1).total_seconds()
+    assert diff_seconds == 120
+
+
+@pytest.mark.asyncio
+async def test_scheduler_runner_auto_completion_at_max_executions(mock_meta_db):
+    runner = SchedulerRunner(db=mock_meta_db)
+    spec = ScheduleSpec(
+        frequency="interval",
+        recurrence_expression="Run 2 times at 2-minute intervals",
+        timezone="Asia/Kolkata",
+        interval_minutes=2,
+        max_executions=2,
+    )
+    job = ScheduledJob(
+        job_id="job_max_exec_test",
+        owner_id="bank_user_1",
+        report_name="Finite Report",
+        natural_language_query="q",
+        target_collection="accounts",
+        pipeline_template=[{"$limit": 5}],
+        pipeline_hash=schedule_service.compute_pipeline_hash([{"$limit": 5}]),
+        schedule_spec=spec,
+        timezone="Asia/Kolkata",
+        status="ACTIVE",
+        max_executions=2,
+        execution_count=0,
+    )
+    mock_meta_db.scheduled_jobs.insert_one(job.model_dump())
+
+    # Mock query_executor_node and result_verifier_node to succeed without live DB
+    with patch(
+        "backend.app.services.scheduler_runner.query_executor_node",
+        new=AsyncMock(return_value={"execution_status": "SUCCESS_WITH_DATA", "raw_results": [{"acc_id": 1}], "result_row_count": 1}),
+    ), patch(
+        "backend.app.services.scheduler_runner.result_verifier_node",
+        new=AsyncMock(return_value={"verification_status": "SUCCESS_WITH_DATA", "interpretation_summary": "Success"}),
+    ):
+        # Execution 1
+        await runner.execute_job("job_max_exec_test")
+        doc1 = mock_meta_db.scheduled_jobs.find_one({"job_id": "job_max_exec_test"})
+        assert doc1["execution_count"] == 1
+        assert doc1["status"] == "ACTIVE"
+
+        # Execution 2 (Final execution)
+        await runner.execute_job("job_max_exec_test")
+        doc2 = mock_meta_db.scheduled_jobs.find_one({"job_id": "job_max_exec_test"})
+        assert doc2["execution_count"] == 2
+        assert doc2["status"] == "COMPLETED"
+        assert doc2["next_run_at"] is None
+
+
+@pytest.mark.asyncio
+async def test_scheduler_runner_one_time_job_auto_completion(mock_meta_db):
+    runner = SchedulerRunner(db=mock_meta_db)
+    spec = ScheduleSpec(
+        frequency="once",
+        recurrence_expression="Run once at 10:30 PM",
+        timezone="Asia/Kolkata",
+        hour=22,
+        minute=30,
+        max_executions=1,
+    )
+    job = ScheduledJob(
+        job_id="job_once_test",
+        owner_id="bank_user_2",
+        report_name="One Time Report",
+        natural_language_query="q",
+        target_collection="customers",
+        pipeline_template=[{"$limit": 5}],
+        pipeline_hash=schedule_service.compute_pipeline_hash([{"$limit": 5}]),
+        schedule_spec=spec,
+        timezone="Asia/Kolkata",
+        status="ACTIVE",
+        max_executions=1,
+        execution_count=0,
+    )
+    mock_meta_db.scheduled_jobs.insert_one(job.model_dump())
+
+    with patch(
+        "backend.app.services.scheduler_runner.query_executor_node",
+        new=AsyncMock(return_value={"execution_status": "SUCCESS_WITH_DATA", "raw_results": [{"cid": "c1"}], "result_row_count": 1}),
+    ), patch(
+        "backend.app.services.scheduler_runner.result_verifier_node",
+        new=AsyncMock(return_value={"verification_status": "SUCCESS_WITH_DATA", "interpretation_summary": "Success"}),
+    ):
+        await runner.execute_job("job_once_test")
+        doc = mock_meta_db.scheduled_jobs.find_one({"job_id": "job_once_test"})
+        assert doc["execution_count"] == 1
+        assert doc["status"] == "COMPLETED"
+        assert doc["next_run_at"] is None
+
+
+def test_scheduler_runner_reconcile_jobs_triggers(mock_meta_db):
+    runner = SchedulerRunner(db=mock_meta_db)
+    runner._has_lease = True
+
+    # 1. Once job
+    job1 = ScheduledJob(
+        job_id="job_rec_once",
+        owner_id="u1",
+        report_name="r1",
+        natural_language_query="q",
+        target_collection="loans",
+        pipeline_template=[{"$limit": 1}],
+        pipeline_hash="h1",
+        schedule_spec=ScheduleSpec(frequency="once", recurrence_expression="once", timezone="Asia/Kolkata", start_at=datetime.now(timezone.utc) + timedelta(hours=1)),
+        timezone="Asia/Kolkata",
+        status="ACTIVE",
+    )
+    # 2. Interval job
+    job2 = ScheduledJob(
+        job_id="job_rec_interval",
+        owner_id="u1",
+        report_name="r2",
+        natural_language_query="q",
+        target_collection="loans",
+        pipeline_template=[{"$limit": 1}],
+        pipeline_hash="h2",
+        schedule_spec=ScheduleSpec(frequency="interval", interval_minutes=2, recurrence_expression="int", timezone="Asia/Kolkata", max_executions=2),
+        timezone="Asia/Kolkata",
+        status="ACTIVE",
+    )
+    mock_meta_db.scheduled_jobs.insert_one(job1.model_dump())
+    mock_meta_db.scheduled_jobs.insert_one(job2.model_dump())
+
+    synced = runner.reconcile_jobs()
+    assert synced == 2
+    aps_jobs = runner.scheduler.get_jobs()
+    aps_job_ids = {j.id for j in aps_jobs}
+    assert "job_rec_once" in aps_job_ids
+    assert "job_rec_interval" in aps_job_ids
+
+
+@pytest.mark.asyncio
+async def test_schedule_planner_node_error_reporting(mock_meta_db):
+    # Invalid timezone should report scheduling_error and NOT create preview
+    state = {
+        "request_id": "req-err-1",
+        "user_id": "analyst_err",
+        "request_mode": "SCHEDULE_ONLY",
+        "natural_language_query": "Send report daily at 9am",
+        "timezone": "Invalid/Timezone",
+        "target_collection": "customers",
+        "generated_pipeline": [{"$limit": 10}],
+    }
+    result = await schedule_planner_node(state)
+    assert result["schedule_approved"] is False
+    assert result["schedule_preview"] is None
+    assert result["preview_id"] is None
+    assert result.get("scheduling_error") is not None
+
+    # Node 8 response composer should render error template, NOT success
+    comp_state = {**state, **result}
+    from backend.app.agent.nodes.response_composer import response_composer_node
+    comp_result = await response_composer_node(comp_state)
+    resp = comp_result.get("graph_response", "")
+    assert "Schedule Registration Failed" in resp
+    assert "✅" not in resp
+
+
+@pytest.mark.asyncio
+async def test_schedule_only_never_executes_query_immediately(mock_meta_db):
+    from backend.app.agent.nodes.query_executor import query_executor_node
+    state = {
+        "request_id": "req-sched-only-guard",
+        "request_mode": "SCHEDULE_ONLY",
+        "target_collection": "transactions",
+        "approved_pipeline": [{"$limit": 10}],
+    }
+    res = await query_executor_node(state)
+    assert res["execution_status"] == "SKIPPED"
+    assert res["raw_results"] is None
+    assert res["result_row_count"] == 0

@@ -4,6 +4,11 @@ import { render, screen, fireEvent, waitFor, within } from '@testing-library/rea
 import App from '../App';
 import SchedulePreviewCard from '../components/SchedulePreviewCard';
 import SchedulesDashboard from '../components/SchedulesDashboard';
+import QueryResultTable, {
+  convertRowsToCSV,
+  convertRowsToMarkdown,
+} from '../components/QueryResultTable';
+import * as queryResultModule from '../components/QueryResultTable';
 import { useChatStore } from '../store/useChatStore';
 import apiClient, * as apiService from '../services/api';
 
@@ -168,11 +173,11 @@ describe('FinTech Agent Frontend Chat Tests', () => {
     });
   });
 
-  it('11. Keeps subtle Team T11 / INT450 branding, removes Phase 2/LLM Shell copy, and opens 12-collection schema guide', () => {
+  it('11. Displays clean FinTech branding without internal Team/INT450 tags, and opens 12-collection schema guide', () => {
     render(<App />);
     expect(screen.queryByText(/Phase 2/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/INT450 LLM Shell/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/Team T11 · INT450/i)).toBeInTheDocument();
+    expect(screen.queryByText(/INT450/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Team T11/i)).not.toBeInTheDocument();
     expect(screen.getByText(/Banking Operations Analytics/i)).toBeInTheDocument();
     expect(screen.getByText(/Read-Only · Synthetic Data/i)).toBeInTheDocument();
 
@@ -708,5 +713,261 @@ describe('FinTech Agent Frontend Chat Tests', () => {
     expect(screen.getByText(/query_executor \(Node 6\)/i)).toBeInTheDocument();
     expect(screen.getByText(/6\. query_executor \(Phase 6\)/i)).toBeInTheDocument();
     expect(screen.getByText(/Monitor: Terminal 2 event stream/i)).toBeInTheDocument();
+  });
+
+  it('26. Normal multi-document query renders clean table with derived headers and concise natural-language summary', async () => {
+    useChatStore.getState().newChat();
+    const sampleResults = [
+      { loan_id: 'LN001', customer_id: 'CUST101', loan_type: 'personal', outstanding_amount: 250000 },
+      { loan_id: 'LN002', customer_id: 'CUST102', loan_type: 'home', outstanding_amount: 1500000 },
+    ];
+    vi.spyOn(apiService, 'sendChatMessage').mockResolvedValueOnce({
+      success: true,
+      conversation_id: 'conv-table-test',
+      request_id: 'req-table-test',
+      message: `✅ **Query Executed Successfully** (Database query executed successfully)\n\n**Target Collection:** \`loans\`\n**Execution Metrics:** 2 records returned in 12.5 ms.\n**Explanation:** Retrieve active loans.\n\n**Results Preview:**\n\`\`\`json\n${JSON.stringify(sampleResults, null, 2)}\n\`\`\``,
+      provider: 'groq',
+      model: 'openai/gpt-oss-120b',
+      selected_collection: 'loans',
+      latency_ms: 12.5,
+    });
+
+    render(<App />);
+    const textarea = screen.getByPlaceholderText(/Ask a banking question/i);
+    fireEvent.change(textarea, { target: { value: 'Show active loans' } });
+    fireEvent.click(screen.getByRole('button', { name: /Send message/i }));
+
+    // Natural language summary card appears with record count
+    await waitFor(() => {
+      expect(screen.getByText(/Retrieved 2 records from `loans`/i)).toBeInTheDocument();
+    });
+    expect(screen.getByText(/Displaying all 2 returned records/i)).toBeInTheDocument();
+
+    // Table view is active by default with derived column headers
+    const table = screen.getByRole('table');
+    expect(table).toBeInTheDocument();
+    expect(screen.getByText('loan_id')).toBeInTheDocument();
+    expect(screen.getByText('customer_id')).toBeInTheDocument();
+    expect(screen.getByText('outstanding_amount')).toBeInTheDocument();
+    expect(screen.getByText('LN001')).toBeInTheDocument();
+    expect(screen.getByText('LN002')).toBeInTheDocument();
+
+    // Raw JSON is NOT exposed in a raw code block initially
+    expect(screen.getByRole('button', { name: /View Raw JSON/i })).toBeInTheDocument();
+
+    // Clicking "View Raw JSON" toggles raw view
+    fireEvent.click(screen.getByRole('button', { name: /View Raw JSON/i }));
+    expect(await screen.findByText(/Raw MongoDB Documents \(2 items\)/i)).toBeInTheDocument();
+
+    // Clicking "View Table" toggles back to table
+    fireEvent.click(screen.getByRole('button', { name: /View Table/i }));
+    expect(screen.getByRole('table')).toBeInTheDocument();
+  });
+
+  it('27. Aggregation count query renders prominent count callout and concise summary', async () => {
+    useChatStore.getState().newChat();
+    const countResult = [{ active_home_loan_count: 89 }];
+    vi.spyOn(apiService, 'sendChatMessage').mockResolvedValueOnce({
+      success: true,
+      conversation_id: 'conv-count-test',
+      request_id: 'req-count-test',
+      message: `✅ **Query Executed Successfully** (Database query executed successfully)\n\n**Target Collection:** \`loans\`\n**Execution Metrics:** 1 records returned in 8.3 ms.\n**Explanation:** Count active home loans.\n\n**Results Preview:**\n\`\`\`json\n${JSON.stringify(countResult, null, 2)}\n\`\`\``,
+      provider: 'groq',
+      model: 'openai/gpt-oss-120b',
+      selected_collection: 'loans',
+      latency_ms: 8.3,
+    });
+
+    render(<App />);
+    const textarea = screen.getByPlaceholderText(/Ask a banking question/i);
+    fireEvent.change(textarea, { target: { value: 'How many active home loans are there?' } });
+    fireEvent.click(screen.getByRole('button', { name: /Send message/i }));
+
+    // Highlighting the count
+    await waitFor(() => {
+      expect(screen.getByText(/Active Home Loan Count: 89/i)).toBeInTheDocument();
+    });
+    expect(screen.getAllByText(/Active Home Loan Count/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('89').length).toBeGreaterThanOrEqual(1);
+
+    // Table also present with single row
+    expect(screen.getByRole('table')).toBeInTheDocument();
+  });
+
+  it('28. Group aggregation query accurately summarizes category totals', async () => {
+    useChatStore.getState().newChat();
+    const groupResults = [
+      { _id: 'verified', count: 640 },
+      { _id: 'pending', count: 120 },
+      { _id: 'rejected', count: 40 },
+    ];
+    vi.spyOn(apiService, 'sendChatMessage').mockResolvedValueOnce({
+      success: true,
+      conversation_id: 'conv-group-test',
+      request_id: 'req-group-test',
+      message: `✅ **Query Executed Successfully** (Database query executed successfully)\n\n**Target Collection:** \`customers\`\n**Execution Metrics:** 3 records returned in 15.0 ms.\n**Explanation:** Group customers by KYC status.\n\n**Results Preview:**\n\`\`\`json\n${JSON.stringify(groupResults, null, 2)}\n\`\`\``,
+      provider: 'groq',
+      model: 'openai/gpt-oss-120b',
+      selected_collection: 'customers',
+    });
+
+    render(<App />);
+    const textarea = screen.getByPlaceholderText(/Ask a banking question/i);
+    fireEvent.change(textarea, { target: { value: 'How many customers per KYC status?' } });
+    fireEvent.click(screen.getByRole('button', { name: /Send message/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Grouped into 3 categories/i)).toBeInTheDocument();
+    });
+    expect(screen.getByText(/verified \(640\), pending \(120\), rejected \(40\)/i)).toBeInTheDocument();
+    expect(screen.getByText('verified')).toBeInTheDocument();
+    expect(screen.getByText('640')).toBeInTheDocument();
+  });
+
+  it('29. Formats nested MongoDB documents and arrays into readable values', async () => {
+    useChatStore.getState().newChat();
+    const nestedResults = [
+      {
+        customer_id: 'CUST-001',
+        name: 'Aarav Sharma',
+        contact_info: { city: 'Bangalore', state: 'Karnataka' },
+        account_tags: ['savings', 'preferred'],
+        verified_date: '2025-01-15T10:00:00Z',
+        middle_name: null,
+        is_active: true,
+      },
+    ];
+    vi.spyOn(apiService, 'sendChatMessage').mockResolvedValueOnce({
+      success: true,
+      conversation_id: 'conv-nested-test',
+      request_id: 'req-nested-test',
+      message: `✅ **Query Executed Successfully** (Database query executed successfully)\n\n**Target Collection:** \`customers\`\n**Execution Metrics:** 1 records returned in 5.0 ms.\n**Explanation:** Retrieve customer details.\n\n**Results Preview:**\n\`\`\`json\n${JSON.stringify(nestedResults, null, 2)}\n\`\`\``,
+      provider: 'groq',
+      model: 'openai/gpt-oss-120b',
+    });
+
+    render(<App />);
+    const textarea = screen.getByPlaceholderText(/Ask a banking question/i);
+    fireEvent.change(textarea, { target: { value: 'Show customer details' } });
+    fireEvent.click(screen.getByRole('button', { name: /Send message/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('table')).toBeInTheDocument();
+    });
+
+    // Nested object formatted as key: value pairs, not raw JSON
+    expect(screen.getByText(/city: Bangalore, state: Karnataka/i)).toBeInTheDocument();
+    // Array formatted as comma-separated values
+    expect(screen.getByText(/savings, preferred/i)).toBeInTheDocument();
+    // Null value formatted as em-dash
+    expect(screen.getByText('—')).toBeInTheDocument();
+    // Boolean formatted as True
+    expect(screen.getByText('True')).toBeInTheDocument();
+  });
+
+  it('30. Empty results and clarification responses display as readable messages without tables', async () => {
+    useChatStore.getState().newChat();
+    vi.spyOn(apiService, 'sendChatMessage').mockResolvedValueOnce({
+      success: true,
+      conversation_id: 'conv-empty-test',
+      request_id: 'req-empty-test',
+      message: `✅ **Query Executed Successfully** (Database query executed successfully)\n\n**Target Collection:** \`accounts\`\n**Execution Metrics:** 0 records returned in 3.0 ms.\n**Explanation:** Accounts with balance over 100 crores.\n\n> ℹ️ **Result:** The query completed successfully against the database, but no records matched the specified criteria.`,
+      provider: 'groq',
+      model: 'openai/gpt-oss-120b',
+    });
+
+    render(<App />);
+    const textarea = screen.getByPlaceholderText(/Ask a banking question/i);
+    fireEvent.change(textarea, { target: { value: 'Find billionaire accounts' } });
+    fireEvent.click(screen.getByRole('button', { name: /Send message/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/no records matched the specified criteria/i)).toBeInTheDocument();
+    });
+
+    // Zero records result does NOT display a table
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+  });
+
+  it('31. Serializes query results into accurate CSV and Markdown formats with quoting and headers', () => {
+    const columns = ['customer_id', 'full_name', 'status', 'city'];
+    const rows = [
+      { customer_id: 'CUST-001', full_name: 'Sharma, Priya', status: 'ACTIVE', city: 'Mumbai' },
+      { customer_id: 'CUST-002', full_name: 'Verma, "Raj"', status: 'PENDING', city: 'Bangalore' },
+    ];
+
+    // CSV serialization
+    const csv = convertRowsToCSV(columns, rows);
+    expect(csv).toContain('customer_id,full_name,status,city');
+    expect(csv).toContain('CUST-001,"Sharma, Priya",ACTIVE,Mumbai');
+    expect(csv).toContain('CUST-002,"Verma, ""Raj""",PENDING,Bangalore');
+
+    // Markdown serialization
+    const md = convertRowsToMarkdown(columns, rows, 'Active Customers');
+    expect(md).toContain('# FinTech Agent — Query Results');
+    expect(md).toContain('**Summary:** Active Customers');
+    expect(md).toContain('| # | customer_id | full_name | status | city |');
+    expect(md).toContain('| 1 | CUST-001 | Sharma, Priya | ACTIVE | Mumbai |');
+  });
+
+  it('32. QueryResultTable renders downloadable CSV, MD, and JSON export buttons and invokes download', () => {
+    const exportSpy = vi.fn();
+
+    const rows = [
+      { loan_id: 'LN-101', amount: 500000, status: 'APPROVED' },
+      { loan_id: 'LN-102', amount: 750000, status: 'REJECTED' },
+    ];
+
+    render(
+      <QueryResultTable
+        rows={rows}
+        totalCount={2}
+        executionTimeMs={12.4}
+        targetCollection="loans"
+        onExport={exportSpy}
+      />
+    );
+
+    // Export buttons present
+    const csvBtn = screen.getByRole('button', { name: /Download results as CSV/i });
+    const mdBtn = screen.getByRole('button', { name: /Download results as Markdown/i });
+    const jsonBtn = screen.getByRole('button', { name: /Download results as JSON/i });
+
+    expect(csvBtn).toBeInTheDocument();
+    expect(mdBtn).toBeInTheDocument();
+    expect(jsonBtn).toBeInTheDocument();
+
+    // Trigger CSV export
+    fireEvent.click(csvBtn);
+    expect(exportSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        format: 'csv',
+        filename: expect.stringMatching(/^loans_\d{4}-\d{2}-\d{2}\.csv$/),
+        mimeType: expect.stringContaining('text/csv'),
+        content: expect.stringContaining('loan_id,amount,status'),
+      })
+    );
+
+    // Trigger MD export
+    fireEvent.click(mdBtn);
+    expect(exportSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        format: 'md',
+        filename: expect.stringMatching(/^loans_\d{4}-\d{2}-\d{2}\.md$/),
+        mimeType: expect.stringContaining('text/markdown'),
+        content: expect.stringContaining('# FinTech Agent — Query Results'),
+      })
+    );
+
+    // Trigger JSON export
+    fireEvent.click(jsonBtn);
+    expect(exportSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        format: 'json',
+        filename: expect.stringMatching(/^loans_\d{4}-\d{2}-\d{2}\.json$/),
+        mimeType: expect.stringContaining('application/json'),
+        content: expect.stringContaining('"loan_id": "LN-101"'),
+      })
+    );
   });
 });

@@ -1,0 +1,1895 @@
+[
+  {
+    "id": "Q01",
+    "level": 1,
+    "question": "Show all active customers.",
+    "hint": "Filter customers where status = 'Active'.",
+    "expected_operators": [
+      "$match"
+    ],
+    "expected_collections": [
+      "customers"
+    ],
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "request_mode": "CLARIFICATION_REQUIRED",
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": null,
+    "duration_s": 4.85,
+    "error_detail": "Could you specify the criteria for 'active customers' (e.g., account type, activity period, branch, or other filters)?",
+    "final_status": "CLARIFICATION",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:23:00.379153+00:00"
+  },
+  {
+    "id": "Q02",
+    "level": 1,
+    "question": "Find all branches located in Maharashtra.",
+    "hint": "Filter branches where state = 'Maharashtra'.",
+    "expected_operators": [
+      "$match"
+    ],
+    "expected_collections": [
+      "branches"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 32.68,
+    "error_detail": "fallback_manager API error: All LLM providers in fallback chain failed: groq (failed: Call to groq timed out after 12.0 seconds.); ollama (failed: Call to ollama timed out after 7.06 seconds.); gemini (failed: Call to gemini timed out after 4.28 seconds.)",
+    "final_status": "PROVIDER_FAILURE",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:23:05.234630+00:00"
+  },
+  {
+    "id": "Q03",
+    "level": 1,
+    "question": "List all customers whose KYC status is 'pending'.",
+    "hint": "Filter customers where kyc_status = 'pending'.",
+    "expected_operators": [
+      "$match"
+    ],
+    "expected_collections": [
+      "customers"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 40.99,
+    "error_detail": "fallback_manager API error: All LLM providers in fallback chain failed: groq (failed: Call to groq connection handshake timed out after 5.14s.); ollama (failed: Call to ollama timed out after 12.0 seconds.); gemini (failed: Call to gemini timed out after 6.16 seconds.)",
+    "final_status": "PROVIDER_FAILURE",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:23:37.916252+00:00"
+  },
+  {
+    "id": "Q04",
+    "level": 1,
+    "question": "Show all loans that are currently defaulted.",
+    "hint": "Filter loans where status = 'defaulted'.",
+    "expected_operators": [
+      "$match"
+    ],
+    "expected_collections": [
+      "loans"
+    ],
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "request_mode": "QUERY_ONLY",
+    "target_collection": "loans",
+    "generated_pipeline": [
+      {
+        "$match": {
+          "status": "defaulted"
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "execution_status": "SUCCESS",
+    "result_row_count": 61,
+    "sample_results": [
+      {
+        "_id": "6ab680b74b5317d658fbaf24",
+        "loan_id": "LOAN000006",
+        "customer_id": "CUST000413",
+        "loan_type": "education",
+        "principal_amount": 1125858.43,
+        "interest_rate": 10.23,
+        "tenure_months": 120,
+        "emi_amount": 15022.07,
+        "disbursement_date": "2020-03-24T12:55:07",
+        "status": "defaulted",
+        "outstanding_amount": 585334.59,
+        "next_due_date": "2020-01-27T02:34:21",
+        "collateral_type": "none",
+        "co_applicant": null,
+        "sanctioning_branch_id": "BR00005",
+        "loan_officer_id": "EMP000010",
+        "credit_score_at_approval": 707,
+        "purpose": "Education loan",
+        "prepayment_flag": true,
+        "created_at": "2020-03-24T12:55:07"
+      },
+      {
+        "_id": "6ab680b74b5317d658fbaf2a",
+        "loan_id": "LOAN000012",
+        "customer_id": "CUST000694",
+        "loan_type": "auto",
+        "principal_amount": 1515457.68,
+        "interest_rate": 11.4,
+        "tenure_months": 240,
+        "emi_amount": 16057.0,
+        "disbursement_date": "2018-10-29T19:39:29",
+        "status": "defaulted",
+        "outstanding_amount": 582833.9,
+        "next_due_date": "2021-05-27T10:56:23",
+        "collateral_type": "vehicle",
+        "co_applicant": null,
+        "sanctioning_branch_id": "BR00009",
+        "loan_officer_id": "EMP000003",
+        "credit_score_at_approval": 689,
+        "purpose": "Auto loan",
+        "prepayment_flag": false,
+        "created_at": "2018-10-29T19:39:29"
+      }
+    ],
+    "duration_s": 4.02,
+    "error_detail": null,
+    "final_status": "SUCCESS",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:24:18.913862+00:00"
+  },
+  {
+    "id": "Q05",
+    "level": 1,
+    "question": "List all merchants in the 'dining' category.",
+    "hint": "Filter merchants where category = 'dining'.",
+    "expected_operators": [
+      "$match"
+    ],
+    "expected_collections": [
+      "merchants"
+    ],
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "request_mode": "QUERY_ONLY",
+    "target_collection": "merchants",
+    "generated_pipeline": [
+      {
+        "$match": {
+          "category": "dining"
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "merchant_id": 1,
+          "merchant_name": 1,
+          "category": 1,
+          "city": 1,
+          "state": 1,
+          "is_verified": 1,
+          "average_transaction_value": 1,
+          "total_transactions": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "execution_status": "SUCCESS",
+    "result_row_count": 27,
+    "sample_results": [
+      {
+        "merchant_id": "MER000003",
+        "merchant_name": "Kothari-Loke",
+        "category": "dining",
+        "city": "Moradabad",
+        "state": "Gujarat",
+        "is_verified": true,
+        "average_transaction_value": 4531.51,
+        "total_transactions": 42458
+      },
+      {
+        "merchant_id": "MER000010",
+        "merchant_name": "Murthy, Sarin and Vaidya",
+        "category": "dining",
+        "city": "Kharagpur",
+        "state": "Himachal Pradesh",
+        "is_verified": true,
+        "average_transaction_value": 2872.83,
+        "total_transactions": 40082
+      }
+    ],
+    "duration_s": 5.45,
+    "error_detail": null,
+    "final_status": "SUCCESS",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:24:22.934747+00:00"
+  },
+  {
+    "id": "Q06",
+    "level": 1,
+    "question": "Show all credit cards that are currently blocked.",
+    "hint": "Filter cards where card_type = 'credit' and status = 'blocked'.",
+    "expected_operators": [
+      "$match"
+    ],
+    "expected_collections": [
+      "cards"
+    ],
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "request_mode": "QUERY_ONLY",
+    "target_collection": "cards",
+    "generated_pipeline": [
+      {
+        "$match": {
+          "card_type": "credit",
+          "status": "blocked"
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "card_id": 1,
+          "customer_id": 1,
+          "account_id": 1,
+          "card_number_masked": 1,
+          "card_type": 1,
+          "card_network": 1,
+          "status": 1,
+          "expiry_date": 1,
+          "credit_limit": 1,
+          "available_credit": 1,
+          "reward_points": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "execution_status": "SUCCESS",
+    "result_row_count": 23,
+    "sample_results": [
+      {
+        "card_id": "CARD000044",
+        "customer_id": "CUST000581",
+        "account_id": "ACC001045",
+        "card_number_masked": "XXXX-XXXX-XXXX-4186",
+        "card_type": "credit",
+        "card_network": "visa",
+        "expiry_date": "2028-12-21T09:38:35",
+        "credit_limit": 273204.85,
+        "available_credit": 131816.78,
+        "status": "blocked",
+        "reward_points": 15748
+      },
+      {
+        "card_id": "CARD000064",
+        "customer_id": "CUST000569",
+        "account_id": "ACC000992",
+        "card_number_masked": "XXXX-XXXX-XXXX-1760",
+        "card_type": "credit",
+        "card_network": "visa",
+        "expiry_date": "2028-06-24T03:26:47",
+        "credit_limit": 265381.53,
+        "available_credit": 125664.81,
+        "status": "blocked",
+        "reward_points": 31431
+      }
+    ],
+    "duration_s": 7.73,
+    "error_detail": null,
+    "final_status": "SUCCESS",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:24:28.387536+00:00"
+  },
+  {
+    "id": "Q07",
+    "level": 1,
+    "question": "Find all support tickets with critical priority.",
+    "hint": "Filter support_tickets where priority = 'critical'.",
+    "expected_operators": [
+      "$match"
+    ],
+    "expected_collections": [
+      "support_tickets"
+    ],
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "request_mode": "OUT_OF_SCOPE",
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": null,
+    "duration_s": 8.1,
+    "error_detail": "Query classified as out of banking scope",
+    "final_status": "OUT_OF_SCOPE",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:24:36.124137+00:00"
+  },
+  {
+    "id": "Q08",
+    "level": 1,
+    "question": "List all fraud alerts that are still open.",
+    "hint": "Filter fraud_alerts where status = 'open'.",
+    "expected_operators": [
+      "$match"
+    ],
+    "expected_collections": [
+      "fraud_alerts"
+    ],
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "request_mode": "QUERY_ONLY",
+    "target_collection": "fraud_alerts",
+    "generated_pipeline": [
+      {
+        "$match": {
+          "status": "open"
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "execution_status": "SUCCESS",
+    "result_row_count": 77,
+    "sample_results": [
+      {
+        "_id": "6ab680b84b5317d658fbbec1",
+        "alert_id": "ALT000003",
+        "transaction_id": "TXN000004720",
+        "customer_id": "CUST000012",
+        "alert_type": "geo_mismatch",
+        "risk_score": 71.39,
+        "status": "open",
+        "detected_at": "2026-06-03T17:29:10",
+        "reviewed_by": null,
+        "review_notes": null,
+        "action_taken": "account_frozen",
+        "created_at": "2025-02-02T17:30:53"
+      },
+      {
+        "_id": "6ab680b84b5317d658fbbec3",
+        "alert_id": "ALT000005",
+        "transaction_id": "TXN000009617",
+        "customer_id": "CUST000852",
+        "alert_type": "device_change",
+        "risk_score": 48.6,
+        "status": "open",
+        "detected_at": "2024-01-23T04:53:11",
+        "reviewed_by": null,
+        "review_notes": null,
+        "action_taken": "none",
+        "created_at": "2025-11-04T08:07:09"
+      }
+    ],
+    "duration_s": 14.54,
+    "error_detail": null,
+    "final_status": "SUCCESS",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:24:44.226863+00:00"
+  },
+  {
+    "id": "Q09",
+    "level": 1,
+    "question": "Show all investments with a negative return.",
+    "hint": "Filter investments where returns_percentage < 0.",
+    "expected_operators": [
+      "$match"
+    ],
+    "expected_collections": [
+      "investments"
+    ],
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "request_mode": "QUERY_ONLY",
+    "target_collection": "investments",
+    "generated_pipeline": [
+      {
+        "$match": {
+          "returns_percentage": {
+            "$lt": 0
+          }
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "execution_status": "SUCCESS",
+    "result_row_count": 210,
+    "sample_results": [
+      {
+        "_id": "6ab680b84b5317d658fbbfed",
+        "investment_id": "INV000003",
+        "customer_id": "CUST000909",
+        "investment_type": "mutual_fund",
+        "amount_invested": 354952.55,
+        "current_value": 309838.08,
+        "purchase_date": "2021-09-06T06:32:23",
+        "maturity_date": "2025-09-05T06:32:23",
+        "status": "redeemed",
+        "returns_percentage": -12.71,
+        "risk_level": "low",
+        "fund_manager": "Arunima Borah",
+        "created_at": "2021-09-06T06:32:23"
+      },
+      {
+        "_id": "6ab680b84b5317d658fbbfee",
+        "investment_id": "INV000004",
+        "customer_id": "CUST000601",
+        "investment_type": "ppf",
+        "amount_invested": 1948887.99,
+        "current_value": 1929204.22,
+        "purchase_date": "2023-10-25T09:28:03",
+        "maturity_date": "2028-10-23T09:28:03",
+        "status": "active",
+        "returns_percentage": -1.01,
+        "risk_level": "medium",
+        "fund_manager": "Dalbir Rattan",
+        "created_at": "2023-10-25T09:28:03"
+      }
+    ],
+    "duration_s": 14.15,
+    "error_detail": null,
+    "final_status": "SUCCESS",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:24:58.772866+00:00"
+  },
+  {
+    "id": "Q10",
+    "level": 1,
+    "question": "List all employees in the 'Fraud & Risk' department.",
+    "hint": "Filter employees where department = 'Fraud & Risk'.",
+    "expected_operators": [
+      "$match"
+    ],
+    "expected_collections": [
+      "employees"
+    ],
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "request_mode": "OUT_OF_SCOPE",
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": null,
+    "duration_s": 13.04,
+    "error_detail": "Query classified as out of banking scope",
+    "final_status": "OUT_OF_SCOPE",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:12.924200+00:00"
+  },
+  {
+    "id": "Q11",
+    "level": 2,
+    "question": "Which customers have an annual income above \u20b910 lakh, sorted by income descending?",
+    "hint": "Match annual_income > 1000000, sort by annual_income descending.",
+    "expected_operators": [
+      "$match",
+      "$sort"
+    ],
+    "expected_collections": [
+      "customers"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.41,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m33.573415715s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56073s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:25.967640+00:00"
+  },
+  {
+    "id": "Q12",
+    "level": 2,
+    "question": "Find the top 10 accounts with the highest balance.",
+    "hint": "$sort by balance descending, $limit 10.",
+    "expected_operators": [
+      "$sort",
+      "$limit"
+    ],
+    "expected_collections": [
+      "accounts"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.44,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m33.131327367s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56073s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:26.382202+00:00"
+  },
+  {
+    "id": "Q13",
+    "level": 2,
+    "question": "How many transactions failed in 2024?",
+    "hint": "$match status='failed' and transaction_date in 2024, then $count.",
+    "expected_operators": [
+      "$match",
+      "$count"
+    ],
+    "expected_collections": [
+      "transactions"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.47,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m32.657254172s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56072s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:26.829034+00:00"
+  },
+  {
+    "id": "Q14",
+    "level": 2,
+    "question": "List all high-risk customers who are currently blocked.",
+    "hint": "$match risk_category='high' and status='Blocked'.",
+    "expected_operators": [
+      "$match"
+    ],
+    "expected_collections": [
+      "customers"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.54,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m32.096428356s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56072s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:27.309107+00:00"
+  },
+  {
+    "id": "Q15",
+    "level": 2,
+    "question": "Show all RTGS transactions above \u20b910 lakh, sorted by amount descending.",
+    "hint": "$match transaction_mode='RTGS' and amount > 1000000, $sort amount desc.",
+    "expected_operators": [
+      "$match",
+      "$sort"
+    ],
+    "expected_collections": [
+      "transactions"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.45,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m31.642271918s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56071s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:27.857544+00:00"
+  },
+  {
+    "id": "Q16",
+    "level": 2,
+    "question": "How many active home loans are there?",
+    "hint": "$match loan_type='home' and status='active', then $count.",
+    "expected_operators": [
+      "$match",
+      "$count"
+    ],
+    "expected_collections": [
+      "loans"
+    ],
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b",
+    "request_mode": "QUERY_ONLY",
+    "target_collection": "loans",
+    "generated_pipeline": [
+      {
+        "$match": {
+          "loan_type": "home",
+          "status": "active"
+        }
+      },
+      {
+        "$count": "active_home_loan_count"
+      }
+    ],
+    "validation_status": "VALID",
+    "validation_errors": [],
+    "execution_status": "SUCCESS",
+    "result_row_count": 1,
+    "sample_results": [
+      {
+        "active_home_loan_count": 45
+      }
+    ],
+    "duration_s": 8.36,
+    "error_detail": null,
+    "final_status": "SUCCESS",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:28.314767+00:00"
+  },
+  {
+    "id": "Q17",
+    "level": 2,
+    "question": "Which merchants have processed more than 10,000 transactions?",
+    "hint": "$match total_transactions > 10000, $sort total_transactions desc.",
+    "expected_operators": [
+      "$match",
+      "$sort"
+    ],
+    "expected_collections": [
+      "merchants"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.7,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m22.570241639s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56062s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:36.682614+00:00"
+  },
+  {
+    "id": "Q18",
+    "level": 2,
+    "question": "List all dormant accounts opened before 2020.",
+    "hint": "$match status='dormant' and opening_date < 2020-01-01.",
+    "expected_operators": [
+      "$match"
+    ],
+    "expected_collections": [
+      "accounts"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.75,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m21.822519721s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56061s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:37.387609+00:00"
+  },
+  {
+    "id": "Q19",
+    "level": 2,
+    "question": "Find all support tickets raised via email that are still open or in progress.",
+    "hint": "$match channel='email' and status in ['open','in_progress'].",
+    "expected_operators": [
+      "$match"
+    ],
+    "expected_collections": [
+      "support_tickets"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.47,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m21.329374521s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56061s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:38.141254+00:00"
+  },
+  {
+    "id": "Q20",
+    "level": 2,
+    "question": "Which employees have a performance rating above 4.5?",
+    "hint": "$match performance_rating > 4.5, $sort performance_rating desc.",
+    "expected_operators": [
+      "$match",
+      "$sort"
+    ],
+    "expected_collections": [
+      "employees"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.64,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 5, model: gemini-3.8-flash, description: Generate content requests per minute limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 20.696910816s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per minute limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerMinutePerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"5\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"20s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:38.619027+00:00"
+  },
+  {
+    "id": "Q21",
+    "level": 3,
+    "question": "What is the average balance of savings accounts?",
+    "hint": "$match account_type='savings', $group $avg balance.",
+    "expected_operators": [
+      "$match",
+      "$group",
+      "$avg"
+    ],
+    "expected_collections": [
+      "accounts"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.51,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m20.196461591s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56060s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:39.260376+00:00"
+  },
+  {
+    "id": "Q22",
+    "level": 3,
+    "question": "What is the total transaction amount per month in 2025?",
+    "hint": "$match year=2025, $group by month using $month on transaction_date, $sum amount.",
+    "expected_operators": [
+      "$match",
+      "$group",
+      "$sum",
+      "$month"
+    ],
+    "expected_collections": [
+      "transactions"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.49,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m19.689441892s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56059s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:39.773956+00:00"
+  },
+  {
+    "id": "Q23",
+    "level": 3,
+    "question": "How many customers are there in each risk category?",
+    "hint": "$group by risk_category, $sum 1.",
+    "expected_operators": [
+      "$group",
+      "$sum"
+    ],
+    "expected_collections": [
+      "customers"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.51,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m19.187929513s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56059s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:40.265520+00:00"
+  },
+  {
+    "id": "Q24",
+    "level": 3,
+    "question": "What is the average loan interest rate by loan type?",
+    "hint": "$group by loan_type, $avg interest_rate.",
+    "expected_operators": [
+      "$group",
+      "$avg"
+    ],
+    "expected_collections": [
+      "loans"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.58,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m18.584958725s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56058s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:40.782680+00:00"
+  },
+  {
+    "id": "Q25",
+    "level": 3,
+    "question": "Which transaction category has the highest total spend?",
+    "hint": "$group by category, $sum amount, $sort desc, $limit 1.",
+    "expected_operators": [
+      "$group",
+      "$sum",
+      "$sort",
+      "$limit"
+    ],
+    "expected_collections": [
+      "transactions"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.47,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m18.114025349s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56058s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:41.364210+00:00"
+  },
+  {
+    "id": "Q26",
+    "level": 3,
+    "question": "What is the total outstanding loan amount per loan type?",
+    "hint": "$group by loan_type, $sum outstanding_amount.",
+    "expected_operators": [
+      "$group",
+      "$sum"
+    ],
+    "expected_collections": [
+      "loans"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.43,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m17.682007629s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56057s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:41.843024+00:00"
+  },
+  {
+    "id": "Q27",
+    "level": 3,
+    "question": "How many transactions were made through each channel (UPI, NEFT, RTGS, etc.)?",
+    "hint": "$group by transaction_mode, $sum 1.",
+    "expected_operators": [
+      "$group",
+      "$sum"
+    ],
+    "expected_collections": [
+      "transactions"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.48,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m17.197223151s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56057s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:42.282639+00:00"
+  },
+  {
+    "id": "Q28",
+    "level": 3,
+    "question": "What is the maximum credit limit among all credit cards?",
+    "hint": "$match card_type='credit', $group $max credit_limit.",
+    "expected_operators": [
+      "$match",
+      "$group",
+      "$max"
+    ],
+    "expected_collections": [
+      "cards"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.56,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 5, model: gemini-3.8-flash, description: Generate content requests per minute limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 16.626291203s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per minute limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerMinutePerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"5\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"16s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:42.768242+00:00"
+  },
+  {
+    "id": "Q29",
+    "level": 3,
+    "question": "What is the average credit score of customers who have defaulted loans?",
+    "hint": "$group customers who appear in loans with status='defaulted', $avg credit_score \u2014 needs $lookup or prior match.",
+    "expected_operators": [
+      "$match",
+      "$group",
+      "$avg",
+      "$lookup"
+    ],
+    "expected_collections": [
+      "loans",
+      "customers"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.5,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m16.106775221s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56056s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:43.333511+00:00"
+  },
+  {
+    "id": "Q30",
+    "level": 3,
+    "question": "How many support tickets are there per priority level?",
+    "hint": "$group by priority, $sum 1.",
+    "expected_operators": [
+      "$group",
+      "$sum"
+    ],
+    "expected_collections": [
+      "support_tickets"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.4,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m15.710794162s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56055s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:43.846866+00:00"
+  },
+  {
+    "id": "Q31",
+    "level": 4,
+    "question": "Which customers have active personal loans? Show their name and outstanding amount.",
+    "hint": "$match loans where loan_type='personal' and status='active', $lookup customers, $project name + outstanding_amount.",
+    "expected_operators": [
+      "$match",
+      "$lookup",
+      "$unwind",
+      "$project"
+    ],
+    "expected_collections": [
+      "loans",
+      "customers"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.46,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m15.231918066s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56055s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:44.251587+00:00"
+  },
+  {
+    "id": "Q32",
+    "level": 4,
+    "question": "List all transactions made at dining merchants, along with the merchant name.",
+    "hint": "$lookup merchants on merchant_id, $match category='dining' or merchant.category='dining'.",
+    "expected_operators": [
+      "$lookup",
+      "$unwind",
+      "$match",
+      "$project"
+    ],
+    "expected_collections": [
+      "transactions",
+      "merchants"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.5,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m14.736039095s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56054s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:44.717365+00:00"
+  },
+  {
+    "id": "Q33",
+    "level": 4,
+    "question": "Which branch has sanctioned the highest total loan amount?",
+    "hint": "$group loans by sanctioning_branch_id sum principal_amount, $sort desc, $limit 1, $lookup branches.",
+    "expected_operators": [
+      "$group",
+      "$sum",
+      "$sort",
+      "$limit",
+      "$lookup"
+    ],
+    "expected_collections": [
+      "loans",
+      "branches"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.5,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m14.232048236s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56054s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:45.223083+00:00"
+  },
+  {
+    "id": "Q34",
+    "level": 4,
+    "question": "Which customers have an open fraud alert? Show customer name, alert type, and risk score.",
+    "hint": "$match fraud_alerts status='open', $lookup customers on customer_id.",
+    "expected_operators": [
+      "$match",
+      "$lookup",
+      "$unwind",
+      "$project"
+    ],
+    "expected_collections": [
+      "fraud_alerts",
+      "customers"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.55,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m13.694561873s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56053s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:45.729967+00:00"
+  },
+  {
+    "id": "Q35",
+    "level": 4,
+    "question": "Find customers who have more than 2 active accounts.",
+    "hint": "$group accounts by customer_id counting active ones, $match count > 2, $lookup customers.",
+    "expected_operators": [
+      "$match",
+      "$group",
+      "$sum",
+      "$lookup",
+      "$unwind"
+    ],
+    "expected_collections": [
+      "accounts",
+      "customers"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.43,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m13.217900643s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56053s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:46.292049+00:00"
+  },
+  {
+    "id": "Q36",
+    "level": 4,
+    "question": "Which customers have never taken any loan?",
+    "hint": "Get customer_ids from loans, use $lookup or $nin in customers not present in loans collection.",
+    "expected_operators": [
+      "$lookup",
+      "$match",
+      "$project"
+    ],
+    "expected_collections": [
+      "customers",
+      "loans"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.52,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m12.701496308s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56052s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:46.733007+00:00"
+  },
+  {
+    "id": "Q37",
+    "level": 4,
+    "question": "Which accounts have had no transactions in the last 6 months?",
+    "hint": "$group transactions to get last transaction per account, $lookup accounts, filter where last_transaction_date < 6 months ago, OR use last_transaction_date field on accounts.",
+    "expected_operators": [
+      "$match",
+      "$lookup",
+      "$group",
+      "$project"
+    ],
+    "expected_collections": [
+      "accounts",
+      "transactions"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.49,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m12.198539048s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56052s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:47.261110+00:00"
+  },
+  {
+    "id": "Q38",
+    "level": 4,
+    "question": "What is the total transaction amount per customer for the year 2025? Show top 10 customers.",
+    "hint": "$match 2025 dates, $group by customer_id $sum amount, $sort desc, $limit 10, $lookup customers for names.",
+    "expected_operators": [
+      "$match",
+      "$group",
+      "$sum",
+      "$sort",
+      "$limit",
+      "$lookup"
+    ],
+    "expected_collections": [
+      "transactions",
+      "customers"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.49,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m11.68777624s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56051s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:47.761768+00:00"
+  },
+  {
+    "id": "Q39",
+    "level": 4,
+    "question": "List all fraud alerts along with the transaction amount and account number of the flagged transaction.",
+    "hint": "$lookup transactions on transaction_id, $lookup accounts on account_id.",
+    "expected_operators": [
+      "$lookup",
+      "$unwind",
+      "$project"
+    ],
+    "expected_collections": [
+      "fraud_alerts",
+      "transactions",
+      "accounts"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.72,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 5, model: gemini-3.8-flash, description: Generate content requests per minute limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 10.974034984s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per minute limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerMinutePerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"5\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"10s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:48.262961+00:00"
+  },
+  {
+    "id": "Q40",
+    "level": 4,
+    "question": "Which employees have managed the most support tickets? Show top 5.",
+    "hint": "$group support_tickets by assigned_agent_id $sum 1, $sort desc, $limit 5, $lookup employees.",
+    "expected_operators": [
+      "$group",
+      "$sum",
+      "$sort",
+      "$limit",
+      "$lookup"
+    ],
+    "expected_collections": [
+      "support_tickets",
+      "employees"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.48,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m10.484065322s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56050s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:48.988683+00:00"
+  },
+  {
+    "id": "Q41",
+    "level": 5,
+    "question": "Which customers with active personal loans made more than 5 transactions in the last 3 months?",
+    "hint": "1) Filter active personal loans \u2192 get customer_ids. 2) Filter transactions in last 3 months for those customers. 3) Group by customer_id, count. 4) Filter count > 5. 5) Join customers for names.",
+    "expected_operators": [
+      "$match",
+      "$group",
+      "$count",
+      "$lookup",
+      "$unwind",
+      "$expr"
+    ],
+    "expected_collections": [
+      "loans",
+      "transactions",
+      "customers"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.44,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m10.007337199s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56050s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:49.488855+00:00"
+  },
+  {
+    "id": "Q42",
+    "level": 5,
+    "question": "Which branch has the highest average account balance? Show branch name, city, and average balance.",
+    "hint": "$group accounts by branch_id $avg balance, $sort desc, $limit 1, $lookup branches.",
+    "expected_operators": [
+      "$group",
+      "$avg",
+      "$sort",
+      "$limit",
+      "$lookup",
+      "$unwind",
+      "$project"
+    ],
+    "expected_collections": [
+      "accounts",
+      "branches"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.47,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m9.568536485s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56049s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:49.943068+00:00"
+  },
+  {
+    "id": "Q43",
+    "level": 5,
+    "question": "For each merchant category, what is the total transaction volume and average transaction amount in 2024?",
+    "hint": "$match 2024 + non-null merchant_id, $lookup merchants, $group by merchant.category, $sum amount, $avg amount.",
+    "expected_operators": [
+      "$match",
+      "$lookup",
+      "$unwind",
+      "$group",
+      "$sum",
+      "$avg"
+    ],
+    "expected_collections": [
+      "transactions",
+      "merchants"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.4,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m9.124005645s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56049s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:50.422697+00:00"
+  },
+  {
+    "id": "Q44",
+    "level": 5,
+    "question": "Which customers have both a defaulted loan and an open fraud alert?",
+    "hint": "Get customer_ids from defaulted loans, intersect with customer_ids from open fraud_alerts, $lookup customers.",
+    "expected_operators": [
+      "$match",
+      "$group",
+      "$lookup",
+      "$unwind",
+      "$project"
+    ],
+    "expected_collections": [
+      "loans",
+      "fraud_alerts",
+      "customers"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.61,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m8.507367265s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56048s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:50.832563+00:00"
+  },
+  {
+    "id": "Q45",
+    "level": 5,
+    "question": "What is the month-over-month transaction count for UPI payments in 2025?",
+    "hint": "$match UPI + year 2025, $group by {year, month}, $sum 1, $sort by month.",
+    "expected_operators": [
+      "$match",
+      "$group",
+      "$sum",
+      "$sort",
+      "$year",
+      "$month",
+      "$project"
+    ],
+    "expected_collections": [
+      "transactions"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.49,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m8.013291413s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56048s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:51.452419+00:00"
+  },
+  {
+    "id": "Q46",
+    "level": 5,
+    "question": "Which customers have investments with returns above 20% and also have an active loan?",
+    "hint": "Get customer_ids from investments where returns_percentage > 20. Intersect with active loan customers. Join customers.",
+    "expected_operators": [
+      "$match",
+      "$group",
+      "$lookup",
+      "$unwind",
+      "$project"
+    ],
+    "expected_collections": [
+      "investments",
+      "loans",
+      "customers"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.56,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m7.432685904s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56047s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:51.953086+00:00"
+  },
+  {
+    "id": "Q47",
+    "level": 5,
+    "question": "For each loan officer, how many loans have they approved, and what is the total outstanding amount of their portfolio?",
+    "hint": "$group loans by loan_officer_id, $sum 1, $sum outstanding_amount, $lookup employees for name.",
+    "expected_operators": [
+      "$group",
+      "$sum",
+      "$lookup",
+      "$unwind",
+      "$project"
+    ],
+    "expected_collections": [
+      "loans",
+      "employees"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.51,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m6.911089283s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56046s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:52.527191+00:00"
+  },
+  {
+    "id": "Q48",
+    "level": 5,
+    "question": "Find customers from Karnataka who have a credit score above 750 and have made at least one transaction above \u20b91 lakh in the last year.",
+    "hint": "$match customers state=Karnataka + credit_score>750, get their ids, $match transactions amount>100000 + last year, $group by customer_id, filter \u22651.",
+    "expected_operators": [
+      "$match",
+      "$lookup",
+      "$group",
+      "$unwind",
+      "$project"
+    ],
+    "expected_collections": [
+      "customers",
+      "transactions"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.49,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m6.424538573s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56046s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:53.050764+00:00"
+  },
+  {
+    "id": "Q49",
+    "level": 5,
+    "question": "Which customers have unresolved support tickets AND have had a failed transaction in the past 6 months?",
+    "hint": "Get customers with open/in_progress tickets. Get customers with failed transactions last 6 months. Intersect. $lookup for names.",
+    "expected_operators": [
+      "$match",
+      "$group",
+      "$lookup",
+      "$project"
+    ],
+    "expected_collections": [
+      "support_tickets",
+      "transactions",
+      "customers"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.48,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m5.936339289s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56045s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:53.551769+00:00"
+  },
+  {
+    "id": "Q50",
+    "level": 5,
+    "question": "Show the complete loan + account + customer summary for all defaulted loan customers: customer name, loan amount, outstanding, account balance, account type.",
+    "hint": "$match loans status=defaulted, $lookup customers on customer_id, $lookup accounts on customer_id (with $unwind and $project).",
+    "expected_operators": [
+      "$match",
+      "$lookup",
+      "$unwind",
+      "$project"
+    ],
+    "expected_collections": [
+      "loans",
+      "customers",
+      "accounts"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.66,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 5, model: gemini-3.8-flash, description: Generate content requests per minute limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 5.259513623s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per minute limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerMinutePerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"5\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"5s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:54.047545+00:00"
+  },
+  {
+    "id": "Q51",
+    "level": 5,
+    "question": "Which branches have more than 50 accounts opened in the last 2 years?",
+    "hint": "$match opening_date >= 2 years ago, $group by branch_id $sum 1, $match count > 50, $lookup branches.",
+    "expected_operators": [
+      "$match",
+      "$group",
+      "$sum",
+      "$lookup",
+      "$unwind",
+      "$project"
+    ],
+    "expected_collections": [
+      "accounts",
+      "branches"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.7,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m4.532980735s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"model\": \"gemini-3.8-flash\",\n              \"location\": \"global\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56044s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:54.717668+00:00"
+  },
+  {
+    "id": "Q52",
+    "level": 5,
+    "question": "What is the average number of transactions per customer for customers who have both a credit card and a savings account?",
+    "hint": "Get customer_ids with credit cards, get customer_ids with savings accounts, find intersection, count transactions per customer, take average.",
+    "expected_operators": [
+      "$match",
+      "$group",
+      "$lookup",
+      "$avg",
+      "$project"
+    ],
+    "expected_collections": [
+      "cards",
+      "accounts",
+      "transactions"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.5,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m4.028451256s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56044s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:55.433514+00:00"
+  },
+  {
+    "id": "Q53",
+    "level": 5,
+    "question": "For high-risk customers, what is the distribution of their loan statuses?",
+    "hint": "Get high-risk customer_ids, $lookup loans, $group by loan status, $sum 1.",
+    "expected_operators": [
+      "$match",
+      "$lookup",
+      "$unwind",
+      "$group",
+      "$sum"
+    ],
+    "expected_collections": [
+      "customers",
+      "loans"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.69,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m3.30248091s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56043s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:55.942465+00:00"
+  },
+  {
+    "id": "Q54",
+    "level": 5,
+    "question": "Which merchant has received the highest total payment amount through transactions?",
+    "hint": "$group transactions by merchant_id $sum amount (exclude null merchant_id), $sort desc, $limit 1, $lookup merchants.",
+    "expected_operators": [
+      "$match",
+      "$group",
+      "$sum",
+      "$sort",
+      "$limit",
+      "$lookup",
+      "$unwind"
+    ],
+    "expected_collections": [
+      "transactions",
+      "merchants"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.42,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash, description: Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 15h34m2.877384771s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per day limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"20\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"56042s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:56.649805+00:00"
+  },
+  {
+    "id": "Q55",
+    "level": 5,
+    "question": "Generate a full customer 360 view: for a given customer_id, show their accounts, total transactions, active loans, open tickets, and card count.",
+    "hint": "Multiple $lookup stages from customers \u2192 accounts, transactions, loans, support_tickets, cards. Use $size or $sum to count.",
+    "expected_operators": [
+      "$match",
+      "$lookup",
+      "$unwind",
+      "$group",
+      "$sum",
+      "$size",
+      "$project",
+      "$addFields"
+    ],
+    "expected_collections": [
+      "customers",
+      "accounts",
+      "transactions",
+      "loans",
+      "support_tickets",
+      "cards"
+    ],
+    "provider": null,
+    "model": null,
+    "request_mode": null,
+    "target_collection": null,
+    "generated_pipeline": null,
+    "validation_status": null,
+    "validation_errors": [],
+    "execution_status": null,
+    "result_row_count": 0,
+    "sample_results": [],
+    "duration_s": 0.54,
+    "error_detail": "ProviderRateLimitError: gemini rate limit error: Quota exhausted: [{\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.com/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 5, model: gemini-3.8-flash, description: Generate content requests per minute limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\\nPlease retry in 2.322962703s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://aistudio.google.com/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"description\": \"Generate content requests per minute limit exceeded on Free Tier. See https://aistudio.google.com/docs/rate-limits.\",\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerMinutePerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.8-flash\"\n            },\n            \"quotaValue\": \"5\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"2s\"\n      }\n    ]\n  }\n}\n]",
+    "final_status": "ERROR",
+    "ground_truth_correctness": "NOT VERIFIED",
+    "timestamp": "2026-11-16T16:25:57.085251+00:00"
+  }
+]

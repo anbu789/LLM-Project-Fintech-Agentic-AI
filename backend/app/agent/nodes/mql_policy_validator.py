@@ -118,19 +118,96 @@ APPROVED_OPERATORS: Set[str] = {
     "$and", "$or", "$not", "$nor", "$exists", "$type", "$expr",
     # Accumulators & Group
     "$sum", "$avg", "$min", "$max", "$first", "$last", "$count",
-    "$push", "$addToSet",
+    "$push", "$addToSet", "$stdDevPop", "$stdDevSamp",
     # Conditional & Flow
     "$cond", "$ifNull", "$switch",
     # Date & Time
     "$dateToString", "$year", "$month", "$dayOfMonth", "$hour", "$minute",
+    "$dateSubtract", "$dateAdd",
     # String manipulation
     "$concat", "$toLower", "$toUpper", "$substr", "$substrCP", "$regex",
-    "$strLenCP", "$trim",
+    "$strLenCP", "$trim", "$options",
     # Arithmetic
     "$multiply", "$divide", "$add", "$subtract", "$round", "$abs", "$mod",
     # Array
-    "$size", "$filter", "$map", "$arrayElemAt", "$slice",
+    "$size", "$filter", "$map", "$arrayElemAt", "$slice", "$reduce", "$elemMatch", "$all",
+    # Meta
+    "$meta",
 }
+
+ALLOWED_SYSTEM_VARIABLES: Set[str] = {
+    "$$NOW",
+    "$$CLUSTER_TIME",
+    "$$ROOT",
+    "$$CURRENT",
+    "$$REMOVE",
+    "$$DESCEND",
+    "$$PRUNE",
+    "$$KEEP",
+    "$$this",
+    "$$value",
+}
+
+DATE_SUBTRACT_ALLOWED_ARGS: Set[str] = {"startDate", "unit", "amount", "timezone"}
+DATE_SUBTRACT_REQUIRED_ARGS: Set[str] = {"startDate", "unit", "amount"}
+DATE_SUBTRACT_ALLOWED_UNITS: Set[str] = {
+    "year",
+    "quarter",
+    "month",
+    "week",
+    "day",
+    "hour",
+    "minute",
+    "second",
+    "millisecond",
+}
+
+
+def _validate_date_subtract(expr: Any) -> List[str]:
+    """Validates the structure, arguments, and units of a $dateSubtract operator."""
+    errors: List[str] = []
+    if not isinstance(expr, dict):
+        return [f"$dateSubtract must take a document argument with fields startDate, unit, amount, got {type(expr).__name__}."]
+
+    keys = set(expr.keys())
+    # 1. Reject unknown arguments
+    unknown_args = keys - DATE_SUBTRACT_ALLOWED_ARGS
+    if unknown_args:
+        errors.append(
+            f"Invalid or unrecognized argument(s) {sorted(unknown_args)} for $dateSubtract. "
+            f"Allowed arguments: {sorted(DATE_SUBTRACT_ALLOWED_ARGS)}."
+        )
+
+    # 2. Check required arguments
+    missing_req = DATE_SUBTRACT_REQUIRED_ARGS - keys
+    if missing_req:
+        errors.append(
+            f"Missing required argument(s) {sorted(missing_req)} in $dateSubtract expression."
+        )
+
+    # 3. Validate unit
+    if "unit" in expr:
+        unit_val = expr["unit"]
+        if isinstance(unit_val, str):
+            if unit_val not in DATE_SUBTRACT_ALLOWED_UNITS:
+                errors.append(
+                    f"Invalid date unit '{unit_val}' in $dateSubtract. "
+                    f"Allowed units: {sorted(DATE_SUBTRACT_ALLOWED_UNITS)}."
+                )
+        elif not isinstance(unit_val, (dict, str)):
+            errors.append(
+                f"Invalid date unit expression type in $dateSubtract: got {type(unit_val).__name__}."
+            )
+
+    # 4. Validate amount
+    if "amount" in expr:
+        amount_val = expr["amount"]
+        if not isinstance(amount_val, (int, float, dict, str)):
+            errors.append(
+                f"Invalid amount type in $dateSubtract: expected number or expression, got {type(amount_val).__name__}."
+            )
+
+    return errors
 
 
 def _trace_entry(node: str, status: str, detail: str) -> Dict[str, Any]:
@@ -142,23 +219,46 @@ def _trace_entry(node: str, status: str, detail: str) -> Dict[str, Any]:
     }
 
 
-def _extract_field_references(expr: Any) -> Set[str]:
-    """Recursively extracts field path references (strings starting with '$')."""
+def _extract_field_references(expr: Any, in_expr_context: bool = False) -> Set[str]:
+    """Recursively extracts field path references (strings starting with '$' or filter keys).
+    
+    Distinguishes between query/match filter context and aggregation expression context.
+    - In filter context (in_expr_context=False): dictionary keys that do not start with '$'
+      are document field names (e.g. {'status': 'active'}).
+    - In expression context (in_expr_context=True): dictionary keys (such as 'startDate', 'unit',
+      'amount' in $dateSubtract, or 'input', 'as' in $filter, or embedded document keys) are
+      operator arguments or object keys, NOT collection fields.
+    - In expression context, collection fields are referenced by string values starting with single '$'
+      (e.g. '$transaction_date').
+    - Strings starting with '$$' are system/pipeline variables and are never treated as collection fields.
+    """
     fields: Set[str] = set()
     if isinstance(expr, str):
-        if expr.startswith("$") and not expr.startswith("$$"):
+        if expr.startswith("$$"):
+            return fields
+        if expr.startswith("$"):
             cleaned = expr[1:].split(".")[0]
             if cleaned and not cleaned.startswith("$"):
                 fields.add(cleaned)
     elif isinstance(expr, dict):
         for k, v in expr.items():
-            if not k.startswith("$"):
-                cleaned_k = k.split(".")[0]
-                fields.add(cleaned_k)
-            fields.update(_extract_field_references(v))
+            if k == "$expr":
+                fields.update(_extract_field_references(v, in_expr_context=True))
+            elif k.startswith("$"):
+                # Operator: if already in expression context, stay in it.
+                # If in filter context, logical operators remain filter context; expression operators become expr context.
+                next_in_expr = in_expr_context or (k not in ("$and", "$or", "$nor", "$not"))
+                fields.update(_extract_field_references(v, in_expr_context=next_in_expr))
+            else:
+                if not in_expr_context:
+                    cleaned_k = k.split(".")[0]
+                    fields.add(cleaned_k)
+                    fields.update(_extract_field_references(v, in_expr_context=False))
+                else:
+                    fields.update(_extract_field_references(v, in_expr_context=True))
     elif isinstance(expr, list):
         for item in expr:
-            fields.update(_extract_field_references(item))
+            fields.update(_extract_field_references(item, in_expr_context=in_expr_context))
     return fields
 
 
@@ -198,6 +298,64 @@ def _inspect_operators_recursively(expr: Any) -> Tuple[Set[str], Set[str]]:
             prohibited_found.update(sub_proh)
 
     return found_ops, prohibited_found
+
+
+def _inspect_ast_recursively(
+    expr: Any,
+    stage_name: str,
+    stage_idx: int,
+) -> Tuple[Set[str], Set[str], List[str]]:
+    """Recursively audits an expression tree for:
+      1. All operators used (keys starting with '$')
+      2. Prohibited operators ($where, $function, $accumulator)
+      3. Specific operator structure/argument validity (e.g. $dateSubtract)
+      4. System variables ($$NOW, etc.)
+    Returns:
+      (found_ops, prohibited_ops, validation_errors)
+    """
+    found_ops: Set[str] = set()
+    prohibited_ops: Set[str] = set()
+    errors: List[str] = []
+
+    if isinstance(expr, str):
+        if expr.startswith("$$"):
+            base_var = expr.split(".")[0]
+            if base_var not in ALLOWED_SYSTEM_VARIABLES:
+                errors.append(
+                    f"Stage '{stage_name}' at index {stage_idx} contains "
+                    f"unrecognized or unauthorized system variable '{expr}'."
+                )
+    elif isinstance(expr, dict):
+        for k, v in expr.items():
+            if k.startswith("$"):
+                found_ops.add(k)
+                if k in PROHIBITED_OPERATORS:
+                    prohibited_ops.add(k)
+                elif k not in APPROVED_OPERATORS and k not in APPROVED_STAGES:
+                    errors.append(
+                        f"Stage '{stage_name}' at index {stage_idx} contains "
+                        f"unsupported operator '{k}'."
+                    )
+
+                # Operator-specific structural validations
+                if k == "$dateSubtract":
+                    ds_errors = _validate_date_subtract(v)
+                    for err in ds_errors:
+                        errors.append(f"Stage '{stage_name}' at index {stage_idx}: {err}")
+
+            sub_ops, sub_proh, sub_errs = _inspect_ast_recursively(v, stage_name, stage_idx)
+            found_ops.update(sub_ops)
+            prohibited_ops.update(sub_proh)
+            errors.extend(sub_errs)
+
+    elif isinstance(expr, list):
+        for item in expr:
+            sub_ops, sub_proh, sub_errs = _inspect_ast_recursively(item, stage_name, stage_idx)
+            found_ops.update(sub_ops)
+            prohibited_ops.update(sub_proh)
+            errors.extend(sub_errs)
+
+    return found_ops, prohibited_ops, errors
 
 
 class MQLValidationResult:
@@ -368,12 +526,14 @@ class MQLPolicyValidator:
                     f"exceeds maximum allowed depth of {settings.MAX_PIPELINE_DEPTH}."
                 )
 
-            found_ops, prohibited_ops = _inspect_operators_recursively(stage_body)
+            found_ops, prohibited_ops, ast_errors = _inspect_ast_recursively(stage_body, stage_name, idx)
             if prohibited_ops:
                 for op in sorted(prohibited_ops):
                     errors.append(
                         f"Stage '{stage_name}' at index {idx} contains prohibited operator '{op}'."
                     )
+            if ast_errors:
+                errors.extend(ast_errors)
 
             # C. Specific Stage Rules
             if stage_name == "$limit":
@@ -533,7 +693,20 @@ class MQLPolicyValidator:
             if stage_name in ("$lookup", "$count"):
                 continue
 
-            referenced_fields = _extract_field_references(stage_body)
+            if stage_name in ("$project", "$addFields", "$set", "$group"):
+                referenced_fields = set()
+                if isinstance(stage_body, dict):
+                    for k, v in stage_body.items():
+                        referenced_fields.update(_extract_field_references(v, in_expr_context=True))
+            elif stage_name == "$match":
+                referenced_fields = _extract_field_references(stage_body, in_expr_context=False)
+            elif stage_name == "$sort":
+                referenced_fields = _extract_field_references(stage_body, in_expr_context=False)
+            elif stage_name == "$unwind":
+                referenced_fields = _extract_field_references(stage_body, in_expr_context=True)
+            else:
+                referenced_fields = _extract_field_references(stage_body, in_expr_context=False)
+
             # Filter out pipeline variables ($$ROOT, $$NOW, etc.)
             filtered_refs = {f for f in referenced_fields if not f.startswith("$")}
             all_referenced_fields.update(filtered_refs)

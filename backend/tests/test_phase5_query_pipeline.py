@@ -686,6 +686,294 @@ def test_validator_rejects_non_list_pipeline():
 
 
 # ==============================================================================
+# Date Expressions & AST Validator Regression Tests
+# ==============================================================================
+
+def test_validator_allows_valid_date_subtract_with_now():
+    """1. Verify valid $dateSubtract using $$NOW passes validation without false positives."""
+    validator = MQLPolicyValidator()
+    pipeline = [
+        {
+            "$match": {
+                "$expr": {
+                    "$gte": [
+                        "$transaction_date",
+                        {
+                            "$dateSubtract": {
+                                "startDate": "$$NOW",
+                                "unit": "day",
+                                "amount": 30,
+                            }
+                        },
+                    ]
+                }
+            }
+        },
+        {"$limit": 50},
+    ]
+    val_res = validator.validate_pipeline("transactions", pipeline, require_terminal_limit=True)
+    assert val_res.is_valid is True, f"Unexpected validation errors: {val_res.errors}"
+    assert val_res.errors == []
+    assert "transaction_date" in val_res.referenced_fields
+    assert "startDate" not in val_res.referenced_fields
+    assert "unit" not in val_res.referenced_fields
+    assert "amount" not in val_res.referenced_fields
+
+
+def test_validator_allows_valid_30_day_transaction_filter():
+    """2. Verify valid 30-day transaction filter with sort and limit passes validation."""
+    validator = MQLPolicyValidator()
+    pipeline = [
+        {
+            "$match": {
+                "$expr": {
+                    "$gte": [
+                        "$transaction_date",
+                        {
+                            "$dateSubtract": {
+                                "startDate": "$$NOW",
+                                "unit": "day",
+                                "amount": 30,
+                            }
+                        },
+                    ]
+                }
+            }
+        },
+        {"$sort": {"transaction_date": -1}},
+        {"$limit": 100},
+    ]
+    val_res = validator.validate_pipeline("transactions", pipeline, require_terminal_limit=True)
+    assert val_res.is_valid is True, f"Validation errors: {val_res.errors}"
+    assert val_res.errors == []
+    assert "transaction_date" in val_res.referenced_fields
+
+
+def test_validator_allows_valid_date_subtract_with_other_approved_date_units():
+    """3. Verify $dateSubtract with other approved units (year, month, week, hour, minute) passes."""
+    validator = MQLPolicyValidator()
+    for unit in ("year", "quarter", "month", "week", "hour", "minute", "second", "millisecond"):
+        pipeline = [
+            {
+                "$match": {
+                    "$expr": {
+                        "$gte": [
+                            "$transaction_date",
+                            {
+                                "$dateSubtract": {
+                                    "startDate": "$$NOW",
+                                    "unit": unit,
+                                    "amount": 1,
+                                }
+                            },
+                        ]
+                    }
+                }
+            },
+            {"$limit": 10},
+        ]
+        val_res = validator.validate_pipeline("transactions", pipeline, require_terminal_limit=True)
+        assert val_res.is_valid is True, f"Failed for unit '{unit}': {val_res.errors}"
+        assert val_res.errors == []
+
+
+def test_validator_rejects_unknown_field_typo_in_expr():
+    """4. Verify unknown field $transaction_date_typo is still rejected in expression context."""
+    validator = MQLPolicyValidator()
+    pipeline = [
+        {
+            "$match": {
+                "$expr": {
+                    "$gte": [
+                        "$transaction_date_typo",
+                        {
+                            "$dateSubtract": {
+                                "startDate": "$$NOW",
+                                "unit": "day",
+                                "amount": 30,
+                            }
+                        },
+                    ]
+                }
+            }
+        },
+        {"$limit": 50},
+    ]
+    val_res = validator.validate_pipeline("transactions", pipeline, require_terminal_limit=True)
+    assert val_res.is_valid is False
+    assert any("unknown field 'transaction_date_typo'" in err for err in val_res.errors)
+    # Ensure operator parameters are NOT reported as unknown fields
+    assert not any("unknown field 'startDate'" in err for err in val_res.errors)
+    assert not any("unknown field 'unit'" in err for err in val_res.errors)
+
+
+def test_validator_rejects_unsupported_aggregation_operators():
+    """5. Verify unsupported aggregation operators are strictly rejected."""
+    validator = MQLPolicyValidator()
+    pipeline = [
+        {
+            "$match": {
+                "$unsupportedOp": {"field": "value"}
+            }
+        },
+        {"$limit": 10},
+    ]
+    val_res = validator.validate_pipeline("transactions", pipeline, require_terminal_limit=True)
+    assert val_res.is_valid is False
+    assert any("unsupported operator '$unsupportedOp'" in err for err in val_res.errors)
+
+
+def test_validator_rejects_malformed_date_subtract_arguments():
+    """6. Verify malformed $dateSubtract arguments are strictly rejected."""
+    validator = MQLPolicyValidator()
+
+    # 6a. Missing required argument 'unit'
+    p_missing = [
+        {
+            "$match": {
+                "$expr": {
+                    "$gte": [
+                        "$transaction_date",
+                        {"$dateSubtract": {"startDate": "$$NOW", "amount": 30}},
+                    ]
+                }
+            }
+        },
+        {"$limit": 10},
+    ]
+    res_missing = validator.validate_pipeline("transactions", p_missing, require_terminal_limit=True)
+    assert res_missing.is_valid is False
+    assert any("Missing required argument(s) ['unit']" in err for err in res_missing.errors)
+
+    # 6b. Invalid date unit 'lightyears'
+    p_unit = [
+        {
+            "$match": {
+                "$expr": {
+                    "$gte": [
+                        "$transaction_date",
+                        {"$dateSubtract": {"startDate": "$$NOW", "unit": "lightyears", "amount": 30}},
+                    ]
+                }
+            }
+        },
+        {"$limit": 10},
+    ]
+    res_unit = validator.validate_pipeline("transactions", p_unit, require_terminal_limit=True)
+    assert res_unit.is_valid is False
+    assert any("Invalid date unit 'lightyears'" in err for err in res_unit.errors)
+
+    # 6c. Unknown/unrecognized argument 'extra_arg'
+    p_extra = [
+        {
+            "$match": {
+                "$expr": {
+                    "$gte": [
+                        "$transaction_date",
+                        {"$dateSubtract": {"startDate": "$$NOW", "unit": "day", "amount": 30, "extra_arg": "invalid"}},
+                    ]
+                }
+            }
+        },
+        {"$limit": 10},
+    ]
+    res_extra = validator.validate_pipeline("transactions", p_extra, require_terminal_limit=True)
+    assert res_extra.is_valid is False
+    assert any("Invalid or unrecognized argument(s) ['extra_arg']" in err for err in res_extra.errors)
+
+    # 6d. Non-dict argument to $dateSubtract
+    p_nondict = [
+        {
+            "$match": {
+                "$expr": {
+                    "$gte": [
+                        "$transaction_date",
+                        {"$dateSubtract": "invalid_operand"},
+                    ]
+                }
+            }
+        },
+        {"$limit": 10},
+    ]
+    res_nondict = validator.validate_pipeline("transactions", p_nondict, require_terminal_limit=True)
+    assert res_nondict.is_valid is False
+    assert any("$dateSubtract must take a document argument" in err for err in res_nondict.errors)
+
+
+def test_validator_validates_nested_expr_expressions_correctly():
+    """7. Verify nested $expr expressions with multiple conditions validate without false positives."""
+    validator = MQLPolicyValidator()
+    pipeline = [
+        {
+            "$match": {
+                "status": "completed",
+                "$expr": {
+                    "$and": [
+                        {
+                            "$gte": [
+                                "$transaction_date",
+                                {
+                                    "$dateSubtract": {
+                                        "startDate": "$$NOW",
+                                        "unit": "day",
+                                        "amount": 30,
+                                    }
+                                },
+                            ]
+                        },
+                        {"$gt": ["$amount", 1000]},
+                    ]
+                },
+            }
+        },
+        {"$sort": {"transaction_date": -1}},
+        {"$limit": 50},
+    ]
+    val_res = validator.validate_pipeline("transactions", pipeline, require_terminal_limit=True)
+    assert val_res.is_valid is True, f"Validation errors: {val_res.errors}"
+    assert val_res.errors == []
+    assert "status" in val_res.referenced_fields
+    assert "transaction_date" in val_res.referenced_fields
+    assert "amount" in val_res.referenced_fields
+
+
+def test_validator_preserves_destructive_operation_rejections():
+    """8. Verify prohibited stages ($out, $merge) and operators ($where, $function, $accumulator) remain rejected."""
+    validator = MQLPolicyValidator()
+
+    # 8a. $out stage rejected
+    res_out = validator.validate_pipeline("transactions", [{"$match": {"status": "completed"}}, {"$out": "leaked_txs"}])
+    assert res_out.is_valid is False
+    assert any("prohibited write stage '$out'" in err for err in res_out.errors)
+
+    # 8b. $merge stage rejected
+    res_merge = validator.validate_pipeline("transactions", [{"$match": {"status": "completed"}}, {"$merge": {"into": "other"}}])
+    assert res_merge.is_valid is False
+    assert any("prohibited write stage '$merge'" in err for err in res_merge.errors)
+
+    # 8c. $where operator rejected
+    res_where = validator.validate_pipeline("transactions", [{"$match": {"$where": "this.amount > 100"}}, {"$limit": 10}])
+    assert res_where.is_valid is False
+    assert any("prohibited operator '$where'" in err for err in res_where.errors)
+
+    # 8d. $function operator rejected
+    res_func = validator.validate_pipeline("transactions", [
+        {"$project": {"custom": {"$function": {"body": "function() { return 1; }", "args": [], "lang": "js"}}}},
+        {"$limit": 10}
+    ])
+    assert res_func.is_valid is False
+    assert any("prohibited operator '$function'" in err for err in res_func.errors)
+
+    # 8e. $accumulator operator rejected
+    res_acc = validator.validate_pipeline("transactions", [
+        {"$group": {"_id": "$customer_id", "agg": {"$accumulator": {"init": "function() {}", "accumulate": "function() {}", "merge": "function() {}", "lang": "js"}}}},
+        {"$limit": 10}
+    ])
+    assert res_acc.is_valid is False
+    assert any("prohibited operator '$accumulator'" in err for err in res_acc.errors)
+
+
+# ==============================================================================
 # 5. LangGraph Agent Graph Integration Tests (Nodes 1 -> 2 -> 3 -> 4 -> 5 -> 8)
 # ==============================================================================
 
@@ -724,7 +1012,13 @@ async def test_graph_executes_phase5_banking_query_end_to_end():
     assert final_state["final_response"] is not None
     assert "```json" in final_state["final_response"]
     assert "customers" in final_state["final_response"]
-    assert "execution has not occurred" in final_state["final_response"].lower()
+    if settings.PHASE6_LIVE_EXECUTION_ENABLED:
+        assert (
+            "query executed successfully" in final_state["final_response"].lower()
+            or "execution has not occurred" in final_state["final_response"].lower()
+        )
+    else:
+        assert "execution has not occurred" in final_state["final_response"].lower()
 
     # 7. Audit trace complete
     trace_nodes = [t["node"] for t in final_state["trace"]]
@@ -824,7 +1118,13 @@ def test_api_chat_returns_validated_pipeline_metadata():
     assert data["selected_collection"] == "loans"
     assert data["validation_status"] == "passed"
     assert "loans" in data["response"]
-    assert "execution has not occurred" in data["response"].lower()
+    if settings.PHASE6_LIVE_EXECUTION_ENABLED:
+        assert (
+            "query executed successfully" in data["response"].lower()
+            or "execution has not occurred" in data["response"].lower()
+        )
+    else:
+        assert "execution has not occurred" in data["response"].lower()
 
 
 def test_api_chat_audit_trail_contains_phase5_trace():

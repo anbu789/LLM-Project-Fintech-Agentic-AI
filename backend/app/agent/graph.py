@@ -354,8 +354,19 @@ def route_after_intent(state: AgentState) -> str:
 
 
 def route_after_validator(state: AgentState) -> str:
-    """Route after Node 5: proceed to execution if valid; bypass if rejected/unsupported."""
+    """Route after Node 5: proceed to execution if valid; bypass if rejected/unsupported.
+    SCHEDULE_ONLY requests bypass immediate query execution and proceed directly to schedule_planner.
+    """
     if state.get("validation_status") == "VALID":
+        mode = state.get("request_mode", "")
+        if mode == "SCHEDULE_ONLY":
+            _emit_skipped_nodes(
+                state,
+                ("query_executor", "result_verifier"),
+                skip_reason="SCHEDULE_ONLY request bypasses immediate database query execution",
+                route="schedule_planner",
+            )
+            return "schedule_planner"
         return "query_executor"
     v_status = state.get("validation_status") or "INVALID"
     _emit_skipped_nodes(
@@ -448,6 +459,7 @@ def build_agent_graph() -> StateGraph:
         route_after_validator,
         {
             "query_executor": "query_executor",
+            "schedule_planner": "schedule_planner",
             "response_composer": "response_composer",
         },
     )

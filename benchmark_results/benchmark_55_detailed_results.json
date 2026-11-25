@@ -1,0 +1,2367 @@
+[
+  {
+    "question_id": "Q01",
+    "question": "Show all active customers.",
+    "batch": "Batch 1",
+    "status": "CLARIFICATION",
+    "intent": "CLARIFICATION_REQUIRED",
+    "retrieved_schema": [
+      "customers"
+    ],
+    "generated_pipeline": null,
+    "validator_status": "SKIPPED",
+    "execution_status": "SKIPPED",
+    "answer": "Could you specify the criteria for 'active customers' (e.g., account type, activity period, branch, or other filters)?",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 4850.0,
+    "error": null
+  },
+  {
+    "question_id": "Q02",
+    "question": "Find all branches located in Maharashtra.",
+    "batch": "Batch 1",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "branches",
+      "loans",
+      "customers"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "state": "Maharashtra"
+        }
+      },
+      {
+        "$project": {
+          "_id": 1,
+          "branch_id": 1,
+          "branch_name": 1,
+          "city": 1,
+          "state": 1,
+          "ifsc_code": 1
+        }
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS_WITH_DATA",
+    "answer": "Found 2 branches located in Maharashtra (e.g., Pune Main Branch, Mumbai Fort Branch).",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 11850.0,
+    "error": null
+  },
+  {
+    "question_id": "Q03",
+    "question": "List all customers whose KYC status is 'pending'.",
+    "batch": "Batch 1",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "kyc_documents",
+      "customers",
+      "loans",
+      "transactions",
+      "investments"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "kyc_status": "pending"
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS_WITH_DATA",
+    "answer": "Retrieved 174 customers with pending KYC status.",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 5180.0,
+    "error": null
+  },
+  {
+    "question_id": "Q04",
+    "question": "Show all loans that are currently defaulted.",
+    "batch": "Batch 1",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "loans",
+      "customers"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "status": "defaulted"
+        }
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS_WITH_DATA",
+    "answer": "Retrieved 61 defaulted loans across various products.",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 4020.0,
+    "error": null
+  },
+  {
+    "question_id": "Q05",
+    "question": "List all merchants in the 'dining' category.",
+    "batch": "Batch 1",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "merchants"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "category": "dining"
+        }
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS_WITH_DATA",
+    "answer": "Retrieved 27 merchants in dining category.",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 5450.0,
+    "error": null
+  },
+  {
+    "question_id": "Q06",
+    "question": "Show all credit cards that are currently blocked.",
+    "batch": "Batch 1",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "cards"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "card_type": "credit",
+          "status": "blocked"
+        }
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS_WITH_DATA",
+    "answer": "Retrieved 23 credit cards with blocked status.",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 7730.0,
+    "error": null
+  },
+  {
+    "question_id": "Q07",
+    "question": "Find all support tickets with critical priority.",
+    "batch": "Batch 1",
+    "status": "OUT_OF_SCOPE",
+    "intent": "OUT_OF_SCOPE",
+    "retrieved_schema": [
+      "support_tickets"
+    ],
+    "generated_pipeline": null,
+    "validator_status": "SKIPPED",
+    "execution_status": "SKIPPED",
+    "answer": "Query classified as out of banking scope by intent classifier.",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 8100.0,
+    "error": null
+  },
+  {
+    "question_id": "Q08",
+    "question": "List all fraud alerts that are still open.",
+    "batch": "Batch 1",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "fraud_alerts"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "status": "open"
+        }
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS_WITH_DATA",
+    "answer": "Retrieved 77 open fraud alerts under investigation.",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 14540.0,
+    "error": null
+  },
+  {
+    "question_id": "Q09",
+    "question": "Show all investments with a negative return.",
+    "batch": "Batch 1",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "investments"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "returns_percentage": {
+            "$lt": 0
+          }
+        }
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS_WITH_DATA",
+    "answer": "Retrieved 210 investment portfolios with negative returns.",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 14150.0,
+    "error": null
+  },
+  {
+    "question_id": "Q10",
+    "question": "List all employees in the 'Fraud & Risk' department.",
+    "batch": "Batch 1",
+    "status": "OUT_OF_SCOPE",
+    "intent": "OUT_OF_SCOPE",
+    "retrieved_schema": [
+      "employees"
+    ],
+    "generated_pipeline": null,
+    "validator_status": "SKIPPED",
+    "execution_status": "SKIPPED",
+    "answer": "Query classified as out of banking scope by intent classifier.",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 13040.0,
+    "error": null
+  },
+  {
+    "question_id": "Q11",
+    "question": "Which customers have an annual income above \u20b910 lakh, sorted by income descending?",
+    "batch": "Batch 2",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "customers"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "annual_income": {
+            "$gt": 1000000
+          }
+        }
+      },
+      {
+        "$sort": {
+          "annual_income": -1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 5610.74,
+    "error": null
+  },
+  {
+    "question_id": "Q12",
+    "question": "Find the top 10 accounts with the highest balance.",
+    "batch": "Batch 2",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "accounts"
+    ],
+    "generated_pipeline": [
+      {
+        "$sort": {
+          "balance": -1
+        }
+      },
+      {
+        "$limit": 10
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "account_id": 1,
+          "account_number": 1,
+          "balance": 1,
+          "currency": 1,
+          "status": 1
+        }
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 5723.38,
+    "error": null
+  },
+  {
+    "question_id": "Q13",
+    "question": "How many transactions failed in 2024?",
+    "batch": "Batch 2",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "transactions"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "status": "failed",
+          "transaction_date": {
+            "$gte": {
+              "$date": "2024-01-01T00:00:00Z"
+            },
+            "$lt": {
+              "$date": "2025-01-01T00:00:00Z"
+            }
+          }
+        }
+      },
+      {
+        "$group": {
+          "_id": null,
+          "failed_count": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "failed_count": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 23480.56,
+    "error": null
+  },
+  {
+    "question_id": "Q14",
+    "question": "List all high-risk customers who are currently blocked.",
+    "batch": "Batch 2",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [],
+    "generated_pipeline": null,
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 15565.53,
+    "error": null
+  },
+  {
+    "question_id": "Q15",
+    "question": "Show all RTGS transactions above \u20b910 lakh, sorted by amount descending.",
+    "batch": "Batch 2",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "transactions"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "transaction_mode": "RTGS",
+          "amount": {
+            "$gt": 1000000
+          }
+        }
+      },
+      {
+        "$sort": {
+          "amount": -1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 15499.15,
+    "error": null
+  },
+  {
+    "question_id": "Q16",
+    "question": "How many active home loans are there?",
+    "batch": "Batch 2",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "loans"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "loan_type": "home",
+          "status": "active"
+        }
+      },
+      {
+        "$limit": 1000
+      },
+      {
+        "$count": "active_home_loan_count"
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 15446.04,
+    "error": null
+  },
+  {
+    "question_id": "Q17",
+    "question": "Which merchants have processed more than 10,000 transactions?",
+    "batch": "Batch 2",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "merchants"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "total_transactions": {
+            "$gt": 10000
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "merchant_id": 1,
+          "merchant_name": 1,
+          "category": 1,
+          "total_transactions": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 5108.13,
+    "error": null
+  },
+  {
+    "question_id": "Q18",
+    "question": "List all dormant accounts opened before 2020.",
+    "batch": "Batch 2",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "accounts"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "status": "dormant",
+          "opening_date": {
+            "$lt": {
+              "$date": "2020-01-01T00:00:00Z"
+            }
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "account_id": 1,
+          "customer_id": 1,
+          "account_number": 1,
+          "account_type": 1,
+          "branch_id": 1,
+          "ifsc_code": 1,
+          "currency": 1,
+          "balance": 1,
+          "available_balance": 1,
+          "opening_date": 1,
+          "status": 1,
+          "interest_rate": 1,
+          "minimum_balance": 1,
+          "overdraft_limit": 1,
+          "nominee_name": 1,
+          "joint_holder": 1,
+          "account_manager_id": 1,
+          "last_transaction_date": 1,
+          "created_at": 1,
+          "updated_at": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 18059.17,
+    "error": null
+  },
+  {
+    "question_id": "Q19",
+    "question": "Find all support tickets raised via email that are still open or in progress.",
+    "batch": "Batch 2",
+    "status": "OUT_OF_SCOPE",
+    "intent": "OUT_OF_SCOPE",
+    "retrieved_schema": [],
+    "generated_pipeline": null,
+    "validator_status": "SKIPPED",
+    "execution_status": "SKIPPED",
+    "answer": "\u2139\ufe0f **Outside System Scope**...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 6067.91,
+    "error": null
+  },
+  {
+    "question_id": "Q20",
+    "question": "Which employees have a performance rating above 4.5?",
+    "batch": "Batch 2",
+    "status": "OUT_OF_SCOPE",
+    "intent": "OUT_OF_SCOPE",
+    "retrieved_schema": [],
+    "generated_pipeline": null,
+    "validator_status": "SKIPPED",
+    "execution_status": "SKIPPED",
+    "answer": "\u2139\ufe0f **Outside System Scope**...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 5126.27,
+    "error": null
+  },
+  {
+    "question_id": "Q21",
+    "question": "What is the average balance of savings accounts?",
+    "batch": "Batch 3",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "accounts"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "account_type": "savings"
+        }
+      },
+      {
+        "$group": {
+          "_id": null,
+          "average_balance": {
+            "$avg": "$balance"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "average_balance": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 16307.64,
+    "error": null
+  },
+  {
+    "question_id": "Q22",
+    "question": "What is the total transaction amount per month in 2025?",
+    "batch": "Batch 3",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "transactions"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "transaction_date": {
+            "$gte": {
+              "$date": "2025-01-01T00:00:00Z"
+            },
+            "$lt": {
+              "$date": "2026-01-01T00:00:00Z"
+            }
+          }
+        }
+      },
+      {
+        "$group": {
+          "_id": {
+            "$dateToString": {
+              "format": "%Y-%m",
+              "date": "$transaction_date"
+            }
+          },
+          "total_amount": {
+            "$sum": "$amount"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "month": "$_id",
+          "total_amount": 1
+        }
+      },
+      {
+        "$sort": {
+          "month": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 7172.61,
+    "error": null
+  },
+  {
+    "question_id": "Q23",
+    "question": "How many customers are there in each risk category?",
+    "batch": "Batch 3",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "customers"
+    ],
+    "generated_pipeline": [
+      {
+        "$group": {
+          "_id": "$risk_category",
+          "count": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$project": {
+          "risk_category": "$_id",
+          "count": 1,
+          "_id": 0
+        }
+      },
+      {
+        "$sort": {
+          "risk_category": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 5533.8,
+    "error": null
+  },
+  {
+    "question_id": "Q24",
+    "question": "What is the average loan interest rate by loan type?",
+    "batch": "Batch 3",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "loans"
+    ],
+    "generated_pipeline": [
+      {
+        "$group": {
+          "_id": "$loan_type",
+          "avg_interest_rate": {
+            "$avg": "$interest_rate"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "loan_type": "$_id",
+          "avg_interest_rate": 1
+        }
+      },
+      {
+        "$sort": {
+          "loan_type": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 6344.85,
+    "error": null
+  },
+  {
+    "question_id": "Q25",
+    "question": "Which transaction category has the highest total spend?",
+    "batch": "Batch 3",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "transactions"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "transaction_type": "debit"
+        }
+      },
+      {
+        "$group": {
+          "_id": "$category",
+          "total_spend": {
+            "$sum": "$amount"
+          }
+        }
+      },
+      {
+        "$sort": {
+          "total_spend": -1
+        }
+      },
+      {
+        "$limit": 1
+      },
+      {
+        "$project": {
+          "category": "$_id",
+          "total_spend": 1,
+          "_id": 0
+        }
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 3053.33,
+    "error": null
+  },
+  {
+    "question_id": "Q26",
+    "question": "What is the total outstanding loan amount per loan type?",
+    "batch": "Batch 3",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "loans"
+    ],
+    "generated_pipeline": [
+      {
+        "$group": {
+          "_id": "$loan_type",
+          "total_outstanding": {
+            "$sum": "$outstanding_amount"
+          }
+        }
+      },
+      {
+        "$project": {
+          "loan_type": "$_id",
+          "total_outstanding": 1,
+          "_id": 0
+        }
+      },
+      {
+        "$sort": {
+          "total_outstanding": -1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 5815.28,
+    "error": null
+  },
+  {
+    "question_id": "Q27",
+    "question": "How many transactions were made through each channel (UPI, NEFT, RTGS, etc.)?",
+    "batch": "Batch 3",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "transactions"
+    ],
+    "generated_pipeline": [
+      {
+        "$group": {
+          "_id": "$transaction_mode",
+          "transaction_count": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "transaction_mode": "$_id",
+          "transaction_count": 1
+        }
+      },
+      {
+        "$sort": {
+          "transaction_count": -1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 2716.34,
+    "error": null
+  },
+  {
+    "question_id": "Q28",
+    "question": "What is the maximum credit limit among all credit cards?",
+    "batch": "Batch 3",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "cards"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "card_type": "credit"
+        }
+      },
+      {
+        "$group": {
+          "_id": null,
+          "max_credit_limit": {
+            "$max": "$credit_limit"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "max_credit_limit": 1
+        }
+      },
+      {
+        "$limit": 1
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 5761.7,
+    "error": null
+  },
+  {
+    "question_id": "Q29",
+    "question": "What is the average credit score of customers who have defaulted loans?",
+    "batch": "Batch 3",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "loans"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "status": "defaulted"
+        }
+      },
+      {
+        "$limit": 1000
+      },
+      {
+        "$group": {
+          "_id": null,
+          "average_credit_score": {
+            "$avg": "$credit_score_at_approval"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "average_credit_score": 1
+        }
+      }
+    ],
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 4692.92,
+    "error": null
+  },
+  {
+    "question_id": "Q30",
+    "question": "How many support tickets are there per priority level?",
+    "batch": "Batch 3",
+    "status": "OUT_OF_SCOPE",
+    "intent": "OUT_OF_SCOPE",
+    "retrieved_schema": [],
+    "generated_pipeline": null,
+    "validator_status": "SKIPPED",
+    "execution_status": "SKIPPED",
+    "answer": "\u2139\ufe0f **Outside System Scope**...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 665.16,
+    "error": null
+  },
+  {
+    "question_id": "Q31",
+    "question": "Which customers have active personal loans? Show their name and outstanding amount.",
+    "batch": "Batch 4",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "loans"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "status": "active",
+          "loan_type": "personal"
+        }
+      },
+      {
+        "$lookup": {
+          "from": "customers",
+          "localField": "customer_id",
+          "foreignField": "customer_id",
+          "as": "customer"
+        }
+      },
+      {
+        "$unwind": "$customer"
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "customer_name": {
+            "$concat": [
+              "$customer.first_name",
+              " ",
+              "$customer.last_name"
+            ]
+          },
+          "outstanding_amount": "$outstanding_amount"
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 6309.22,
+    "error": null
+  },
+  {
+    "question_id": "Q32",
+    "question": "List all transactions made at dining merchants, along with the merchant name.",
+    "batch": "Batch 4",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "transactions"
+    ],
+    "generated_pipeline": [
+      {
+        "$lookup": {
+          "from": "merchants",
+          "localField": "merchant_id",
+          "foreignField": "merchant_id",
+          "as": "merchant"
+        }
+      },
+      {
+        "$unwind": "$merchant"
+      },
+      {
+        "$match": {
+          "merchant.category": "dining"
+        }
+      },
+      {
+        "$project": {
+          "transaction_id": 1,
+          "account_id": 1,
+          "customer_id": 1,
+          "transaction_type": 1,
+          "amount": 1,
+          "currency": 1,
+          "transaction_date": 1,
+          "transaction_mode": 1,
+          "merchant_id": 1,
+          "description": 1,
+          "balance_after": 1,
+          "status": 1,
+          "reference_number": 1,
+          "counterparty_account": 1,
+          "counterparty_name": 1,
+          "channel": 1,
+          "location": 1,
+          "ip_address": 1,
+          "device_id": 1,
+          "is_flagged": 1,
+          "category": 1,
+          "created_at": 1,
+          "merchant_name": "$merchant.merchant_name"
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 4919.12,
+    "error": null
+  },
+  {
+    "question_id": "Q33",
+    "question": "Which branch has sanctioned the highest total loan amount?",
+    "batch": "Batch 4",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "loans"
+    ],
+    "generated_pipeline": [
+      {
+        "$group": {
+          "_id": "$sanctioning_branch_id",
+          "total_sanctioned_amount": {
+            "$sum": "$principal_amount"
+          }
+        }
+      },
+      {
+        "$lookup": {
+          "from": "branches",
+          "localField": "_id",
+          "foreignField": "branch_id",
+          "as": "branch"
+        }
+      },
+      {
+        "$unwind": "$branch"
+      },
+      {
+        "$project": {
+          "branch_id": "$_id",
+          "branch_name": "$branch.branch_name",
+          "total_sanctioned_amount": 1,
+          "_id": 0
+        }
+      },
+      {
+        "$sort": {
+          "total_sanctioned_amount": -1
+        }
+      },
+      {
+        "$limit": 1
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 13024.81,
+    "error": null
+  },
+  {
+    "question_id": "Q34",
+    "question": "Which customers have an open fraud alert? Show customer name, alert type, and risk score.",
+    "batch": "Batch 4",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "fraud_alerts"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "status": "open"
+        }
+      },
+      {
+        "$lookup": {
+          "from": "customers",
+          "localField": "customer_id",
+          "foreignField": "customer_id",
+          "as": "customer"
+        }
+      },
+      {
+        "$unwind": "$customer"
+      },
+      {
+        "$addFields": {
+          "full_name": {
+            "$concat": [
+              "$customer.first_name",
+              " ",
+              "$customer.last_name"
+            ]
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "full_name": 1,
+          "alert_type": 1,
+          "risk_score": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 3956.26,
+    "error": null
+  },
+  {
+    "question_id": "Q35",
+    "question": "Find customers who have more than 2 active accounts.",
+    "batch": "Batch 4",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "accounts"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "status": "active"
+        }
+      },
+      {
+        "$group": {
+          "_id": "$customer_id",
+          "active_account_count": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$match": {
+          "active_account_count": {
+            "$gt": 2
+          }
+        }
+      },
+      {
+        "$lookup": {
+          "from": "customers",
+          "localField": "_id",
+          "foreignField": "customer_id",
+          "as": "customer"
+        }
+      },
+      {
+        "$unwind": "$customer"
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "customer_id": "$_id",
+          "first_name": "$customer.first_name",
+          "last_name": "$customer.last_name",
+          "email": "$customer.email",
+          "phone": "$customer.phone",
+          "active_account_count": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 6331.04,
+    "error": null
+  },
+  {
+    "question_id": "Q36",
+    "question": "Which customers have never taken any loan?",
+    "batch": "Batch 4",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "customers"
+    ],
+    "generated_pipeline": [
+      {
+        "$lookup": {
+          "from": "loans",
+          "localField": "customer_id",
+          "foreignField": "customer_id",
+          "as": "loans"
+        }
+      },
+      {
+        "$match": {
+          "loans": {
+            "$eq": []
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "customer_id": 1,
+          "first_name": 1,
+          "last_name": 1,
+          "email": 1,
+          "phone": 1,
+          "city": 1,
+          "state": 1,
+          "customer_segment": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 5409.13,
+    "error": null
+  },
+  {
+    "question_id": "Q37",
+    "question": "Which accounts have had no transactions in the last 6 months?",
+    "batch": "Batch 4",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "accounts"
+    ],
+    "generated_pipeline": [
+      {
+        "$lookup": {
+          "from": "transactions",
+          "let": {
+            "acctId": "$account_id"
+          },
+          "pipeline": [
+            {
+              "$match": {
+                "$expr": {
+                  "$and": [
+                    {
+                      "$eq": [
+                        "$account_id",
+                        "$$acctId"
+                      ]
+                    },
+                    {
+                      "$gte": [
+                        "$transaction_date",
+                        {
+                          "$dateSubtract": {
+                            "startDate": "$$NOW",
+                            "unit": "month",
+                            "amount": 6
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "$project": {
+                "_id": 0,
+                "transaction_id": 1
+              }
+            }
+          ],
+          "as": "recent_txns"
+        }
+      },
+      {
+        "$match": {
+          "$expr": {
+            "$eq": [
+              {
+                "$size": "$recent_txns"
+              },
+              0
+            ]
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "account_id": 1,
+          "account_number": 1,
+          "account_type": 1,
+          "balance": 1,
+          "status": 1,
+          "currency": 1,
+          "branch_id": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 6700.44,
+    "error": null
+  },
+  {
+    "question_id": "Q38",
+    "question": "What is the total transaction amount per customer for the year 2025? Show top 10 customers.",
+    "batch": "Batch 4",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "transactions"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "transaction_date": {
+            "$gte": {
+              "$date": "2025-01-01T00:00:00Z"
+            },
+            "$lte": {
+              "$date": "2025-12-31T23:59:59Z"
+            }
+          }
+        }
+      },
+      {
+        "$group": {
+          "_id": "$customer_id",
+          "total_amount": {
+            "$sum": "$amount"
+          }
+        }
+      },
+      {
+        "$project": {
+          "customer_id": "$_id",
+          "total_amount": 1,
+          "_id": 0
+        }
+      },
+      {
+        "$sort": {
+          "total_amount": -1
+        }
+      },
+      {
+        "$limit": 10
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 2368.58,
+    "error": null
+  },
+  {
+    "question_id": "Q39",
+    "question": "List all fraud alerts along with the transaction amount and account number of the flagged transaction.",
+    "batch": "Batch 4",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "fraud_alerts"
+    ],
+    "generated_pipeline": [
+      {
+        "$lookup": {
+          "from": "transactions",
+          "localField": "transaction_id",
+          "foreignField": "transaction_id",
+          "as": "transaction"
+        }
+      },
+      {
+        "$unwind": "$transaction"
+      },
+      {
+        "$lookup": {
+          "from": "accounts",
+          "localField": "transaction.account_id",
+          "foreignField": "account_id",
+          "as": "account"
+        }
+      },
+      {
+        "$unwind": "$account"
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "alert_id": 1,
+          "transaction_id": 1,
+          "customer_id": 1,
+          "alert_type": 1,
+          "risk_score": 1,
+          "status": 1,
+          "detected_at": 1,
+          "transaction_amount": "$transaction.amount",
+          "account_number": "$account.account_number"
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 2952.24,
+    "error": null
+  },
+  {
+    "question_id": "Q40",
+    "question": "Which employees have managed the most support tickets? Show top 5.",
+    "batch": "Batch 4",
+    "status": "OUT_OF_SCOPE",
+    "intent": "OUT_OF_SCOPE",
+    "retrieved_schema": [],
+    "generated_pipeline": null,
+    "validator_status": "SKIPPED",
+    "execution_status": "SKIPPED",
+    "answer": "\u2139\ufe0f **Outside System Scope**...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 2251.31,
+    "error": null
+  },
+  {
+    "question_id": "Q41",
+    "question": "Which customers with active personal loans made more than 5 transactions in the last 3 months?",
+    "batch": "Batch 5",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [],
+    "generated_pipeline": null,
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 5746.51,
+    "error": null
+  },
+  {
+    "question_id": "Q42",
+    "question": "Which branch has the highest average account balance? Show branch name, city, and average balance.",
+    "batch": "Batch 5",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "accounts"
+    ],
+    "generated_pipeline": [
+      {
+        "$group": {
+          "_id": "$branch_id",
+          "average_balance": {
+            "$avg": "$balance"
+          }
+        }
+      },
+      {
+        "$lookup": {
+          "from": "branches",
+          "localField": "_id",
+          "foreignField": "branch_id",
+          "as": "branch"
+        }
+      },
+      {
+        "$unwind": "$branch"
+      },
+      {
+        "$project": {
+          "branch_id": "$_id",
+          "branch_name": "$branch.branch_name",
+          "city": "$branch.city",
+          "average_balance": 1,
+          "_id": 0
+        }
+      },
+      {
+        "$sort": {
+          "average_balance": -1
+        }
+      },
+      {
+        "$limit": 1
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 4565.93,
+    "error": null
+  },
+  {
+    "question_id": "Q43",
+    "question": "For each merchant category, what is the total transaction volume and average transaction amount in 2024?",
+    "batch": "Batch 5",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "transactions"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "transaction_date": {
+            "$gte": {
+              "$date": "2024-01-01T00:00:00Z"
+            },
+            "$lt": {
+              "$date": "2025-01-01T00:00:00Z"
+            }
+          }
+        }
+      },
+      {
+        "$lookup": {
+          "from": "merchants",
+          "localField": "merchant_id",
+          "foreignField": "merchant_id",
+          "as": "merchant"
+        }
+      },
+      {
+        "$unwind": "$merchant"
+      },
+      {
+        "$group": {
+          "_id": "$merchant.category",
+          "total_volume": {
+            "$sum": "$amount"
+          },
+          "average_amount": {
+            "$avg": "$amount"
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "merchant_category": "$_id",
+          "total_volume": 1,
+          "average_amount": 1
+        }
+      },
+      {
+        "$sort": {
+          "total_volume": -1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 3185.38,
+    "error": null
+  },
+  {
+    "question_id": "Q44",
+    "question": "Which customers have both a defaulted loan and an open fraud alert?",
+    "batch": "Batch 5",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [],
+    "generated_pipeline": null,
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 8256.32,
+    "error": null
+  },
+  {
+    "question_id": "Q45",
+    "question": "What is the month-over-month transaction count for UPI payments in 2025?",
+    "batch": "Batch 5",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "transactions"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "transaction_mode": "UPI",
+          "transaction_date": {
+            "$gte": {
+              "$date": "2025-01-01T00:00:00Z"
+            },
+            "$lt": {
+              "$date": "2026-01-01T00:00:00Z"
+            }
+          }
+        }
+      },
+      {
+        "$group": {
+          "_id": {
+            "year": {
+              "$year": "$transaction_date"
+            },
+            "month": {
+              "$month": "$transaction_date"
+            }
+          },
+          "transaction_count": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "year": "$_id.year",
+          "month": "$_id.month",
+          "transaction_count": 1
+        }
+      },
+      {
+        "$sort": {
+          "year": 1,
+          "month": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 11356.89,
+    "error": null
+  },
+  {
+    "question_id": "Q46",
+    "question": "Which customers have investments with returns above 20% and also have an active loan?",
+    "batch": "Batch 5",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "customers"
+    ],
+    "generated_pipeline": [
+      {
+        "$lookup": {
+          "from": "investments",
+          "localField": "customer_id",
+          "foreignField": "customer_id",
+          "as": "investments"
+        }
+      },
+      {
+        "$match": {
+          "investments": {
+            "$elemMatch": {
+              "returns_percentage": {
+                "$gt": 20
+              }
+            }
+          }
+        }
+      },
+      {
+        "$lookup": {
+          "from": "loans",
+          "localField": "customer_id",
+          "foreignField": "customer_id",
+          "as": "loans"
+        }
+      },
+      {
+        "$match": {
+          "loans": {
+            "$elemMatch": {
+              "status": "active"
+            }
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "customer_id": 1,
+          "first_name": 1,
+          "last_name": 1,
+          "email": 1,
+          "phone": 1,
+          "city": 1,
+          "state": 1,
+          "risk_category": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 6386.18,
+    "error": null
+  },
+  {
+    "question_id": "Q47",
+    "question": "For each loan officer, how many loans have they approved, and what is the total outstanding amount of their portfolio?",
+    "batch": "Batch 5",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "loans"
+    ],
+    "generated_pipeline": [
+      {
+        "$group": {
+          "_id": "$loan_officer_id",
+          "loan_count": {
+            "$sum": 1
+          },
+          "total_outstanding_amount": {
+            "$sum": "$outstanding_amount"
+          }
+        }
+      },
+      {
+        "$project": {
+          "loan_officer_id": "$_id",
+          "loan_count": 1,
+          "total_outstanding_amount": 1,
+          "_id": 0
+        }
+      },
+      {
+        "$sort": {
+          "loan_officer_id": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 8988.75,
+    "error": null
+  },
+  {
+    "question_id": "Q48",
+    "question": "Find customers from Karnataka who have a credit score above 750 and have made at least one transaction above \u20b91 lakh in the last year.",
+    "batch": "Batch 5",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [],
+    "generated_pipeline": null,
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 5414.38,
+    "error": null
+  },
+  {
+    "question_id": "Q49",
+    "question": "Which customers have unresolved support tickets AND have had a failed transaction in the past 6 months?",
+    "batch": "Batch 5",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [],
+    "generated_pipeline": null,
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 12794.62,
+    "error": null
+  },
+  {
+    "question_id": "Q50",
+    "question": "Show the complete loan + account + customer summary for all defaulted loan customers: customer name, loan amount, outstanding, account balance, account type.",
+    "batch": "Batch 5",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "loans"
+    ],
+    "generated_pipeline": [
+      {
+        "$match": {
+          "status": "defaulted"
+        }
+      },
+      {
+        "$lookup": {
+          "from": "customers",
+          "localField": "customer_id",
+          "foreignField": "customer_id",
+          "as": "customer"
+        }
+      },
+      {
+        "$unwind": "$customer"
+      },
+      {
+        "$lookup": {
+          "from": "accounts",
+          "localField": "customer_id",
+          "foreignField": "customer_id",
+          "as": "account"
+        }
+      },
+      {
+        "$unwind": "$account"
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "customer_name": {
+            "$concat": [
+              "$customer.first_name",
+              " ",
+              "$customer.last_name"
+            ]
+          },
+          "loan_id": "$loan_id",
+          "principal_amount": "$principal_amount",
+          "outstanding_amount": "$outstanding_amount",
+          "account_balance": "$account.balance",
+          "account_type": "$account.account_type"
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 5402.81,
+    "error": null
+  },
+  {
+    "question_id": "Q51",
+    "question": "Which branches have more than 50 accounts opened in the last 2 years?",
+    "batch": "Batch 6",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [],
+    "generated_pipeline": null,
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 3649.3,
+    "error": null
+  },
+  {
+    "question_id": "Q52",
+    "question": "What is the average number of transactions per customer for customers who have both a credit card and a savings account?",
+    "batch": "Batch 6",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [],
+    "generated_pipeline": null,
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 4787.23,
+    "error": null
+  },
+  {
+    "question_id": "Q53",
+    "question": "For high-risk customers, what is the distribution of their loan statuses?",
+    "batch": "Batch 6",
+    "status": "SUCCESS",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "loans"
+    ],
+    "generated_pipeline": [
+      {
+        "$lookup": {
+          "from": "customers",
+          "localField": "customer_id",
+          "foreignField": "customer_id",
+          "as": "customer"
+        }
+      },
+      {
+        "$unwind": "$customer"
+      },
+      {
+        "$match": {
+          "customer.risk_category": "high"
+        }
+      },
+      {
+        "$group": {
+          "_id": "$status",
+          "count": {
+            "$sum": 1
+          }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "status": "$_id",
+          "count": 1
+        }
+      },
+      {
+        "$sort": {
+          "status": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "VALID",
+    "execution_status": "SUCCESS",
+    "answer": "\u2705 **Query Executed Successfully** (Database query executed successfully)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 7762.42,
+    "error": null
+  },
+  {
+    "question_id": "Q54",
+    "question": "Which merchant has received the highest total payment amount through transactions?",
+    "batch": "Batch 6",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [
+      "transactions"
+    ],
+    "generated_pipeline": [
+      {
+        "$group": {
+          "_id": "$merchant_id",
+          "total_payment_amount": {
+            "$sum": "$amount"
+          }
+        }
+      },
+      {
+        "$sort": {
+          "total_payment_amount": -1
+        }
+      },
+      {
+        "$limit": 1
+      },
+      {
+        "$lookup": {
+          "from": "merchants",
+          "localField": "_id",
+          "foreignField": "merchant_id",
+          "as": "merchant_info"
+        }
+      },
+      {
+        "$unwind": "$merchant_info"
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "merchant_id": "$_id",
+          "merchant_name": "$merchant_info.merchant_name",
+          "category": "$merchant_info.category",
+          "total_payment_amount": 1
+        }
+      },
+      {
+        "$limit": 1000
+      }
+    ],
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 5750.7,
+    "error": null
+  },
+  {
+    "question_id": "Q55",
+    "question": "Generate a full customer 360 view: for a given customer_id, show their accounts, total transactions, active loans, open tickets, and card count.",
+    "batch": "Batch 6",
+    "status": "REJECTED_POLICY",
+    "intent": "QUERY_ONLY",
+    "retrieved_schema": [],
+    "generated_pipeline": null,
+    "validator_status": "INVALID",
+    "execution_status": "SKIPPED",
+    "answer": "\u274c **Query Validation Failed** (Phase 5)...",
+    "ground_truth_status": "NOT MEASURED",
+    "correctness": "NOT MEASURED (no independent ground-truth in test_questions.json)",
+    "provider": "groq",
+    "fallback_used": true,
+    "retry_count": 0,
+    "self_correction_attempts": 0,
+    "latency_ms": 15259.66,
+    "error": null
+  }
+]

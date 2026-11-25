@@ -140,7 +140,7 @@ function Start-BackendTerminal {
         $reloadFlags = ""
         $modeLabel = "INTEGRATION / NO-RELOAD"
     } else {
-        $reloadFlags = " --reload --reload-dir `"backend\app`" --reload-exclude `"logs/*`""
+        $reloadFlags = " --reload --reload-dir `"backend\app`""
         $modeLabel = "DEV (scoped reload: backend\app only)"
     }
 

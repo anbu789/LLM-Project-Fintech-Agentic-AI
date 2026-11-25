@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Bot, User, Clock, AlertCircle, ChevronDown, ChevronUp, Code2, RotateCcw, Terminal } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import SchedulePreviewCard from './SchedulePreviewCard';
+import QueryResultTable from './QueryResultTable';
 
 const ERROR_CATEGORY_LABELS = {
   provider_timeout: 'Provider Timeout',
@@ -61,6 +62,97 @@ export function sanitizeCustomerFacingText(text) {
   return sanitized;
 }
 
+export const MARKDOWN_COMPONENTS = {
+  h1: ({ node, ...props }) => <h1 className="text-lg font-semibold text-slate-900 mt-4 mb-2 first:mt-0 tracking-tight max-w-[68ch]" {...props} />,
+  h2: ({ node, ...props }) => <h2 className="text-base font-semibold text-slate-900 mt-3.5 mb-1.5 first:mt-0 tracking-tight max-w-[68ch]" {...props} />,
+  h3: ({ node, ...props }) => <h3 className="text-sm font-semibold text-slate-900 mt-3 mb-1 first:mt-0 max-w-[68ch]" {...props} />,
+  h4: ({ node, ...props }) => <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-700 mt-2.5 mb-1 first:mt-0 max-w-[68ch]" {...props} />,
+  p: ({ node, ...props }) => <p className="mb-2.5 last:mb-0 leading-relaxed text-slate-800 max-w-[68ch]" {...props} />,
+  ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-2.5 last:mb-0 space-y-1 text-slate-800 max-w-[68ch]" {...props} />,
+  ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-2.5 last:mb-0 space-y-1 text-slate-800 max-w-[68ch]" {...props} />,
+  li: ({ node, ...props }) => <li className="leading-relaxed" {...props} />,
+  strong: ({ node, ...props }) => <strong className="font-semibold text-slate-900" {...props} />,
+  blockquote: ({ node, ...props }) => (
+    <blockquote className="border border-fintech-200 bg-fintech-50/70 px-3.5 py-2 my-2.5 rounded-lg text-slate-700 italic max-w-[68ch]" {...props} />
+  ),
+  hr: ({ node, ...props }) => <hr className="my-3.5 border-slate-200" {...props} />,
+  a: ({ node, ...props }) => (
+    <a className="text-fintech-700 underline underline-offset-2 hover:text-fintech-800 font-medium" {...props} />
+  ),
+  table: ({ node, ...props }) => (
+    <div className="max-w-full overflow-x-auto my-3 border border-slate-200/90 rounded-xl bg-white shadow-card">
+      <table className="min-w-full divide-y divide-slate-200 text-xs tabular-nums" {...props} />
+    </div>
+  ),
+  thead: ({ node, ...props }) => <thead className="bg-slate-50/95 text-slate-800 font-semibold border-b border-slate-200" {...props} />,
+  th: ({ node, ...props }) => <th className="px-3.5 py-2.5 text-left font-semibold text-slate-800 whitespace-nowrap" {...props} />,
+  td: ({ node, ...props }) => <td className="px-3.5 py-2 border-t border-slate-100 text-slate-700 align-top" {...props} />,
+  pre: ({ node, ...props }) => (
+    <pre className="markdown-pre max-w-full bg-fintech-950 text-slate-100 p-3.5 rounded-xl overflow-x-auto text-xs my-2.5 font-mono leading-relaxed border border-fintech-800/70 shadow-card" {...props} />
+  ),
+  code: ({ node, className, children, ...props }) => (
+    <code
+      className={`bg-fintech-50 text-fintech-800 border border-fintech-200/80 px-1.5 py-0.5 rounded font-mono text-xs ${className || ''}`}
+      {...props}
+    >
+      {children}
+    </code>
+  ),
+};
+
+/**
+ * Detects and extracts MongoDB query results from the customer-facing message markdown.
+ * Returns null if no query result block exists (e.g. clarification, blocked, error, empty).
+ */
+export function extractResultsBlock(text) {
+  if (!text || typeof text !== 'string') return null;
+
+  // Regex matches Results Preview or Results followed by a json code block
+  const pattern = /(?:(?:\*{1,2}|#{1,4}\s*)?Results?(?:\s+Preview)?:?(?:\*{1,2})?)\s*```(?:json)?\s*([\s\S]*?)\s*```/i;
+  const match = text.match(pattern);
+  if (!match) return null;
+
+  try {
+    const rawJson = match[1].trim();
+    const parsed = JSON.parse(rawJson);
+    const rows = Array.isArray(parsed)
+      ? parsed
+      : typeof parsed === 'object' && parsed !== null
+      ? [parsed]
+      : null;
+    if (!rows || rows.length === 0) return null;
+
+    // Guard: Verify this is not an MQL aggregation pipeline specification (e.g. [{ $match: ... }])
+    const isMqlPipeline = rows.some(
+      (r) => r && typeof r === 'object' && Object.keys(r).some((k) => k.startsWith('$'))
+    );
+    if (isMqlPipeline) return null;
+
+    const preText = text.slice(0, match.index).trim();
+    const postText = text.slice(match.index + match[0].length).trim();
+
+    // Extract total count and execution time from preText if available
+    const metricsMatch = preText.match(/Execution Metrics:\s*(\d+)\s*records?\s*(?:returned)?(?:\s*in\s*([\d.]+)\s*ms)?/i);
+    const totalCount = metricsMatch ? parseInt(metricsMatch[1], 10) : rows.length;
+    const executionTimeMs = metricsMatch && metricsMatch[2] ? parseFloat(metricsMatch[2]) : null;
+
+    // Extract target collection from preText if available
+    const colMatch = preText.match(/Target Collection:\*{0,2}\s*`?([a-zA-Z0-9_]+)`?/i);
+    const targetCollection = colMatch ? colMatch[1] : null;
+
+    return {
+      preText,
+      postText,
+      rows,
+      totalCount,
+      executionTimeMs,
+      targetCollection,
+    };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Derives internal phase and LangGraph node details for developer diagnostics.
  */
@@ -113,6 +205,10 @@ export default function MessageItem({ message, onRetry, isLoading }) {
 
   const diagInfo = !isUser && !isError ? getDeveloperPhaseInfo(message) : null;
   const customerFacingText = !isUser && !isError ? sanitizeCustomerFacingText(message.text) : message.text;
+  const resultData = useMemo(
+    () => (!isUser && !isError ? extractResultsBlock(customerFacingText) : null),
+    [isUser, isError, customerFacingText]
+  );
 
   return (
     <div className={`flex w-full py-2.5 px-1 sm:px-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -168,48 +264,30 @@ export default function MessageItem({ message, onRetry, isLoading }) {
               </div>
             ) : (
               <div className="text-sm text-slate-800 leading-relaxed break-words min-w-0">
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  components={{
-                    h1: ({ node, ...props }) => <h1 className="text-lg font-semibold text-slate-900 mt-4 mb-2 first:mt-0 tracking-tight max-w-[68ch]" {...props} />,
-                    h2: ({ node, ...props }) => <h2 className="text-base font-semibold text-slate-900 mt-3.5 mb-1.5 first:mt-0 tracking-tight max-w-[68ch]" {...props} />,
-                    h3: ({ node, ...props }) => <h3 className="text-sm font-semibold text-slate-900 mt-3 mb-1 first:mt-0 max-w-[68ch]" {...props} />,
-                    h4: ({ node, ...props }) => <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-700 mt-2.5 mb-1 first:mt-0 max-w-[68ch]" {...props} />,
-                    p: ({ node, ...props }) => <p className="mb-2.5 last:mb-0 leading-relaxed text-slate-800 max-w-[68ch]" {...props} />,
-                    ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-2.5 last:mb-0 space-y-1 text-slate-800 max-w-[68ch]" {...props} />,
-                    ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-2.5 last:mb-0 space-y-1 text-slate-800 max-w-[68ch]" {...props} />,
-                    li: ({ node, ...props }) => <li className="leading-relaxed" {...props} />,
-                    strong: ({ node, ...props }) => <strong className="font-semibold text-slate-900" {...props} />,
-                    blockquote: ({ node, ...props }) => (
-                      <blockquote className="border border-fintech-200 bg-fintech-50/70 px-3.5 py-2 my-2.5 rounded-lg text-slate-700 italic max-w-[68ch]" {...props} />
-                    ),
-                    hr: ({ node, ...props }) => <hr className="my-3.5 border-slate-200" {...props} />,
-                    a: ({ node, ...props }) => (
-                      <a className="text-fintech-700 underline underline-offset-2 hover:text-fintech-800 font-medium" {...props} />
-                    ),
-                    table: ({ node, ...props }) => (
-                      <div className="max-w-full overflow-x-auto my-3 border border-slate-200/90 rounded-xl bg-white shadow-card">
-                        <table className="min-w-full divide-y divide-slate-200 text-xs tabular-nums" {...props} />
-                      </div>
-                    ),
-                    thead: ({ node, ...props }) => <thead className="bg-slate-50/95 text-slate-800 font-semibold border-b border-slate-200" {...props} />,
-                    th: ({ node, ...props }) => <th className="px-3.5 py-2.5 text-left font-semibold text-slate-800 whitespace-nowrap" {...props} />,
-                    td: ({ node, ...props }) => <td className="px-3.5 py-2 border-t border-slate-100 text-slate-700 align-top" {...props} />,
-                    pre: ({ node, ...props }) => (
-                      <pre className="markdown-pre max-w-full bg-fintech-950 text-slate-100 p-3.5 rounded-xl overflow-x-auto text-xs my-2.5 font-mono leading-relaxed border border-fintech-800/70 shadow-card" {...props} />
-                    ),
-                    code: ({ node, className, children, ...props }) => (
-                      <code
-                        className={`bg-fintech-50 text-fintech-800 border border-fintech-200/80 px-1.5 py-0.5 rounded font-mono text-xs ${className || ''}`}
-                        {...props}
-                      >
-                        {children}
-                      </code>
-                    ),
-                  }}
-                >
-                  {customerFacingText}
-                </ReactMarkdown>
+                {resultData ? (
+                  <div className="space-y-2.5">
+                    {resultData.preText && (
+                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={MARKDOWN_COMPONENTS}>
+                        {resultData.preText}
+                      </ReactMarkdown>
+                    )}
+                    <QueryResultTable
+                      rows={resultData.rows}
+                      totalCount={resultData.totalCount}
+                      executionTimeMs={resultData.executionTimeMs}
+                      targetCollection={resultData.targetCollection || message.selectedCollection}
+                    />
+                    {resultData.postText && (
+                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={MARKDOWN_COMPONENTS}>
+                        {resultData.postText}
+                      </ReactMarkdown>
+                    )}
+                  </div>
+                ) : (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={MARKDOWN_COMPONENTS}>
+                    {customerFacingText}
+                  </ReactMarkdown>
+                )}
               </div>
             )}
 

@@ -71,7 +71,6 @@ export default function Sidebar({
             <div className="min-w-0">
               <h1 className="font-semibold text-white tracking-tight text-sm leading-tight truncate">FinTech Agent</h1>
               <p className="text-[11px] text-fintech-100/90 mt-0.5 truncate">Banking Operations Analytics</p>
-              <p className="text-[10px] font-mono text-fintech-200/80 mt-0.5 truncate">Team T11 · INT450</p>
             </div>
           </div>
           {onClose && (

@@ -1,0 +1,31 @@
+{
+  "benchmark_progress_pct": 100.0,
+  "total_evaluated": 55,
+  "total_benchmark_questions": 55,
+  "counts": {
+    "success": 31,
+    "clarification": 1,
+    "out_of_scope": 6,
+    "error_or_timeout": 0,
+    "rejected_policy": 17
+  },
+  "answer_accuracy": "NOT MEASURED (no independent ground-truth expected output datasets in test_questions.json)",
+  "retrieval_performance": {
+    "collection_hit_rate_pct": 100.0,
+    "mrr": 1.0
+  },
+  "latency_ms": {
+    "mean": 7748.9,
+    "median_p50": 5761.7,
+    "p90": 15446.04,
+    "p95": 16307.64,
+    "min": 665.16,
+    "max": 23480.56
+  },
+  "provider_reliability": {
+    "fallback_successful_count": 55,
+    "recovery_success_rate_pct": 100.0,
+    "active_provider": "groq (openai/gpt-oss-120b)",
+    "api_optimization": "Direct Groq preferred routing with zero retry overhead"
+  }
+}

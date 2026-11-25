@@ -12,6 +12,8 @@ import {
   ChevronDown,
   ChevronUp,
   KeyRound,
+  Table2,
+  Info,
 } from 'lucide-react';
 import {
   fetchSchedules,
@@ -29,6 +31,13 @@ const formatScheduleTime = (isoString, fallback = 'None') => {
   return parsed.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 };
 
+const formatCellValue = (value) => {
+  if (value === null || value === undefined) return '—';
+  if (typeof value === 'object') return JSON.stringify(value);
+  if (typeof value === 'number') return Number.isInteger(value) ? value.toLocaleString() : value.toFixed(2);
+  return String(value);
+};
+
 const STATUS_FILTERS = ['ALL', 'ACTIVE', 'PAUSED', 'CANCELLED'];
 
 export default function SchedulesDashboard({ isOpen, onClose }) {
@@ -41,6 +50,7 @@ export default function SchedulesDashboard({ isOpen, onClose }) {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [expandedRuns, setExpandedRuns] = useState({});
   const [runsLoading, setRunsLoading] = useState({});
+  const [selectedRunDetails, setSelectedRunDetails] = useState(null);
 
   const authUser = useChatStore((s) => s.authUser);
   const openAuthModal = useChatStore((s) => s.openAuthModal);
@@ -492,32 +502,42 @@ export default function SchedulesDashboard({ isOpen, onClose }) {
                             No recorded executions yet.
                           </div>
                         ) : (
-                          runs.map((r) => (
-                            <div
-                              key={r.run_id}
-                              className="px-3 py-2 text-xs flex flex-wrap items-center justify-between gap-2 font-mono bg-white"
-                            >
-                              <div className="flex items-center space-x-2">
-                                {r.status === 'SUCCESS' ? (
-                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" aria-hidden="true" />
-                                ) : (
-                                  <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" aria-hidden="true" />
-                                )}
-                                <span className="text-slate-800">{formatScheduleTime(r.start_time, r.start_time)}</span>
-                                <span className="text-slate-600">({r.duration_ms}ms)</span>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <span className="text-slate-700">{r.result_row_count} records</span>
-                                <span
-                                  className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
-                                    r.status === 'SUCCESS' ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-rose-800 bg-rose-50 border border-rose-200'
-                                  }`}
-                                >
-                                  {r.status}
-                                </span>
-                              </div>
-                            </div>
-                          ))
+                          runs.map((r) => {
+                            const sampleRows = Array.isArray(r.result_sample) ? r.result_sample : [];
+                            return (
+                              <button
+                                key={r.run_id}
+                                type="button"
+                                onClick={() => setSelectedRunDetails({ ...r, job_name: job.report_name, target_collection: job.target_collection })}
+                                className="w-full text-left px-3 py-2 text-xs flex flex-wrap items-center justify-between gap-2 font-mono bg-white hover:bg-fintech-50/80 transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fintech-500 rounded"
+                                title="Click to view run results and details"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  {r.status === 'SUCCESS' ? (
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" aria-hidden="true" />
+                                  ) : (
+                                    <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" aria-hidden="true" />
+                                  )}
+                                  <span className="text-slate-800 font-medium group-hover:text-fintech-800">{formatScheduleTime(r.start_time, r.start_time)}</span>
+                                  <span className="text-slate-500">({r.duration_ms}ms)</span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <span className="text-slate-700">{r.result_row_count} records</span>
+                                  <span
+                                    className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
+                                      r.status === 'SUCCESS' ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-rose-800 bg-rose-50 border border-rose-200'
+                                    }`}
+                                  >
+                                    {r.status}
+                                  </span>
+                                  <span className="text-[11px] text-fintech-600 font-sans font-semibold group-hover:underline flex items-center gap-0.5">
+                                    <span>Details</span>
+                                    <ChevronDown className="w-3 h-3 -rotate-90" />
+                                  </span>
+                                </div>
+                              </button>
+                            );
+                          })
                         )}
                       </div>
                     )}
@@ -527,6 +547,117 @@ export default function SchedulesDashboard({ isOpen, onClose }) {
             })
           )}
         </div>
+
+        {/* Selected Run Details Modal / Overlay */}
+        {selectedRunDetails && (
+          <div
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-xs p-3 sm:p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setSelectedRunDetails(null);
+            }}
+          >
+            <div className="bg-white rounded-xl border border-slate-300 shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden animate-modal-enter">
+              <div className="px-5 py-3.5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+                <div className="flex items-center space-x-2 min-w-0">
+                  <Table2 className="w-4 h-4 text-fintech-600 shrink-0" />
+                  <h3 className="text-sm font-semibold text-slate-900 truncate">
+                    Execution Run Details: {selectedRunDetails.run_id}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedRunDetails(null)}
+                  className="p-1 rounded text-slate-500 hover:text-slate-800 hover:bg-slate-200"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="p-5 overflow-y-auto space-y-4 text-xs font-sans">
+                {/* Status banner */}
+                <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  <div className="space-y-1">
+                    <div className="text-[11px] text-slate-500 font-medium">Executed At</div>
+                    <div className="font-mono text-slate-900 font-semibold">{formatScheduleTime(selectedRunDetails.start_time)}</div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-[11px] text-slate-500 font-medium">Duration</div>
+                    <div className="font-mono text-slate-800 font-semibold">{selectedRunDetails.duration_ms} ms</div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-[11px] text-slate-500 font-medium">Results Count</div>
+                    <div className="font-mono text-slate-800 font-semibold">{selectedRunDetails.result_row_count} records</div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-[11px] text-slate-500 font-medium">Status</div>
+                    <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-semibold ${selectedRunDetails.status === 'SUCCESS' ? 'text-emerald-800 bg-emerald-50 border border-emerald-300' : 'text-rose-800 bg-rose-50 border border-rose-300'}`}>
+                      {selectedRunDetails.status}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Summary / Interpretation */}
+                {selectedRunDetails.summary && (
+                  <div className="p-3 bg-fintech-25/80 border border-fintech-200 rounded-lg text-slate-800">
+                    <div className="font-semibold text-fintech-900 mb-1 flex items-center space-x-1">
+                      <Info className="w-3.5 h-3.5 text-fintech-700" />
+                      <span>Summary</span>
+                    </div>
+                    <p className="leading-relaxed">{selectedRunDetails.summary}</p>
+                  </div>
+                )}
+
+                {/* Sample Records Table */}
+                {Array.isArray(selectedRunDetails.result_sample) && selectedRunDetails.result_sample.length > 0 ? (
+                  <div className="space-y-2">
+                    <div className="font-semibold text-slate-800 flex items-center justify-between">
+                      <span>Sample Records ({selectedRunDetails.result_sample.length} of {selectedRunDetails.result_row_count})</span>
+                      <span className="text-[11px] font-normal text-slate-500">Collection: {selectedRunDetails.target_collection}</span>
+                    </div>
+                    <div className="overflow-x-auto rounded-lg border border-slate-200 max-h-60 overflow-y-auto">
+                      <table className="min-w-full divide-y divide-slate-200 text-[11px]">
+                        <thead className="bg-slate-100 text-slate-700 font-medium font-mono sticky top-0">
+                          <tr>
+                            {Object.keys(selectedRunDetails.result_sample[0] || {}).map((col) => (
+                              <th key={col} className="px-3 py-2 text-left uppercase tracking-wider">
+                                {col}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 bg-white">
+                          {selectedRunDetails.result_sample.map((row, idx) => (
+                            <tr key={idx} className="hover:bg-fintech-50/50">
+                              {Object.keys(selectedRunDetails.result_sample[0] || {}).map((col) => (
+                                <td key={col} className="px-3 py-1.5 font-mono text-slate-700 whitespace-nowrap">
+                                  {formatCellValue(row?.[col])}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-center text-slate-600">
+                    No sample records captured for this run.
+                  </div>
+                )}
+              </div>
+
+              <div className="px-5 py-3 border-t border-slate-200 bg-slate-50 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setSelectedRunDetails(null)}
+                  className="px-4 py-1.5 bg-fintech-600 hover:bg-fintech-700 text-white font-medium rounded-lg text-xs"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="px-4 sm:px-6 py-3 border-t border-slate-200 bg-white text-xs text-slate-600 flex items-center justify-between gap-3">

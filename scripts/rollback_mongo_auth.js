@@ -1,10 +1,17 @@
 /**
+ * ==============================================================================
+ * DANGER: DEVELOPMENT / LOCAL TEST CLEANUP ONLY — DO NOT USE IN PRODUCTION
+ * ==============================================================================
  * FinTech Agent — MongoDB Server-Side Authentication Rollback Script
+ *
+ * This script drops all provisioned MongoDB users (fintech_reader,
+ * agent_metadata_writer, adminUser) and reverts the database to unauthenticated
+ * state. It is strictly intended for local developer teardown and automated test
+ * fixtures. NEVER run this script in staging or production environments.
  *
  * Usage with mongosh:
  *   mongosh "mongodb://<admin_user>:<admin_password>@localhost:27017/admin" scripts/rollback_mongo_auth.js
- *
- * This script drops provisioned users when reverting to unauthenticated mode.
+ * ==============================================================================
  */
 
 const adminDb = db.getSiblingDB("admin");

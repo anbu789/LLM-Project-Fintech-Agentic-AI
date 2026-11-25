@@ -1,0 +1,4838 @@
+{
+  "database": "fintech_agent_db",
+  "schema_version": "2",
+  "catalog_fingerprint": "f27289360e5a13d67f3c0753854b289f3865733a1ed9ad2bf36c3a9d0b070f6c",
+  "source_fingerprint": "b8f6f07f29f9f3c7ce3eec9e975b1f68b134e6fe3aa73e73b2284436986530d7",
+  "generated_at": "2026-11-10T08:40:24.423621+00:00",
+  "source": "C:\\Users\\guru2\\Downloads\\llm prj\\fintech-agent\\data\\schema.json",
+  "collections": {
+    "branches": {
+      "name": "branches",
+      "description": "Physical bank branches. Generated first \u2014 all other collections that reference a branch use branch_id from this collection.",
+      "primary_key": "branch_id",
+      "document_count": 20,
+      "fields": {
+        "branch_id": {
+          "collection": "branches",
+          "field": "branch_id",
+          "data_type": "string",
+          "description": "Unique branch identifier, e.g. BR00001",
+          "is_primary_key": true,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Branch",
+            "Branch ID",
+            "Sanctioning branch",
+            "bank branch",
+            "bank office",
+            "banking centre",
+            "branch code",
+            "branch identifier",
+            "lending branch",
+            "loan branch",
+            "location",
+            "office id",
+            "originating branch"
+          ],
+          "related_collections": [
+            "accounts",
+            "employees",
+            "loans"
+          ],
+          "note": null
+        },
+        "branch_name": {
+          "collection": "branches",
+          "field": "branch_name",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Branch",
+            "bank branch",
+            "bank office",
+            "banking centre",
+            "location"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "ifsc_code": {
+          "collection": "branches",
+          "field": "ifsc_code",
+          "data_type": "string",
+          "description": "Synthetic IFSC, e.g. FNTK0000001",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "address": {
+          "collection": "branches",
+          "field": "address",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "city": {
+          "collection": "branches",
+          "field": "city",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Branch",
+            "bank branch",
+            "bank office",
+            "banking centre",
+            "location"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "state": {
+          "collection": "branches",
+          "field": "state",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Branch",
+            "bank branch",
+            "bank office",
+            "banking centre",
+            "location"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "pincode": {
+          "collection": "branches",
+          "field": "pincode",
+          "data_type": "string",
+          "description": "6-digit postal code",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "region": {
+          "collection": "branches",
+          "field": "region",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "North",
+            "South",
+            "East",
+            "West",
+            "Central"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "branch_type": {
+          "collection": "branches",
+          "field": "branch_type",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "urban",
+            "rural",
+            "metro",
+            "semi-urban"
+          ],
+          "business_terms": [
+            "Branch",
+            "bank branch",
+            "bank office",
+            "banking centre",
+            "location"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "manager_id": {
+          "collection": "branches",
+          "field": "manager_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "employees.employee_id",
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [
+            "employees"
+          ],
+          "note": "Integrity rule: manager must be an employee whose branch_id equals this branch_id"
+        },
+        "contact_number": {
+          "collection": "branches",
+          "field": "contact_number",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "opening_date": {
+          "collection": "branches",
+          "field": "opening_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "working_hours": {
+          "collection": "branches",
+          "field": "working_hours",
+          "data_type": "string",
+          "description": "e.g. '9:00 AM - 5:00 PM'",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "has_atm": {
+          "collection": "branches",
+          "field": "has_atm",
+          "data_type": "boolean",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "has_locker_facility": {
+          "collection": "branches",
+          "field": "has_locker_facility",
+          "data_type": "boolean",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "employee_count": {
+          "collection": "branches",
+          "field": "employee_count",
+          "data_type": "integer",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "status": {
+          "collection": "branches",
+          "field": "status",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "active",
+            "inactive",
+            "closed"
+          ],
+          "business_terms": [
+            "Active",
+            "current",
+            "in effect",
+            "open",
+            "operational",
+            "running"
+          ],
+          "related_collections": [],
+          "note": "v2: lowercase; expanded to include inactive and closed for edge-case testing"
+        },
+        "created_at": {
+          "collection": "branches",
+          "field": "created_at",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        }
+      },
+      "relationships": [
+        {
+          "from_collection": "branches",
+          "from_field": "manager_id",
+          "to_collection": "employees",
+          "to_field": "employee_id",
+          "relationship_type": "many-to-one",
+          "description": "Manager must work at this same branch \u2014 see data_integrity_rules",
+          "is_denormalized": false,
+          "integrity_rule": "Manager must work at this same branch \u2014 see data_integrity_rules"
+        }
+      ],
+      "business_terms": [
+        "Active",
+        "Branch",
+        "Branch ID",
+        "Sanctioning branch",
+        "bank branch",
+        "bank office",
+        "banking centre",
+        "branch code",
+        "branch identifier",
+        "current",
+        "in effect",
+        "lending branch",
+        "loan branch",
+        "location",
+        "office id",
+        "open",
+        "operational",
+        "originating branch",
+        "running"
+      ]
+    },
+    "employees": {
+      "name": "employees",
+      "description": "Bank staff. Referenced by branches (manager), customers (relationship_manager), accounts (account_manager), loans (loan_officer), kyc_documents (verified_by), support_tickets (assigned_agent), and fraud_alerts (reviewed_by).",
+      "primary_key": "employee_id",
+      "document_count": 100,
+      "fields": {
+        "employee_id": {
+          "collection": "employees",
+          "field": "employee_id",
+          "data_type": "string",
+          "description": "e.g. EMP000001",
+          "is_primary_key": true,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Employee",
+            "agent",
+            "bank staff",
+            "banker",
+            "officer",
+            "staff",
+            "worker"
+          ],
+          "related_collections": [
+            "accounts",
+            "branches",
+            "customers",
+            "fraud_alerts",
+            "kyc_documents",
+            "loans",
+            "support_tickets"
+          ],
+          "note": null
+        },
+        "first_name": {
+          "collection": "employees",
+          "field": "first_name",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Employee",
+            "agent",
+            "bank staff",
+            "banker",
+            "officer",
+            "staff",
+            "worker"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "last_name": {
+          "collection": "employees",
+          "field": "last_name",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Employee",
+            "agent",
+            "bank staff",
+            "banker",
+            "officer",
+            "staff",
+            "worker"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "designation": {
+          "collection": "employees",
+          "field": "designation",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "Clerk",
+            "Officer",
+            "Manager",
+            "Senior Manager",
+            "Executive"
+          ],
+          "business_terms": [
+            "Employee",
+            "agent",
+            "bank staff",
+            "banker",
+            "officer",
+            "staff",
+            "worker"
+          ],
+          "related_collections": [],
+          "note": "role_level field removed in v2 \u2014 use designation for seniority"
+        },
+        "department": {
+          "collection": "employees",
+          "field": "department",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "Retail Banking",
+            "Loans",
+            "Customer Service",
+            "Fraud & Risk",
+            "Operations",
+            "IT"
+          ],
+          "business_terms": [
+            "Employee",
+            "agent",
+            "bank staff",
+            "banker",
+            "officer",
+            "staff",
+            "worker"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "branch_id": {
+          "collection": "employees",
+          "field": "branch_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "branches.branch_id",
+          "allowed_values": null,
+          "business_terms": [
+            "Employee",
+            "agent",
+            "bank staff",
+            "banker",
+            "officer",
+            "staff",
+            "worker"
+          ],
+          "related_collections": [
+            "branches"
+          ],
+          "note": null
+        },
+        "email": {
+          "collection": "employees",
+          "field": "email",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "phone": {
+          "collection": "employees",
+          "field": "phone",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "date_of_joining": {
+          "collection": "employees",
+          "field": "date_of_joining",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "salary": {
+          "collection": "employees",
+          "field": "salary",
+          "data_type": "number",
+          "description": "Annual salary in INR",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "manager_id": {
+          "collection": "employees",
+          "field": "manager_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "employees.employee_id",
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": "Null for top-level executives"
+        },
+        "employment_status": {
+          "collection": "employees",
+          "field": "employment_status",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "active",
+            "on_leave",
+            "resigned"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "performance_rating": {
+          "collection": "employees",
+          "field": "performance_rating",
+          "data_type": "number",
+          "description": "2.0 to 5.0",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "created_at": {
+          "collection": "employees",
+          "field": "created_at",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        }
+      },
+      "relationships": [
+        {
+          "from_collection": "employees",
+          "from_field": "branch_id",
+          "to_collection": "branches",
+          "to_field": "branch_id",
+          "relationship_type": "many-to-one",
+          "description": "Each employee belongs to one branch",
+          "is_denormalized": false,
+          "integrity_rule": null
+        }
+      ],
+      "business_terms": [
+        "Employee",
+        "agent",
+        "bank staff",
+        "banker",
+        "officer",
+        "staff",
+        "worker"
+      ]
+    },
+    "merchants": {
+      "name": "merchants",
+      "description": "Registered merchants where customers make purchases. Referenced by transactions.merchant_id (nullable \u2014 null for cash/NEFT/internal transfers).",
+      "primary_key": "merchant_id",
+      "document_count": 200,
+      "fields": {
+        "merchant_id": {
+          "collection": "merchants",
+          "field": "merchant_id",
+          "data_type": "string",
+          "description": "e.g. MER000001",
+          "is_primary_key": true,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Merchant",
+            "payee",
+            "retailer",
+            "seller",
+            "shop",
+            "store",
+            "vendor"
+          ],
+          "related_collections": [
+            "transactions"
+          ],
+          "note": null
+        },
+        "merchant_name": {
+          "collection": "merchants",
+          "field": "merchant_name",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Merchant",
+            "payee",
+            "retailer",
+            "seller",
+            "shop",
+            "store",
+            "vendor"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "category": {
+          "collection": "merchants",
+          "field": "category",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "groceries",
+            "electronics",
+            "fuel",
+            "dining",
+            "travel",
+            "utilities",
+            "healthcare",
+            "entertainment"
+          ],
+          "business_terms": [
+            "Merchant",
+            "Merchant category",
+            "business category",
+            "mcc",
+            "merchant industry",
+            "payee",
+            "retail category",
+            "retailer",
+            "seller",
+            "shop",
+            "store",
+            "vendor"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "mcc_code": {
+          "collection": "merchants",
+          "field": "mcc_code",
+          "data_type": "string",
+          "description": "Merchant Category Code",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "city": {
+          "collection": "merchants",
+          "field": "city",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "state": {
+          "collection": "merchants",
+          "field": "state",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "registration_date": {
+          "collection": "merchants",
+          "field": "registration_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "is_verified": {
+          "collection": "merchants",
+          "field": "is_verified",
+          "data_type": "boolean",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "average_transaction_value": {
+          "collection": "merchants",
+          "field": "average_transaction_value",
+          "data_type": "number",
+          "description": "INR",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "total_transactions": {
+          "collection": "merchants",
+          "field": "total_transactions",
+          "data_type": "integer",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "created_at": {
+          "collection": "merchants",
+          "field": "created_at",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        }
+      },
+      "relationships": [],
+      "business_terms": [
+        "Merchant",
+        "Merchant category",
+        "business category",
+        "mcc",
+        "merchant industry",
+        "payee",
+        "retail category",
+        "retailer",
+        "seller",
+        "shop",
+        "store",
+        "vendor"
+      ]
+    },
+    "customers": {
+      "name": "customers",
+      "description": "Bank customers (individual and corporate). Central entity \u2014 referenced by every other domain collection.",
+      "primary_key": "customer_id",
+      "document_count": 1000,
+      "fields": {
+        "customer_id": {
+          "collection": "customers",
+          "field": "customer_id",
+          "data_type": "string",
+          "description": "e.g. CUST000001",
+          "is_primary_key": true,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Customer",
+            "Customer ID",
+            "account holder",
+            "client",
+            "client id",
+            "cust id",
+            "customer identifier",
+            "customer number",
+            "individual",
+            "patron",
+            "user"
+          ],
+          "related_collections": [
+            "accounts",
+            "cards",
+            "fraud_alerts",
+            "investments",
+            "kyc_documents",
+            "loans",
+            "support_tickets",
+            "transactions"
+          ],
+          "note": null
+        },
+        "first_name": {
+          "collection": "customers",
+          "field": "first_name",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Customer",
+            "account holder",
+            "client",
+            "individual",
+            "patron",
+            "user"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "last_name": {
+          "collection": "customers",
+          "field": "last_name",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Customer",
+            "account holder",
+            "client",
+            "individual",
+            "patron",
+            "user"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "dob": {
+          "collection": "customers",
+          "field": "dob",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "age": {
+          "collection": "customers",
+          "field": "age",
+          "data_type": "integer",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "gender": {
+          "collection": "customers",
+          "field": "gender",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "Male",
+            "Female",
+            "Other"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "email": {
+          "collection": "customers",
+          "field": "email",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "phone": {
+          "collection": "customers",
+          "field": "phone",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "address_line1": {
+          "collection": "customers",
+          "field": "address_line1",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "city": {
+          "collection": "customers",
+          "field": "city",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Customer",
+            "account holder",
+            "client",
+            "individual",
+            "patron",
+            "user"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "state": {
+          "collection": "customers",
+          "field": "state",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Customer",
+            "account holder",
+            "client",
+            "individual",
+            "patron",
+            "user"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "pincode": {
+          "collection": "customers",
+          "field": "pincode",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "country": {
+          "collection": "customers",
+          "field": "country",
+          "data_type": "string",
+          "description": "Always 'India'",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "pan_number": {
+          "collection": "customers",
+          "field": "pan_number",
+          "data_type": "string",
+          "description": "Synthetic masked PAN, e.g. ABCDE1234F",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "aadhar_masked": {
+          "collection": "customers",
+          "field": "aadhar_masked",
+          "data_type": "string",
+          "description": "Always masked: XXXX-XXXX-{last4}",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "occupation": {
+          "collection": "customers",
+          "field": "occupation",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "Salaried",
+            "Self-Employed",
+            "Business Owner",
+            "Student",
+            "Retired",
+            "Homemaker"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "annual_income": {
+          "collection": "customers",
+          "field": "annual_income",
+          "data_type": "number",
+          "description": "Annual income in INR",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "marital_status": {
+          "collection": "customers",
+          "field": "marital_status",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "Single",
+            "Married",
+            "Divorced",
+            "Widowed"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "nationality": {
+          "collection": "customers",
+          "field": "nationality",
+          "data_type": "string",
+          "description": "Always 'Indian'",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "kyc_status": {
+          "collection": "customers",
+          "field": "kyc_status",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "verified",
+            "pending",
+            "rejected"
+          ],
+          "business_terms": [
+            "KYC status",
+            "KYC \u2014 Know Your Customer",
+            "Verified customer",
+            "compliance status",
+            "compliant customer",
+            "customer verification",
+            "fully verified client",
+            "id verification",
+            "identity verification",
+            "kyc",
+            "kyc state",
+            "kyc verified customer",
+            "verification state"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "risk_category": {
+          "collection": "customers",
+          "field": "risk_category",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "business_terms": [
+            "AML \u2014 Anti-Money Laundering",
+            "High-risk customer",
+            "Risk category",
+            "aml",
+            "anti money laundering",
+            "elevated risk customer",
+            "high risk client",
+            "money laundering check",
+            "risk level",
+            "risk profile",
+            "risk rating",
+            "risk tier"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "account_opening_date": {
+          "collection": "customers",
+          "field": "account_opening_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "preferred_language": {
+          "collection": "customers",
+          "field": "preferred_language",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "English",
+            "Tamil",
+            "Hindi",
+            "Telugu"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "customer_segment": {
+          "collection": "customers",
+          "field": "customer_segment",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "Regular",
+            "Premium",
+            "HNI",
+            "Student",
+            "Senior"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "customer_type": {
+          "collection": "customers",
+          "field": "customer_type",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "individual",
+            "corporate"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "credit_score": {
+          "collection": "customers",
+          "field": "credit_score",
+          "data_type": "integer",
+          "description": "CIBIL-style score",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "relationship_manager_id": {
+          "collection": "customers",
+          "field": "relationship_manager_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "employees.employee_id",
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [
+            "employees"
+          ],
+          "note": null
+        },
+        "is_active": {
+          "collection": "customers",
+          "field": "is_active",
+          "data_type": "boolean",
+          "description": "true iff status = 'active'",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "status": {
+          "collection": "customers",
+          "field": "status",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "active",
+            "inactive",
+            "blocked",
+            "closed"
+          ],
+          "business_terms": [
+            "Active",
+            "current",
+            "in effect",
+            "open",
+            "operational",
+            "running"
+          ],
+          "related_collections": [],
+          "note": "v2: lowercase \u2014 matches every other collection"
+        },
+        "created_at": {
+          "collection": "customers",
+          "field": "created_at",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "updated_at": {
+          "collection": "customers",
+          "field": "updated_at",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        }
+      },
+      "relationships": [
+        {
+          "from_collection": "customers",
+          "from_field": "relationship_manager_id",
+          "to_collection": "employees",
+          "to_field": "employee_id",
+          "relationship_type": "many-to-one",
+          "description": "Join customers.relationship_manager_id to employees.employee_id",
+          "is_denormalized": false,
+          "integrity_rule": null
+        }
+      ],
+      "business_terms": [
+        "AML \u2014 Anti-Money Laundering",
+        "Active",
+        "Customer",
+        "Customer ID",
+        "High-risk customer",
+        "KYC status",
+        "KYC \u2014 Know Your Customer",
+        "Risk category",
+        "Verified customer",
+        "account holder",
+        "aml",
+        "anti money laundering",
+        "client",
+        "client id",
+        "compliance status",
+        "compliant customer",
+        "current",
+        "cust id",
+        "customer identifier",
+        "customer number",
+        "customer verification",
+        "elevated risk customer",
+        "fully verified client",
+        "high risk client",
+        "id verification",
+        "identity verification",
+        "in effect",
+        "individual",
+        "kyc",
+        "kyc state",
+        "kyc verified customer",
+        "money laundering check",
+        "open",
+        "operational",
+        "patron",
+        "risk level",
+        "risk profile",
+        "risk rating",
+        "risk tier",
+        "running",
+        "user",
+        "verification state"
+      ]
+    },
+    "accounts": {
+      "name": "accounts",
+      "description": "Bank accounts. A customer can have zero, one, or multiple accounts. Referenced by transactions and cards.",
+      "primary_key": "account_id",
+      "document_count": 1500,
+      "fields": {
+        "account_id": {
+          "collection": "accounts",
+          "field": "account_id",
+          "data_type": "string",
+          "description": "e.g. ACC000001",
+          "is_primary_key": true,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Bank account",
+            "account",
+            "current account",
+            "fixed deposit account",
+            "salary account",
+            "savings account"
+          ],
+          "related_collections": [
+            "cards",
+            "transactions"
+          ],
+          "note": null
+        },
+        "customer_id": {
+          "collection": "accounts",
+          "field": "customer_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "customers.customer_id",
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [
+            "customers"
+          ],
+          "note": null
+        },
+        "account_number": {
+          "collection": "accounts",
+          "field": "account_number",
+          "data_type": "string",
+          "description": "Synthetic, e.g. ACCTNO0000000001",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "account_type": {
+          "collection": "accounts",
+          "field": "account_type",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "savings",
+            "current",
+            "salary",
+            "fixed_deposit",
+            "recurring_deposit"
+          ],
+          "business_terms": [
+            "Bank account",
+            "account",
+            "current account",
+            "fixed deposit account",
+            "salary account",
+            "savings account"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "branch_id": {
+          "collection": "accounts",
+          "field": "branch_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "branches.branch_id",
+          "allowed_values": null,
+          "business_terms": [
+            "Bank account",
+            "account",
+            "current account",
+            "fixed deposit account",
+            "salary account",
+            "savings account"
+          ],
+          "related_collections": [
+            "branches"
+          ],
+          "note": null
+        },
+        "ifsc_code": {
+          "collection": "accounts",
+          "field": "ifsc_code",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "currency": {
+          "collection": "accounts",
+          "field": "currency",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "INR"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "balance": {
+          "collection": "accounts",
+          "field": "balance",
+          "data_type": "number",
+          "description": "Current balance in INR",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Account balance",
+            "Bank account",
+            "account",
+            "account funds",
+            "available balance",
+            "balance",
+            "current account",
+            "fixed deposit account",
+            "ledger balance",
+            "salary account",
+            "savings account"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "available_balance": {
+          "collection": "accounts",
+          "field": "available_balance",
+          "data_type": "number",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "opening_date": {
+          "collection": "accounts",
+          "field": "opening_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "status": {
+          "collection": "accounts",
+          "field": "status",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "active",
+            "dormant",
+            "blocked",
+            "closed"
+          ],
+          "business_terms": [
+            "Account status",
+            "Active",
+            "Bank account",
+            "account",
+            "account condition",
+            "account state",
+            "current",
+            "current account",
+            "fixed deposit account",
+            "in effect",
+            "open",
+            "operational",
+            "running",
+            "salary account",
+            "savings account"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "interest_rate": {
+          "collection": "accounts",
+          "field": "interest_rate",
+          "data_type": "number",
+          "description": "Annual %",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "minimum_balance": {
+          "collection": "accounts",
+          "field": "minimum_balance",
+          "data_type": "number",
+          "description": "Minimum balance requirement in INR",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "overdraft_limit": {
+          "collection": "accounts",
+          "field": "overdraft_limit",
+          "data_type": "number",
+          "description": "0 if no overdraft facility",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "nominee_name": {
+          "collection": "accounts",
+          "field": "nominee_name",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "joint_holder": {
+          "collection": "accounts",
+          "field": "joint_holder",
+          "data_type": "string",
+          "description": "Null if no joint holder",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "account_manager_id": {
+          "collection": "accounts",
+          "field": "account_manager_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "employees.employee_id",
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [
+            "employees"
+          ],
+          "note": null
+        },
+        "last_transaction_date": {
+          "collection": "accounts",
+          "field": "last_transaction_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "created_at": {
+          "collection": "accounts",
+          "field": "created_at",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "updated_at": {
+          "collection": "accounts",
+          "field": "updated_at",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        }
+      },
+      "relationships": [
+        {
+          "from_collection": "accounts",
+          "from_field": "customer_id",
+          "to_collection": "customers",
+          "to_field": "customer_id",
+          "relationship_type": "many-to-one",
+          "description": "One customer can have multiple accounts",
+          "is_denormalized": false,
+          "integrity_rule": null
+        },
+        {
+          "from_collection": "accounts",
+          "from_field": "branch_id",
+          "to_collection": "branches",
+          "to_field": "branch_id",
+          "relationship_type": "many-to-one",
+          "description": "Join accounts.branch_id to branches.branch_id",
+          "is_denormalized": false,
+          "integrity_rule": null
+        },
+        {
+          "from_collection": "accounts",
+          "from_field": "account_manager_id",
+          "to_collection": "employees",
+          "to_field": "employee_id",
+          "relationship_type": "many-to-one",
+          "description": "Join accounts.account_manager_id to employees.employee_id",
+          "is_denormalized": false,
+          "integrity_rule": null
+        }
+      ],
+      "business_terms": [
+        "Account balance",
+        "Account status",
+        "Active",
+        "Bank account",
+        "account",
+        "account condition",
+        "account funds",
+        "account state",
+        "available balance",
+        "balance",
+        "current",
+        "current account",
+        "fixed deposit account",
+        "in effect",
+        "ledger balance",
+        "open",
+        "operational",
+        "running",
+        "salary account",
+        "savings account"
+      ]
+    },
+    "transactions": {
+      "name": "transactions",
+      "description": "Financial transactions. Largest collection (~10k). customer_id is denormalised and must always equal accounts[account_id].customer_id.",
+      "primary_key": "transaction_id",
+      "document_count": 10000,
+      "fields": {
+        "transaction_id": {
+          "collection": "transactions",
+          "field": "transaction_id",
+          "data_type": "string",
+          "description": "e.g. TXN000000001",
+          "is_primary_key": true,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Suspicious transaction",
+            "Transaction",
+            "financial activity",
+            "flagged payment",
+            "flagged transaction",
+            "movement",
+            "payment",
+            "suspicious activity",
+            "transfer",
+            "txn",
+            "unusual transaction"
+          ],
+          "related_collections": [
+            "fraud_alerts"
+          ],
+          "note": null
+        },
+        "account_id": {
+          "collection": "transactions",
+          "field": "account_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "accounts.account_id",
+          "allowed_values": null,
+          "business_terms": [
+            "Transaction",
+            "financial activity",
+            "movement",
+            "payment",
+            "transfer",
+            "txn"
+          ],
+          "related_collections": [
+            "accounts"
+          ],
+          "note": null
+        },
+        "customer_id": {
+          "collection": "transactions",
+          "field": "customer_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "customers.customer_id",
+          "allowed_values": null,
+          "business_terms": [
+            "Transaction",
+            "financial activity",
+            "movement",
+            "payment",
+            "transfer",
+            "txn"
+          ],
+          "related_collections": [
+            "customers"
+          ],
+          "note": "Denormalised \u2014 enforced equal to accounts[account_id].customer_id by generator"
+        },
+        "transaction_type": {
+          "collection": "transactions",
+          "field": "transaction_type",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "debit",
+            "credit"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "amount": {
+          "collection": "transactions",
+          "field": "amount",
+          "data_type": "number",
+          "description": "INR",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "AML \u2014 Anti-Money Laundering",
+            "Transaction",
+            "aml",
+            "anti money laundering",
+            "financial activity",
+            "money laundering check",
+            "movement",
+            "payment",
+            "transfer",
+            "txn"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "currency": {
+          "collection": "transactions",
+          "field": "currency",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "INR"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "transaction_date": {
+          "collection": "transactions",
+          "field": "transaction_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Transaction",
+            "Transaction date",
+            "date of transaction",
+            "financial activity",
+            "movement",
+            "payment",
+            "payment date",
+            "time of transfer",
+            "transfer",
+            "txn",
+            "txn date"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "transaction_mode": {
+          "collection": "transactions",
+          "field": "transaction_mode",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "UPI",
+            "NEFT",
+            "RTGS",
+            "IMPS",
+            "cash",
+            "cheque",
+            "card"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": "RTGS enforced >= 200000 by generator"
+        },
+        "merchant_id": {
+          "collection": "transactions",
+          "field": "merchant_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "merchants.merchant_id",
+          "allowed_values": null,
+          "business_terms": [
+            "Merchant",
+            "payee",
+            "retailer",
+            "seller",
+            "shop",
+            "store",
+            "vendor"
+          ],
+          "related_collections": [
+            "merchants"
+          ],
+          "note": "Null for salary/NEFT/cash/internal transfers"
+        },
+        "description": {
+          "collection": "transactions",
+          "field": "description",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "balance_after": {
+          "collection": "transactions",
+          "field": "balance_after",
+          "data_type": "number",
+          "description": "Account balance after this transaction",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "status": {
+          "collection": "transactions",
+          "field": "status",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "success",
+            "failed",
+            "pending",
+            "reversed"
+          ],
+          "business_terms": [
+            "Transaction",
+            "Transaction status",
+            "financial activity",
+            "movement",
+            "payment",
+            "payment status",
+            "transfer",
+            "transfer status",
+            "txn",
+            "txn status"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "reference_number": {
+          "collection": "transactions",
+          "field": "reference_number",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "counterparty_account": {
+          "collection": "transactions",
+          "field": "counterparty_account",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "counterparty_name": {
+          "collection": "transactions",
+          "field": "counterparty_name",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "channel": {
+          "collection": "transactions",
+          "field": "channel",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "mobile",
+            "web",
+            "atm",
+            "branch",
+            "pos"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "location": {
+          "collection": "transactions",
+          "field": "location",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "ip_address": {
+          "collection": "transactions",
+          "field": "ip_address",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "device_id": {
+          "collection": "transactions",
+          "field": "device_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "is_flagged": {
+          "collection": "transactions",
+          "field": "is_flagged",
+          "data_type": "boolean",
+          "description": "True for ~2% of transactions; fraud_alerts reference these",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "AML \u2014 Anti-Money Laundering",
+            "Suspicious transaction",
+            "aml",
+            "anti money laundering",
+            "flagged payment",
+            "flagged transaction",
+            "money laundering check",
+            "suspicious activity",
+            "unusual transaction"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "category": {
+          "collection": "transactions",
+          "field": "category",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "groceries",
+            "salary",
+            "rent",
+            "utilities",
+            "transfer",
+            "shopping",
+            "dining",
+            "fuel",
+            "investment",
+            "healthcare",
+            "education",
+            "travel",
+            "entertainment"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "created_at": {
+          "collection": "transactions",
+          "field": "created_at",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        }
+      },
+      "relationships": [
+        {
+          "from_collection": "transactions",
+          "from_field": "account_id",
+          "to_collection": "accounts",
+          "to_field": "account_id",
+          "relationship_type": "many-to-one",
+          "description": "Join transactions.account_id to accounts.account_id",
+          "is_denormalized": false,
+          "integrity_rule": null
+        },
+        {
+          "from_collection": "transactions",
+          "from_field": "customer_id",
+          "to_collection": "customers",
+          "to_field": "customer_id",
+          "relationship_type": "many-to-one",
+          "description": "Denormalised \u2014 enforced equal to accounts.customer_id for this account",
+          "is_denormalized": true,
+          "integrity_rule": null
+        },
+        {
+          "from_collection": "transactions",
+          "from_field": "merchant_id",
+          "to_collection": "merchants",
+          "to_field": "merchant_id",
+          "relationship_type": "many-to-one",
+          "description": "Null for salary/cash/internal transfers",
+          "is_denormalized": false,
+          "integrity_rule": null
+        }
+      ],
+      "business_terms": [
+        "AML \u2014 Anti-Money Laundering",
+        "Merchant",
+        "Suspicious transaction",
+        "Transaction",
+        "Transaction date",
+        "Transaction status",
+        "aml",
+        "anti money laundering",
+        "date of transaction",
+        "financial activity",
+        "flagged payment",
+        "flagged transaction",
+        "money laundering check",
+        "movement",
+        "payee",
+        "payment",
+        "payment date",
+        "payment status",
+        "retailer",
+        "seller",
+        "shop",
+        "store",
+        "suspicious activity",
+        "time of transfer",
+        "transfer",
+        "transfer status",
+        "txn",
+        "txn date",
+        "txn status",
+        "unusual transaction",
+        "vendor"
+      ]
+    },
+    "cards": {
+      "name": "cards",
+      "description": "Debit and credit cards. customer_id MUST match accounts[account_id].customer_id (enforced by generator). Expired cards have status='expired'.",
+      "primary_key": "card_id",
+      "document_count": 1000,
+      "fields": {
+        "card_id": {
+          "collection": "cards",
+          "field": "card_id",
+          "data_type": "string",
+          "description": "e.g. CARD000001",
+          "is_primary_key": true,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Card",
+            "atm card",
+            "credit card",
+            "debit card",
+            "payment card"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "customer_id": {
+          "collection": "cards",
+          "field": "customer_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "customers.customer_id",
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [
+            "customers"
+          ],
+          "note": "Derived from account_id \u2014 must equal accounts[account_id].customer_id"
+        },
+        "account_id": {
+          "collection": "cards",
+          "field": "account_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "accounts.account_id",
+          "allowed_values": null,
+          "business_terms": [
+            "Card",
+            "atm card",
+            "credit card",
+            "debit card",
+            "payment card"
+          ],
+          "related_collections": [
+            "accounts"
+          ],
+          "note": null
+        },
+        "card_number_masked": {
+          "collection": "cards",
+          "field": "card_number_masked",
+          "data_type": "string",
+          "description": "Always XXXX-XXXX-XXXX-{last4}",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "card_type": {
+          "collection": "cards",
+          "field": "card_type",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "debit",
+            "credit"
+          ],
+          "business_terms": [
+            "Card",
+            "atm card",
+            "credit card",
+            "debit card",
+            "payment card"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "card_network": {
+          "collection": "cards",
+          "field": "card_network",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "visa",
+            "mastercard",
+            "rupay"
+          ],
+          "business_terms": [
+            "Card",
+            "atm card",
+            "credit card",
+            "debit card",
+            "payment card"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "issue_date": {
+          "collection": "cards",
+          "field": "issue_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "expiry_date": {
+          "collection": "cards",
+          "field": "expiry_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Card",
+            "atm card",
+            "credit card",
+            "debit card",
+            "payment card"
+          ],
+          "related_collections": [],
+          "note": "If expiry_date < today, status = 'expired'"
+        },
+        "credit_limit": {
+          "collection": "cards",
+          "field": "credit_limit",
+          "data_type": "number",
+          "description": "0 for debit cards",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "available_credit": {
+          "collection": "cards",
+          "field": "available_credit",
+          "data_type": "number",
+          "description": "0 for debit cards",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "status": {
+          "collection": "cards",
+          "field": "status",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "active",
+            "blocked",
+            "expired"
+          ],
+          "business_terms": [
+            "Active",
+            "Card",
+            "atm card",
+            "credit card",
+            "current",
+            "debit card",
+            "in effect",
+            "open",
+            "operational",
+            "payment card",
+            "running"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "is_contactless": {
+          "collection": "cards",
+          "field": "is_contactless",
+          "data_type": "boolean",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "pin_set": {
+          "collection": "cards",
+          "field": "pin_set",
+          "data_type": "boolean",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "billing_cycle_day": {
+          "collection": "cards",
+          "field": "billing_cycle_day",
+          "data_type": "integer",
+          "description": "Day of month 1-28",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "last_used_date": {
+          "collection": "cards",
+          "field": "last_used_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "reward_points": {
+          "collection": "cards",
+          "field": "reward_points",
+          "data_type": "integer",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "created_at": {
+          "collection": "cards",
+          "field": "created_at",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        }
+      },
+      "relationships": [
+        {
+          "from_collection": "cards",
+          "from_field": "customer_id",
+          "to_collection": "customers",
+          "to_field": "customer_id",
+          "relationship_type": "many-to-one",
+          "description": "Must match the customer of cards.account_id \u2014 see data_integrity_rules",
+          "is_denormalized": false,
+          "integrity_rule": "Must match the customer of cards.account_id \u2014 see data_integrity_rules"
+        },
+        {
+          "from_collection": "cards",
+          "from_field": "account_id",
+          "to_collection": "accounts",
+          "to_field": "account_id",
+          "relationship_type": "many-to-one",
+          "description": "Join cards.account_id to accounts.account_id",
+          "is_denormalized": false,
+          "integrity_rule": null
+        }
+      ],
+      "business_terms": [
+        "Active",
+        "Card",
+        "atm card",
+        "credit card",
+        "current",
+        "debit card",
+        "in effect",
+        "open",
+        "operational",
+        "payment card",
+        "running"
+      ]
+    },
+    "loans": {
+      "name": "loans",
+      "description": "Loan records. Null-field rules: closed \u2192 outstanding=0, next_due=null; defaulted \u2192 next_due in past; active \u2192 next_due in future.",
+      "primary_key": "loan_id",
+      "document_count": 500,
+      "fields": {
+        "loan_id": {
+          "collection": "loans",
+          "field": "loan_id",
+          "data_type": "string",
+          "description": "e.g. LOAN000001",
+          "is_primary_key": true,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Loan",
+            "borrowing",
+            "credit facility",
+            "lending",
+            "loan account"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "customer_id": {
+          "collection": "loans",
+          "field": "customer_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "customers.customer_id",
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [
+            "customers"
+          ],
+          "note": null
+        },
+        "loan_type": {
+          "collection": "loans",
+          "field": "loan_type",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "home",
+            "personal",
+            "auto",
+            "education",
+            "gold",
+            "business"
+          ],
+          "business_terms": [
+            "Loan",
+            "borrowing",
+            "credit facility",
+            "lending",
+            "loan account"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "principal_amount": {
+          "collection": "loans",
+          "field": "principal_amount",
+          "data_type": "number",
+          "description": "Original loan amount in INR",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Loan",
+            "borrowing",
+            "credit facility",
+            "lending",
+            "loan account"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "interest_rate": {
+          "collection": "loans",
+          "field": "interest_rate",
+          "data_type": "number",
+          "description": "Annual %",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Loan",
+            "borrowing",
+            "credit facility",
+            "lending",
+            "loan account"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "tenure_months": {
+          "collection": "loans",
+          "field": "tenure_months",
+          "data_type": "integer",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "emi_amount": {
+          "collection": "loans",
+          "field": "emi_amount",
+          "data_type": "number",
+          "description": "Monthly EMI in INR",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "disbursement_date": {
+          "collection": "loans",
+          "field": "disbursement_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "status": {
+          "collection": "loans",
+          "field": "status",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "active",
+            "closed",
+            "defaulted"
+          ],
+          "business_terms": [
+            "Active",
+            "DPD \u2014 Days Past Due",
+            "Loan",
+            "Loan status",
+            "NPA \u2014 Non-Performing Asset",
+            "Overdue amount",
+            "Overdue loan",
+            "arrears",
+            "bad debt",
+            "borrowing",
+            "credit facility",
+            "current",
+            "days past due",
+            "defaulted loan",
+            "delinquent amount",
+            "delinquent loan",
+            "dpd",
+            "in effect",
+            "late days",
+            "late loan",
+            "late payment amount",
+            "lending",
+            "loan account",
+            "loan state",
+            "non-performing loan",
+            "npa",
+            "open",
+            "operational",
+            "overdue days",
+            "overdue payment",
+            "repayment state",
+            "running"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "outstanding_amount": {
+          "collection": "loans",
+          "field": "outstanding_amount",
+          "data_type": "number",
+          "description": "Remaining balance. 0 when status=closed; >0 when active or defaulted",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Loan",
+            "NPA \u2014 Non-Performing Asset",
+            "Outstanding balance",
+            "Overdue amount",
+            "Overdue loan",
+            "arrears",
+            "bad debt",
+            "balance owed",
+            "borrowing",
+            "credit facility",
+            "defaulted loan",
+            "delinquent amount",
+            "delinquent loan",
+            "late loan",
+            "late payment amount",
+            "lending",
+            "loan account",
+            "loan outstanding",
+            "non-performing loan",
+            "npa",
+            "outstanding balance",
+            "overdue payment",
+            "remaining balance",
+            "unpaid principal"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "next_due_date": {
+          "collection": "loans",
+          "field": "next_due_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "DPD \u2014 Days Past Due",
+            "Overdue amount",
+            "Overdue loan",
+            "arrears",
+            "days past due",
+            "defaulted loan",
+            "delinquent amount",
+            "delinquent loan",
+            "dpd",
+            "late days",
+            "late loan",
+            "late payment amount",
+            "non-performing loan",
+            "overdue days",
+            "overdue payment"
+          ],
+          "related_collections": [],
+          "note": "Null when status=closed. Past date when defaulted. Future date when active."
+        },
+        "collateral_type": {
+          "collection": "loans",
+          "field": "collateral_type",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "property",
+            "vehicle",
+            "gold",
+            "fd",
+            "none"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "co_applicant": {
+          "collection": "loans",
+          "field": "co_applicant",
+          "data_type": "string",
+          "description": "Null if no co-applicant",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "sanctioning_branch_id": {
+          "collection": "loans",
+          "field": "sanctioning_branch_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "branches.branch_id",
+          "allowed_values": null,
+          "business_terms": [
+            "Sanctioning branch",
+            "lending branch",
+            "loan branch",
+            "originating branch"
+          ],
+          "related_collections": [
+            "branches"
+          ],
+          "note": null
+        },
+        "loan_officer_id": {
+          "collection": "loans",
+          "field": "loan_officer_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "employees.employee_id",
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [
+            "employees"
+          ],
+          "note": null
+        },
+        "credit_score_at_approval": {
+          "collection": "loans",
+          "field": "credit_score_at_approval",
+          "data_type": "integer",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "purpose": {
+          "collection": "loans",
+          "field": "purpose",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "prepayment_flag": {
+          "collection": "loans",
+          "field": "prepayment_flag",
+          "data_type": "boolean",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "created_at": {
+          "collection": "loans",
+          "field": "created_at",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        }
+      },
+      "relationships": [
+        {
+          "from_collection": "loans",
+          "from_field": "customer_id",
+          "to_collection": "customers",
+          "to_field": "customer_id",
+          "relationship_type": "many-to-one",
+          "description": "Join loans.customer_id to customers.customer_id",
+          "is_denormalized": false,
+          "integrity_rule": null
+        },
+        {
+          "from_collection": "loans",
+          "from_field": "sanctioning_branch_id",
+          "to_collection": "branches",
+          "to_field": "branch_id",
+          "relationship_type": "many-to-one",
+          "description": "Join loans.sanctioning_branch_id to branches.branch_id",
+          "is_denormalized": false,
+          "integrity_rule": null
+        },
+        {
+          "from_collection": "loans",
+          "from_field": "loan_officer_id",
+          "to_collection": "employees",
+          "to_field": "employee_id",
+          "relationship_type": "many-to-one",
+          "description": "Join loans.loan_officer_id to employees.employee_id",
+          "is_denormalized": false,
+          "integrity_rule": null
+        }
+      ],
+      "business_terms": [
+        "Active",
+        "DPD \u2014 Days Past Due",
+        "Loan",
+        "Loan status",
+        "NPA \u2014 Non-Performing Asset",
+        "Outstanding balance",
+        "Overdue amount",
+        "Overdue loan",
+        "Sanctioning branch",
+        "arrears",
+        "bad debt",
+        "balance owed",
+        "borrowing",
+        "credit facility",
+        "current",
+        "days past due",
+        "defaulted loan",
+        "delinquent amount",
+        "delinquent loan",
+        "dpd",
+        "in effect",
+        "late days",
+        "late loan",
+        "late payment amount",
+        "lending",
+        "lending branch",
+        "loan account",
+        "loan branch",
+        "loan outstanding",
+        "loan state",
+        "non-performing loan",
+        "npa",
+        "open",
+        "operational",
+        "originating branch",
+        "outstanding balance",
+        "overdue days",
+        "overdue payment",
+        "remaining balance",
+        "repayment state",
+        "running",
+        "unpaid principal"
+      ]
+    },
+    "kyc_documents": {
+      "name": "kyc_documents",
+      "description": "KYC identity documents. verification_status != 'verified' \u2192 verified_by and verification_date must both be null.",
+      "primary_key": "kyc_id",
+      "document_count": 1500,
+      "fields": {
+        "kyc_id": {
+          "collection": "kyc_documents",
+          "field": "kyc_id",
+          "data_type": "string",
+          "description": "e.g. KYC000001",
+          "is_primary_key": true,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "KYC document",
+            "address proof",
+            "id proof",
+            "identity record",
+            "verification document"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "customer_id": {
+          "collection": "kyc_documents",
+          "field": "customer_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "customers.customer_id",
+          "allowed_values": null,
+          "business_terms": [
+            "KYC document",
+            "address proof",
+            "id proof",
+            "identity record",
+            "verification document"
+          ],
+          "related_collections": [
+            "customers"
+          ],
+          "note": null
+        },
+        "document_type": {
+          "collection": "kyc_documents",
+          "field": "document_type",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "passport",
+            "aadhar",
+            "pan",
+            "voter_id",
+            "driving_license"
+          ],
+          "business_terms": [
+            "KYC document",
+            "KYC \u2014 Know Your Customer",
+            "address proof",
+            "customer verification",
+            "id proof",
+            "id verification",
+            "identity record",
+            "identity verification",
+            "kyc",
+            "verification document"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "document_number_masked": {
+          "collection": "kyc_documents",
+          "field": "document_number_masked",
+          "data_type": "string",
+          "description": "Always synthetic/masked",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "issue_date": {
+          "collection": "kyc_documents",
+          "field": "issue_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "expiry_date": {
+          "collection": "kyc_documents",
+          "field": "expiry_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "verification_status": {
+          "collection": "kyc_documents",
+          "field": "verification_status",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "verified",
+            "pending",
+            "rejected"
+          ],
+          "business_terms": [
+            "KYC document",
+            "KYC \u2014 Know Your Customer",
+            "address proof",
+            "customer verification",
+            "id proof",
+            "id verification",
+            "identity record",
+            "identity verification",
+            "kyc",
+            "verification document"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "verified_by": {
+          "collection": "kyc_documents",
+          "field": "verified_by",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "employees.employee_id",
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [
+            "employees"
+          ],
+          "note": "Null unless verification_status='verified'"
+        },
+        "verification_date": {
+          "collection": "kyc_documents",
+          "field": "verification_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": "Null unless verification_status='verified'"
+        },
+        "document_url": {
+          "collection": "kyc_documents",
+          "field": "document_url",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "created_at": {
+          "collection": "kyc_documents",
+          "field": "created_at",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        }
+      },
+      "relationships": [
+        {
+          "from_collection": "kyc_documents",
+          "from_field": "customer_id",
+          "to_collection": "customers",
+          "to_field": "customer_id",
+          "relationship_type": "many-to-one",
+          "description": "Join kyc_documents.customer_id to customers.customer_id",
+          "is_denormalized": false,
+          "integrity_rule": null
+        },
+        {
+          "from_collection": "kyc_documents",
+          "from_field": "verified_by",
+          "to_collection": "employees",
+          "to_field": "employee_id",
+          "relationship_type": "many-to-one",
+          "description": "Null if not yet verified",
+          "is_denormalized": false,
+          "integrity_rule": null
+        }
+      ],
+      "business_terms": [
+        "KYC document",
+        "KYC \u2014 Know Your Customer",
+        "address proof",
+        "customer verification",
+        "id proof",
+        "id verification",
+        "identity record",
+        "identity verification",
+        "kyc",
+        "verification document"
+      ]
+    },
+    "support_tickets": {
+      "name": "support_tickets",
+      "description": "Customer support tickets. status not in ('resolved','closed') \u2192 resolved_date, resolution_notes, satisfaction_rating are all null.",
+      "primary_key": "ticket_id",
+      "document_count": 2000,
+      "fields": {
+        "ticket_id": {
+          "collection": "support_tickets",
+          "field": "ticket_id",
+          "data_type": "string",
+          "description": "e.g. TKT000001",
+          "is_primary_key": true,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Support ticket",
+            "complaint",
+            "customer ticket",
+            "helpdesk ticket",
+            "service request"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "customer_id": {
+          "collection": "support_tickets",
+          "field": "customer_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "customers.customer_id",
+          "allowed_values": null,
+          "business_terms": [
+            "Support ticket",
+            "complaint",
+            "customer ticket",
+            "helpdesk ticket",
+            "service request"
+          ],
+          "related_collections": [
+            "customers"
+          ],
+          "note": null
+        },
+        "category": {
+          "collection": "support_tickets",
+          "field": "category",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "complaint",
+            "query",
+            "request",
+            "fraud_report",
+            "account_issue",
+            "card_issue",
+            "loan_issue"
+          ],
+          "business_terms": [
+            "Support ticket",
+            "complaint",
+            "customer ticket",
+            "helpdesk ticket",
+            "service request"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "subject": {
+          "collection": "support_tickets",
+          "field": "subject",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "description": {
+          "collection": "support_tickets",
+          "field": "description",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "priority": {
+          "collection": "support_tickets",
+          "field": "priority",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "business_terms": [
+            "Support ticket",
+            "complaint",
+            "customer ticket",
+            "helpdesk ticket",
+            "service request"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "status": {
+          "collection": "support_tickets",
+          "field": "status",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "open",
+            "in_progress",
+            "resolved",
+            "closed"
+          ],
+          "business_terms": [
+            "Support ticket",
+            "complaint",
+            "customer ticket",
+            "helpdesk ticket",
+            "service request"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "assigned_agent_id": {
+          "collection": "support_tickets",
+          "field": "assigned_agent_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "employees.employee_id",
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [
+            "employees"
+          ],
+          "note": null
+        },
+        "created_date": {
+          "collection": "support_tickets",
+          "field": "created_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "resolved_date": {
+          "collection": "support_tickets",
+          "field": "resolved_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": "Null unless status in ('resolved','closed')"
+        },
+        "resolution_notes": {
+          "collection": "support_tickets",
+          "field": "resolution_notes",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": "Null unless status in ('resolved','closed')"
+        },
+        "channel": {
+          "collection": "support_tickets",
+          "field": "channel",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "phone",
+            "email",
+            "chat",
+            "branch"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "satisfaction_rating": {
+          "collection": "support_tickets",
+          "field": "satisfaction_rating",
+          "data_type": "integer",
+          "description": "1 to 5",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": "Null unless status in ('resolved','closed')"
+        },
+        "created_at": {
+          "collection": "support_tickets",
+          "field": "created_at",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        }
+      },
+      "relationships": [
+        {
+          "from_collection": "support_tickets",
+          "from_field": "customer_id",
+          "to_collection": "customers",
+          "to_field": "customer_id",
+          "relationship_type": "many-to-one",
+          "description": "Join support_tickets.customer_id to customers.customer_id",
+          "is_denormalized": false,
+          "integrity_rule": null
+        },
+        {
+          "from_collection": "support_tickets",
+          "from_field": "assigned_agent_id",
+          "to_collection": "employees",
+          "to_field": "employee_id",
+          "relationship_type": "many-to-one",
+          "description": "Join support_tickets.assigned_agent_id to employees.employee_id",
+          "is_denormalized": false,
+          "integrity_rule": null
+        }
+      ],
+      "business_terms": [
+        "Support ticket",
+        "complaint",
+        "customer ticket",
+        "helpdesk ticket",
+        "service request"
+      ]
+    },
+    "fraud_alerts": {
+      "name": "fraud_alerts",
+      "description": "Fraud alerts derived from flagged transactions. customer_id is always derived from transaction\u2192account\u2192customer chain \u2014 never independently assigned.",
+      "primary_key": "alert_id",
+      "document_count": 300,
+      "fields": {
+        "alert_id": {
+          "collection": "fraud_alerts",
+          "field": "alert_id",
+          "data_type": "string",
+          "description": "e.g. ALT000001",
+          "is_primary_key": true,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Fraud alert",
+            "Suspicious transaction",
+            "flagged payment",
+            "flagged transaction",
+            "fraud case",
+            "fraud warning",
+            "security alert",
+            "suspicious activity",
+            "suspicious flag",
+            "unusual transaction"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "transaction_id": {
+          "collection": "fraud_alerts",
+          "field": "transaction_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "transactions.transaction_id",
+          "allowed_values": null,
+          "business_terms": [
+            "Fraud alert",
+            "fraud case",
+            "fraud warning",
+            "security alert",
+            "suspicious flag"
+          ],
+          "related_collections": [
+            "transactions"
+          ],
+          "note": null
+        },
+        "customer_id": {
+          "collection": "fraud_alerts",
+          "field": "customer_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "customers.customer_id",
+          "allowed_values": null,
+          "business_terms": [
+            "Fraud alert",
+            "fraud case",
+            "fraud warning",
+            "security alert",
+            "suspicious flag"
+          ],
+          "related_collections": [
+            "customers"
+          ],
+          "note": "Derived: fraud_alerts.transaction_id \u2192 transactions.account_id \u2192 accounts.customer_id"
+        },
+        "alert_type": {
+          "collection": "fraud_alerts",
+          "field": "alert_type",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "unusual_amount",
+            "velocity",
+            "geo_mismatch",
+            "device_change",
+            "blacklisted_merchant"
+          ],
+          "business_terms": [
+            "Fraud alert",
+            "fraud case",
+            "fraud warning",
+            "security alert",
+            "suspicious flag"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "risk_score": {
+          "collection": "fraud_alerts",
+          "field": "risk_score",
+          "data_type": "number",
+          "description": "0 (safe) to 100 (high risk)",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Fraud alert",
+            "fraud case",
+            "fraud warning",
+            "security alert",
+            "suspicious flag"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "status": {
+          "collection": "fraud_alerts",
+          "field": "status",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "open",
+            "investigating",
+            "resolved",
+            "false_positive"
+          ],
+          "business_terms": [
+            "False positive",
+            "Fraud alert",
+            "benign flag",
+            "cleared alert",
+            "dismissed alert",
+            "fraud case",
+            "fraud warning",
+            "security alert",
+            "suspicious flag"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "detected_at": {
+          "collection": "fraud_alerts",
+          "field": "detected_at",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "reviewed_by": {
+          "collection": "fraud_alerts",
+          "field": "reviewed_by",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "employees.employee_id",
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [
+            "employees"
+          ],
+          "note": "Null unless status is 'investigating' or 'resolved'"
+        },
+        "review_notes": {
+          "collection": "fraud_alerts",
+          "field": "review_notes",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": "Null unless reviewed"
+        },
+        "action_taken": {
+          "collection": "fraud_alerts",
+          "field": "action_taken",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "none",
+            "account_frozen",
+            "customer_contacted",
+            "transaction_reversed"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "created_at": {
+          "collection": "fraud_alerts",
+          "field": "created_at",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        }
+      },
+      "relationships": [
+        {
+          "from_collection": "fraud_alerts",
+          "from_field": "transaction_id",
+          "to_collection": "transactions",
+          "to_field": "transaction_id",
+          "relationship_type": "many-to-one",
+          "description": "Join fraud_alerts.transaction_id to transactions.transaction_id",
+          "is_denormalized": false,
+          "integrity_rule": null
+        },
+        {
+          "from_collection": "fraud_alerts",
+          "from_field": "customer_id",
+          "to_collection": "customers",
+          "to_field": "customer_id",
+          "relationship_type": "many-to-one",
+          "description": "Derived from transaction\u2192account\u2192customer chain \u2014 see data_integrity_rules",
+          "is_denormalized": false,
+          "integrity_rule": "Derived from transaction\u2192account\u2192customer chain \u2014 see data_integrity_rules"
+        },
+        {
+          "from_collection": "fraud_alerts",
+          "from_field": "reviewed_by",
+          "to_collection": "employees",
+          "to_field": "employee_id",
+          "relationship_type": "many-to-one",
+          "description": "Null if not yet reviewed",
+          "is_denormalized": false,
+          "integrity_rule": null
+        }
+      ],
+      "business_terms": [
+        "False positive",
+        "Fraud alert",
+        "Suspicious transaction",
+        "benign flag",
+        "cleared alert",
+        "dismissed alert",
+        "flagged payment",
+        "flagged transaction",
+        "fraud case",
+        "fraud warning",
+        "security alert",
+        "suspicious activity",
+        "suspicious flag",
+        "unusual transaction"
+      ]
+    },
+    "investments": {
+      "name": "investments",
+      "description": "Customer investment portfolio. investment_type='stocks' \u2192 maturity_date=null. All other types require a maturity_date.",
+      "primary_key": "investment_id",
+      "document_count": 1000,
+      "fields": {
+        "investment_id": {
+          "collection": "investments",
+          "field": "investment_id",
+          "data_type": "string",
+          "description": "e.g. INV000001",
+          "is_primary_key": true,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Investment",
+            "bonds",
+            "fixed deposit",
+            "mutual fund",
+            "portfolio",
+            "stocks",
+            "wealth product"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "customer_id": {
+          "collection": "investments",
+          "field": "customer_id",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": "customers.customer_id",
+          "allowed_values": null,
+          "business_terms": [
+            "Investment",
+            "bonds",
+            "fixed deposit",
+            "mutual fund",
+            "portfolio",
+            "stocks",
+            "wealth product"
+          ],
+          "related_collections": [
+            "customers"
+          ],
+          "note": null
+        },
+        "investment_type": {
+          "collection": "investments",
+          "field": "investment_type",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "mutual_fund",
+            "fixed_deposit",
+            "stocks",
+            "bonds",
+            "ppf"
+          ],
+          "business_terms": [
+            "Investment",
+            "bonds",
+            "fixed deposit",
+            "mutual fund",
+            "portfolio",
+            "stocks",
+            "wealth product"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "amount_invested": {
+          "collection": "investments",
+          "field": "amount_invested",
+          "data_type": "number",
+          "description": "INR",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "current_value": {
+          "collection": "investments",
+          "field": "current_value",
+          "data_type": "number",
+          "description": "Current market value; may be less than amount_invested",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [
+            "Investment",
+            "bonds",
+            "fixed deposit",
+            "mutual fund",
+            "portfolio",
+            "stocks",
+            "wealth product"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "purchase_date": {
+          "collection": "investments",
+          "field": "purchase_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "maturity_date": {
+          "collection": "investments",
+          "field": "maturity_date",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": "Null when investment_type='stocks'; required for all other types"
+        },
+        "status": {
+          "collection": "investments",
+          "field": "status",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "active",
+            "matured",
+            "redeemed"
+          ],
+          "business_terms": [
+            "Investment",
+            "bonds",
+            "fixed deposit",
+            "mutual fund",
+            "portfolio",
+            "stocks",
+            "wealth product"
+          ],
+          "related_collections": [],
+          "note": null
+        },
+        "returns_percentage": {
+          "collection": "investments",
+          "field": "returns_percentage",
+          "data_type": "number",
+          "description": "Can be negative for loss-making investments",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "risk_level": {
+          "collection": "investments",
+          "field": "risk_level",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "fund_manager": {
+          "collection": "investments",
+          "field": "fund_manager",
+          "data_type": "string",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        },
+        "created_at": {
+          "collection": "investments",
+          "field": "created_at",
+          "data_type": "date",
+          "description": "",
+          "is_primary_key": false,
+          "references": null,
+          "allowed_values": null,
+          "business_terms": [],
+          "related_collections": [],
+          "note": null
+        }
+      },
+      "relationships": [
+        {
+          "from_collection": "investments",
+          "from_field": "customer_id",
+          "to_collection": "customers",
+          "to_field": "customer_id",
+          "relationship_type": "many-to-one",
+          "description": "Join investments.customer_id to customers.customer_id",
+          "is_denormalized": false,
+          "integrity_rule": null
+        }
+      ],
+      "business_terms": [
+        "Investment",
+        "bonds",
+        "fixed deposit",
+        "mutual fund",
+        "portfolio",
+        "stocks",
+        "wealth product"
+      ]
+    }
+  },
+  "relationships": [
+    {
+      "from_collection": "employees",
+      "from_field": "branch_id",
+      "to_collection": "branches",
+      "to_field": "branch_id",
+      "relationship_type": "many-to-one",
+      "description": "Each employee belongs to one branch",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "branches",
+      "from_field": "manager_id",
+      "to_collection": "employees",
+      "to_field": "employee_id",
+      "relationship_type": "many-to-one",
+      "description": "Manager must work at this same branch \u2014 see data_integrity_rules",
+      "is_denormalized": false,
+      "integrity_rule": "Manager must work at this same branch \u2014 see data_integrity_rules"
+    },
+    {
+      "from_collection": "customers",
+      "from_field": "relationship_manager_id",
+      "to_collection": "employees",
+      "to_field": "employee_id",
+      "relationship_type": "many-to-one",
+      "description": "Join customers.relationship_manager_id to employees.employee_id",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "accounts",
+      "from_field": "customer_id",
+      "to_collection": "customers",
+      "to_field": "customer_id",
+      "relationship_type": "many-to-one",
+      "description": "One customer can have multiple accounts",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "accounts",
+      "from_field": "branch_id",
+      "to_collection": "branches",
+      "to_field": "branch_id",
+      "relationship_type": "many-to-one",
+      "description": "Join accounts.branch_id to branches.branch_id",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "accounts",
+      "from_field": "account_manager_id",
+      "to_collection": "employees",
+      "to_field": "employee_id",
+      "relationship_type": "many-to-one",
+      "description": "Join accounts.account_manager_id to employees.employee_id",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "transactions",
+      "from_field": "account_id",
+      "to_collection": "accounts",
+      "to_field": "account_id",
+      "relationship_type": "many-to-one",
+      "description": "Join transactions.account_id to accounts.account_id",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "transactions",
+      "from_field": "customer_id",
+      "to_collection": "customers",
+      "to_field": "customer_id",
+      "relationship_type": "many-to-one",
+      "description": "Denormalised \u2014 enforced equal to accounts.customer_id for this account",
+      "is_denormalized": true,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "transactions",
+      "from_field": "merchant_id",
+      "to_collection": "merchants",
+      "to_field": "merchant_id",
+      "relationship_type": "many-to-one",
+      "description": "Null for salary/cash/internal transfers",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "cards",
+      "from_field": "customer_id",
+      "to_collection": "customers",
+      "to_field": "customer_id",
+      "relationship_type": "many-to-one",
+      "description": "Must match the customer of cards.account_id \u2014 see data_integrity_rules",
+      "is_denormalized": false,
+      "integrity_rule": "Must match the customer of cards.account_id \u2014 see data_integrity_rules"
+    },
+    {
+      "from_collection": "cards",
+      "from_field": "account_id",
+      "to_collection": "accounts",
+      "to_field": "account_id",
+      "relationship_type": "many-to-one",
+      "description": "Join cards.account_id to accounts.account_id",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "loans",
+      "from_field": "customer_id",
+      "to_collection": "customers",
+      "to_field": "customer_id",
+      "relationship_type": "many-to-one",
+      "description": "Join loans.customer_id to customers.customer_id",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "loans",
+      "from_field": "sanctioning_branch_id",
+      "to_collection": "branches",
+      "to_field": "branch_id",
+      "relationship_type": "many-to-one",
+      "description": "Join loans.sanctioning_branch_id to branches.branch_id",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "loans",
+      "from_field": "loan_officer_id",
+      "to_collection": "employees",
+      "to_field": "employee_id",
+      "relationship_type": "many-to-one",
+      "description": "Join loans.loan_officer_id to employees.employee_id",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "kyc_documents",
+      "from_field": "customer_id",
+      "to_collection": "customers",
+      "to_field": "customer_id",
+      "relationship_type": "many-to-one",
+      "description": "Join kyc_documents.customer_id to customers.customer_id",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "kyc_documents",
+      "from_field": "verified_by",
+      "to_collection": "employees",
+      "to_field": "employee_id",
+      "relationship_type": "many-to-one",
+      "description": "Null if not yet verified",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "support_tickets",
+      "from_field": "customer_id",
+      "to_collection": "customers",
+      "to_field": "customer_id",
+      "relationship_type": "many-to-one",
+      "description": "Join support_tickets.customer_id to customers.customer_id",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "support_tickets",
+      "from_field": "assigned_agent_id",
+      "to_collection": "employees",
+      "to_field": "employee_id",
+      "relationship_type": "many-to-one",
+      "description": "Join support_tickets.assigned_agent_id to employees.employee_id",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "fraud_alerts",
+      "from_field": "transaction_id",
+      "to_collection": "transactions",
+      "to_field": "transaction_id",
+      "relationship_type": "many-to-one",
+      "description": "Join fraud_alerts.transaction_id to transactions.transaction_id",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "fraud_alerts",
+      "from_field": "customer_id",
+      "to_collection": "customers",
+      "to_field": "customer_id",
+      "relationship_type": "many-to-one",
+      "description": "Derived from transaction\u2192account\u2192customer chain \u2014 see data_integrity_rules",
+      "is_denormalized": false,
+      "integrity_rule": "Derived from transaction\u2192account\u2192customer chain \u2014 see data_integrity_rules"
+    },
+    {
+      "from_collection": "fraud_alerts",
+      "from_field": "reviewed_by",
+      "to_collection": "employees",
+      "to_field": "employee_id",
+      "relationship_type": "many-to-one",
+      "description": "Null if not yet reviewed",
+      "is_denormalized": false,
+      "integrity_rule": null
+    },
+    {
+      "from_collection": "investments",
+      "from_field": "customer_id",
+      "to_collection": "customers",
+      "to_field": "customer_id",
+      "relationship_type": "many-to-one",
+      "description": "Join investments.customer_id to customers.customer_id",
+      "is_denormalized": false,
+      "integrity_rule": null
+    }
+  ],
+  "glossary": [
+    {
+      "term": "Customer",
+      "category": "Customer and Identity Terms",
+      "meaning": "A person or business entity represented by a customer master record.",
+      "implementation_guidance": "Query the 'customers' collection using 'customer_id' as the primary key.",
+      "mapped_collections": [
+        "customers"
+      ],
+      "mapped_fields": [
+        "customers.customer_id",
+        "customers.first_name",
+        "customers.last_name",
+        "customers.city",
+        "customers.state"
+      ],
+      "synonyms": [
+        "client",
+        "account holder",
+        "individual",
+        "patron",
+        "user"
+      ]
+    },
+    {
+      "term": "Customer ID",
+      "category": "Customer and Identity Terms",
+      "meaning": "Unique domain identifier linking customer profiles to accounts, loans, cards, and transactions.",
+      "implementation_guidance": "Always join on domain key 'customer_id' (e.g. CUST000001), never MongoDB '_id'.",
+      "mapped_collections": [
+        "customers"
+      ],
+      "mapped_fields": [
+        "customers.customer_id"
+      ],
+      "synonyms": [
+        "cust id",
+        "customer identifier",
+        "customer number",
+        "client id"
+      ]
+    },
+    {
+      "term": "KYC \u2014 Know Your Customer",
+      "category": "Customer and Identity Terms",
+      "meaning": "Process of verifying customer identity and regulatory documentation.",
+      "implementation_guidance": "Check 'customers.kyc_status' on customer profile or query 'kyc_documents' for submitted documents.",
+      "mapped_collections": [
+        "customers",
+        "kyc_documents"
+      ],
+      "mapped_fields": [
+        "customers.kyc_status",
+        "kyc_documents.document_type",
+        "kyc_documents.verification_status"
+      ],
+      "synonyms": [
+        "kyc",
+        "identity verification",
+        "customer verification",
+        "id verification"
+      ]
+    },
+    {
+      "term": "KYC status",
+      "category": "Customer and Identity Terms",
+      "meaning": "Categorical state of KYC verification (e.g., 'verified', 'pending', 'rejected').",
+      "implementation_guidance": "Stored as lowercase categorical string in 'customers.kyc_status'.",
+      "mapped_collections": [
+        "customers"
+      ],
+      "mapped_fields": [
+        "customers.kyc_status"
+      ],
+      "synonyms": [
+        "verification state",
+        "kyc state",
+        "compliance status"
+      ]
+    },
+    {
+      "term": "KYC document",
+      "category": "Customer and Identity Terms",
+      "meaning": "Identity or address proof record submitted by a customer (e.g. passport, driving licence, utility bill).",
+      "implementation_guidance": "Query 'kyc_documents' collection. Contains 'document_type', 'doc_number', 'verification_status', and 'verified_by'.",
+      "mapped_collections": [
+        "kyc_documents"
+      ],
+      "mapped_fields": [
+        "kyc_documents.kyc_id",
+        "kyc_documents.customer_id",
+        "kyc_documents.document_type",
+        "kyc_documents.verification_status"
+      ],
+      "synonyms": [
+        "id proof",
+        "address proof",
+        "verification document",
+        "identity record"
+      ]
+    },
+    {
+      "term": "Verified customer",
+      "category": "Customer and Identity Terms",
+      "meaning": "A customer who has completed identity verification successfully.",
+      "implementation_guidance": "Filter with { 'kyc_status': 'verified' } on the 'customers' collection.",
+      "mapped_collections": [
+        "customers"
+      ],
+      "mapped_fields": [
+        "customers.kyc_status"
+      ],
+      "synonyms": [
+        "kyc verified customer",
+        "fully verified client",
+        "compliant customer"
+      ]
+    },
+    {
+      "term": "Risk category",
+      "category": "Risk and Fraud Terms",
+      "meaning": "Customer risk classification assigned by risk assessment models (e.g., 'low', 'medium', 'high').",
+      "implementation_guidance": "Stored as lowercase string in 'customers.risk_category'.",
+      "mapped_collections": [
+        "customers"
+      ],
+      "mapped_fields": [
+        "customers.risk_category"
+      ],
+      "synonyms": [
+        "risk level",
+        "risk profile",
+        "risk rating",
+        "risk tier"
+      ]
+    },
+    {
+      "term": "High-risk customer",
+      "category": "Risk and Fraud Terms",
+      "meaning": "Customer categorized into the highest risk category.",
+      "implementation_guidance": "Filter with { 'risk_category': 'high' } on the 'customers' collection.",
+      "mapped_collections": [
+        "customers"
+      ],
+      "mapped_fields": [
+        "customers.risk_category"
+      ],
+      "synonyms": [
+        "high risk client",
+        "elevated risk customer"
+      ]
+    },
+    {
+      "term": "Fraud alert",
+      "category": "Risk and Fraud Terms",
+      "meaning": "System-generated flag identifying a suspicious transaction or unusual activity for review.",
+      "implementation_guidance": "Query 'fraud_alerts' collection. Contains 'alert_id', 'transaction_id', 'customer_id', 'alert_type', 'risk_score', and 'status'.",
+      "mapped_collections": [
+        "fraud_alerts"
+      ],
+      "mapped_fields": [
+        "fraud_alerts.alert_id",
+        "fraud_alerts.transaction_id",
+        "fraud_alerts.customer_id",
+        "fraud_alerts.alert_type",
+        "fraud_alerts.risk_score",
+        "fraud_alerts.status"
+      ],
+      "synonyms": [
+        "fraud warning",
+        "suspicious flag",
+        "security alert",
+        "fraud case"
+      ]
+    },
+    {
+      "term": "Suspicious transaction",
+      "category": "Risk and Fraud Terms",
+      "meaning": "A transaction that triggered a fraud alert or has 'is_flagged' set to true.",
+      "implementation_guidance": "Filter with { 'is_flagged': True } on 'transactions' or join with 'fraud_alerts'.",
+      "mapped_collections": [
+        "transactions",
+        "fraud_alerts"
+      ],
+      "mapped_fields": [
+        "transactions.is_flagged",
+        "transactions.transaction_id",
+        "fraud_alerts.alert_id"
+      ],
+      "synonyms": [
+        "flagged transaction",
+        "unusual transaction",
+        "suspicious activity",
+        "flagged payment"
+      ]
+    },
+    {
+      "term": "False positive",
+      "category": "Risk and Fraud Terms",
+      "meaning": "An alert reviewed and determined not to represent fraudulent behavior.",
+      "implementation_guidance": "In 'fraud_alerts', status is 'closed' or 'dismissed'. Note: no explicit 'is_false_positive' boolean field exists in database.",
+      "mapped_collections": [
+        "fraud_alerts"
+      ],
+      "mapped_fields": [
+        "fraud_alerts.status"
+      ],
+      "synonyms": [
+        "cleared alert",
+        "dismissed alert",
+        "benign flag"
+      ]
+    },
+    {
+      "term": "AML \u2014 Anti-Money Laundering",
+      "category": "Risk and Fraud Terms",
+      "meaning": "Regulatory compliance processes designed to prevent illegally obtained funds from being disguised.",
+      "implementation_guidance": "Relevant to transactions with high amounts or flagged status ('is_flagged') and customer risk category.",
+      "mapped_collections": [
+        "transactions",
+        "fraud_alerts",
+        "customers"
+      ],
+      "mapped_fields": [
+        "transactions.is_flagged",
+        "transactions.amount",
+        "customers.risk_category"
+      ],
+      "synonyms": [
+        "aml",
+        "money laundering check",
+        "anti money laundering"
+      ]
+    },
+    {
+      "term": "Bank account",
+      "category": "Accounts and Transactions",
+      "meaning": "Deposit or current account held by a customer at a specific bank branch.",
+      "implementation_guidance": "Collection 'accounts'. Keys: 'account_id', 'customer_id', 'branch_id', 'account_type', 'balance', 'status'.",
+      "mapped_collections": [
+        "accounts"
+      ],
+      "mapped_fields": [
+        "accounts.account_id",
+        "accounts.account_type",
+        "accounts.balance",
+        "accounts.status",
+        "accounts.branch_id"
+      ],
+      "synonyms": [
+        "account",
+        "savings account",
+        "current account",
+        "fixed deposit account",
+        "salary account"
+      ]
+    },
+    {
+      "term": "Account balance",
+      "category": "Accounts and Transactions",
+      "meaning": "Current cleared funds available in the bank account.",
+      "implementation_guidance": "Stored in 'accounts.balance' as a numeric field in INR.",
+      "mapped_collections": [
+        "accounts"
+      ],
+      "mapped_fields": [
+        "accounts.balance"
+      ],
+      "synonyms": [
+        "balance",
+        "available balance",
+        "account funds",
+        "ledger balance"
+      ]
+    },
+    {
+      "term": "Account status",
+      "category": "Accounts and Transactions",
+      "meaning": "Operational state of an account ('active', 'dormant', 'frozen', 'closed').",
+      "implementation_guidance": "Stored as lowercase string in 'accounts.status'.",
+      "mapped_collections": [
+        "accounts"
+      ],
+      "mapped_fields": [
+        "accounts.status"
+      ],
+      "synonyms": [
+        "account state",
+        "account condition"
+      ]
+    },
+    {
+      "term": "Transaction",
+      "category": "Accounts and Transactions",
+      "meaning": "Individual financial debit or credit movement on an account.",
+      "implementation_guidance": "Collection 'transactions'. Fields: 'transaction_id', 'account_id', 'customer_id' (denormalized), 'amount', 'transaction_date', 'status'.",
+      "mapped_collections": [
+        "transactions"
+      ],
+      "mapped_fields": [
+        "transactions.transaction_id",
+        "transactions.account_id",
+        "transactions.customer_id",
+        "transactions.amount",
+        "transactions.transaction_date",
+        "transactions.status"
+      ],
+      "synonyms": [
+        "payment",
+        "transfer",
+        "financial activity",
+        "txn",
+        "movement"
+      ]
+    },
+    {
+      "term": "Transaction status",
+      "category": "Accounts and Transactions",
+      "meaning": "Execution status of a transaction ('completed', 'failed', 'pending', 'reversed').",
+      "implementation_guidance": "Stored as lowercase string in 'transactions.status'.",
+      "mapped_collections": [
+        "transactions"
+      ],
+      "mapped_fields": [
+        "transactions.status"
+      ],
+      "synonyms": [
+        "payment status",
+        "transfer status",
+        "txn status"
+      ]
+    },
+    {
+      "term": "Transaction date",
+      "category": "Accounts and Transactions",
+      "meaning": "Timestamp when transaction took place. Stored as BSON Date object.",
+      "implementation_guidance": "Use MongoDB date operators ($dateToString, $year, $month) on 'transactions.transaction_date'.",
+      "mapped_collections": [
+        "transactions"
+      ],
+      "mapped_fields": [
+        "transactions.transaction_date"
+      ],
+      "synonyms": [
+        "date of transaction",
+        "payment date",
+        "txn date",
+        "time of transfer"
+      ]
+    },
+    {
+      "term": "Merchant",
+      "category": "Accounts and Transactions",
+      "meaning": "Commercial entity or merchant receiving payment in commercial transactions.",
+      "implementation_guidance": "Collection 'merchants'. Keys: 'merchant_id', 'merchant_name', 'category', 'city'.",
+      "mapped_collections": [
+        "merchants",
+        "transactions"
+      ],
+      "mapped_fields": [
+        "merchants.merchant_id",
+        "merchants.merchant_name",
+        "merchants.category",
+        "transactions.merchant_id"
+      ],
+      "synonyms": [
+        "vendor",
+        "store",
+        "shop",
+        "seller",
+        "payee",
+        "retailer"
+      ]
+    },
+    {
+      "term": "Merchant category",
+      "category": "Accounts and Transactions",
+      "meaning": "Industry classification of merchant (e.g., 'Groceries', 'Electronics', 'Healthcare', 'Dining').",
+      "implementation_guidance": "Stored in 'merchants.category'.",
+      "mapped_collections": [
+        "merchants"
+      ],
+      "mapped_fields": [
+        "merchants.category"
+      ],
+      "synonyms": [
+        "mcc",
+        "merchant industry",
+        "business category",
+        "retail category"
+      ]
+    },
+    {
+      "term": "Loan",
+      "category": "Loans and Credit",
+      "meaning": "Credit facility sanctioned to a customer with principal, interest, and repayment terms.",
+      "implementation_guidance": "Collection 'loans'. Keys: 'loan_id', 'customer_id', 'sanctioning_branch_id', 'loan_type', 'principal_amount', 'outstanding_amount', 'status'.",
+      "mapped_collections": [
+        "loans"
+      ],
+      "mapped_fields": [
+        "loans.loan_id",
+        "loans.loan_type",
+        "loans.principal_amount",
+        "loans.outstanding_amount",
+        "loans.interest_rate",
+        "loans.status"
+      ],
+      "synonyms": [
+        "credit facility",
+        "borrowing",
+        "lending",
+        "loan account"
+      ]
+    },
+    {
+      "term": "Loan status",
+      "category": "Loans and Credit",
+      "meaning": "State of loan lifecycle ('active', 'closed', 'defaulted').",
+      "implementation_guidance": "Stored as lowercase string in 'loans.status'. Integrity rules: 'closed' implies outstanding_amount=0; 'active' implies outstanding_amount>0.",
+      "mapped_collections": [
+        "loans"
+      ],
+      "mapped_fields": [
+        "loans.status"
+      ],
+      "synonyms": [
+        "loan state",
+        "repayment state"
+      ]
+    },
+    {
+      "term": "Outstanding balance",
+      "category": "Loans and Credit",
+      "meaning": "Total remaining principal unpaid on a loan facility.",
+      "implementation_guidance": "Mapped strictly to 'loans.outstanding_amount'. This is NOT overdue amount.",
+      "mapped_collections": [
+        "loans"
+      ],
+      "mapped_fields": [
+        "loans.outstanding_amount"
+      ],
+      "synonyms": [
+        "outstanding balance",
+        "remaining balance",
+        "unpaid principal",
+        "loan outstanding",
+        "balance owed"
+      ]
+    },
+    {
+      "term": "Overdue amount",
+      "category": "Loans and Credit",
+      "meaning": "Payment amount past its scheduled due date and unpaid.",
+      "implementation_guidance": "CRITICAL: 'overdue_amount' is NOT an existing field in the loans collection. Do not invent this field. Use 'loans.outstanding_amount' for total debt, or check next_due_date and status='defaulted'.",
+      "mapped_collections": [
+        "loans"
+      ],
+      "mapped_fields": [
+        "loans.outstanding_amount",
+        "loans.next_due_date",
+        "loans.status"
+      ],
+      "synonyms": [
+        "overdue payment",
+        "late payment amount",
+        "arrears",
+        "delinquent amount"
+      ]
+    },
+    {
+      "term": "DPD \u2014 Days Past Due",
+      "category": "Loans and Credit",
+      "meaning": "Number of days loan repayment has remained unpaid past due date.",
+      "implementation_guidance": "CRITICAL: 'days_past_due' is NOT a field in the loans database. Do not hallucinate this field. Calculate relative to 'loans.next_due_date' if requested.",
+      "mapped_collections": [
+        "loans"
+      ],
+      "mapped_fields": [
+        "loans.next_due_date",
+        "loans.status"
+      ],
+      "synonyms": [
+        "days past due",
+        "dpd",
+        "late days",
+        "overdue days"
+      ]
+    },
+    {
+      "term": "NPA \u2014 Non-Performing Asset",
+      "category": "Loans and Credit",
+      "meaning": "A loan classified as non-performing due to prolonged default.",
+      "implementation_guidance": "In current dataset, defaulted loans are represented by { 'status': 'defaulted' } in the 'loans' collection.",
+      "mapped_collections": [
+        "loans"
+      ],
+      "mapped_fields": [
+        "loans.status",
+        "loans.outstanding_amount"
+      ],
+      "synonyms": [
+        "npa",
+        "bad debt",
+        "defaulted loan",
+        "non-performing loan"
+      ]
+    },
+    {
+      "term": "Sanctioning branch",
+      "category": "Loans and Credit",
+      "meaning": "The physical branch that approved and sanctioned the loan facility.",
+      "implementation_guidance": "Foreign key 'loans.sanctioning_branch_id' references 'branches.branch_id'.",
+      "mapped_collections": [
+        "loans",
+        "branches"
+      ],
+      "mapped_fields": [
+        "loans.sanctioning_branch_id",
+        "branches.branch_id"
+      ],
+      "synonyms": [
+        "originating branch",
+        "lending branch",
+        "loan branch"
+      ]
+    },
+    {
+      "term": "Branch",
+      "category": "Branches, Employees, and Support",
+      "meaning": "Physical bank location hosting accounts and sanctioning loans.",
+      "implementation_guidance": "Collection 'branches'. Fields: 'branch_id', 'branch_name', 'city', 'state', 'branch_type', 'manager_id'.",
+      "mapped_collections": [
+        "branches"
+      ],
+      "mapped_fields": [
+        "branches.branch_id",
+        "branches.branch_name",
+        "branches.city",
+        "branches.state",
+        "branches.branch_type"
+      ],
+      "synonyms": [
+        "bank branch",
+        "bank office",
+        "location",
+        "banking centre"
+      ]
+    },
+    {
+      "term": "Branch ID",
+      "category": "Branches, Employees, and Support",
+      "meaning": "Unique branch identifier (e.g. BR00001).",
+      "implementation_guidance": "Primary key for 'branches', referenced in 'accounts.branch_id', 'employees.branch_id', and 'loans.sanctioning_branch_id'.",
+      "mapped_collections": [
+        "branches"
+      ],
+      "mapped_fields": [
+        "branches.branch_id"
+      ],
+      "synonyms": [
+        "branch code",
+        "office id",
+        "branch identifier"
+      ]
+    },
+    {
+      "term": "Employee",
+      "category": "Branches, Employees, and Support",
+      "meaning": "Bank staff member assigned to a branch and department.",
+      "implementation_guidance": "Collection 'employees'. Referenced as branch manager, account manager, loan officer, ticket agent, and KYC verifier.",
+      "mapped_collections": [
+        "employees"
+      ],
+      "mapped_fields": [
+        "employees.employee_id",
+        "employees.first_name",
+        "employees.last_name",
+        "employees.department",
+        "employees.designation",
+        "employees.branch_id"
+      ],
+      "synonyms": [
+        "staff",
+        "bank staff",
+        "banker",
+        "worker",
+        "agent",
+        "officer"
+      ]
+    },
+    {
+      "term": "Support ticket",
+      "category": "Branches, Employees, and Support",
+      "meaning": "Customer service request or complaint filed by a customer.",
+      "implementation_guidance": "Collection 'support_tickets'. Fields: 'ticket_id', 'customer_id', 'category', 'priority', 'status', 'assigned_agent_id'.",
+      "mapped_collections": [
+        "support_tickets"
+      ],
+      "mapped_fields": [
+        "support_tickets.ticket_id",
+        "support_tickets.customer_id",
+        "support_tickets.priority",
+        "support_tickets.status",
+        "support_tickets.category"
+      ],
+      "synonyms": [
+        "service request",
+        "customer ticket",
+        "complaint",
+        "helpdesk ticket"
+      ]
+    },
+    {
+      "term": "Card",
+      "category": "Cards and Investments",
+      "meaning": "Payment card (debit or credit) issued to an account holder.",
+      "implementation_guidance": "Collection 'cards'. Fields: 'card_id', 'customer_id', 'account_id', 'card_type', 'card_network', 'status', 'expiry_date'.",
+      "mapped_collections": [
+        "cards"
+      ],
+      "mapped_fields": [
+        "cards.card_id",
+        "cards.card_type",
+        "cards.card_network",
+        "cards.status",
+        "cards.expiry_date",
+        "cards.account_id"
+      ],
+      "synonyms": [
+        "debit card",
+        "credit card",
+        "payment card",
+        "atm card"
+      ]
+    },
+    {
+      "term": "Investment",
+      "category": "Cards and Investments",
+      "meaning": "Wealth portfolio asset (mutual funds, fixed deposits, stocks, gold bonds).",
+      "implementation_guidance": "Collection 'investments'. Fields: 'investment_id', 'customer_id', 'investment_type', 'principal_amount', 'current_value', 'status'.",
+      "mapped_collections": [
+        "investments"
+      ],
+      "mapped_fields": [
+        "investments.investment_id",
+        "investments.customer_id",
+        "investments.investment_type",
+        "investments.current_value",
+        "investments.status"
+      ],
+      "synonyms": [
+        "portfolio",
+        "mutual fund",
+        "fixed deposit",
+        "stocks",
+        "bonds",
+        "wealth product"
+      ]
+    },
+    {
+      "term": "Active",
+      "category": "Query and Analytics Language",
+      "meaning": "Entities currently operational and in-service.",
+      "implementation_guidance": "Filter with status = 'active' across accounts, loans, cards, customers, or branches.",
+      "mapped_collections": [
+        "accounts",
+        "loans",
+        "customers",
+        "cards",
+        "branches"
+      ],
+      "mapped_fields": [
+        "accounts.status",
+        "loans.status",
+        "customers.status",
+        "cards.status",
+        "branches.status"
+      ],
+      "synonyms": [
+        "open",
+        "in effect",
+        "current",
+        "operational",
+        "running"
+      ]
+    },
+    {
+      "term": "Overdue loan",
+      "category": "Query and Analytics Language",
+      "meaning": "A loan obligation that has not been serviced by its due date.",
+      "implementation_guidance": "In this dataset, overdue/defaulted loans are represented by loans.status = 'defaulted' or next_due_date in the past. Do not use overdue_amount.",
+      "mapped_collections": [
+        "loans"
+      ],
+      "mapped_fields": [
+        "loans.status",
+        "loans.next_due_date",
+        "loans.outstanding_amount"
+      ],
+      "synonyms": [
+        "delinquent loan",
+        "defaulted loan",
+        "late loan",
+        "non-performing loan"
+      ]
+    }
+  ]
+}

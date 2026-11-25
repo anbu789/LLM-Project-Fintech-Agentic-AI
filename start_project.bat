@@ -35,7 +35,7 @@ echo [OK] Node / npm runtime verified.
 
 :: 3. Launch Backend API on port 8001 in separate window (scoped reload excludes tests & logs)
 echo [*] Launching FastAPI Backend Server on http://127.0.0.1:8001 ...
-start "FinTech Agent - Backend API" cmd.exe /k "cd /d "%PROJECT_ROOT%" && "%PYTHON_EXE%" -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8001 --reload --reload-dir backend\app --reload-exclude "logs/*""
+start "FinTech Agent - Backend API" cmd.exe /k "cd /d "%PROJECT_ROOT%" && "%PYTHON_EXE%" -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8001 --reload --reload-dir backend\app"
 
 :: 4. Verify Backend is responding on port 8001 before reporting startup success
 echo [*] Awaiting backend health verification on http://127.0.0.1:8001/health ...

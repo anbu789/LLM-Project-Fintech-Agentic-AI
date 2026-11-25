@@ -10,7 +10,7 @@ import uuid
 import zoneinfo
 from pydantic import BaseModel, Field, field_validator
 
-ScheduleFrequency = Literal["daily", "weekly", "monthly", "cron"]
+ScheduleFrequency = Literal["daily", "weekly", "monthly", "cron", "once", "interval"]
 
 JobStatus = Literal[
     "PENDING_APPROVAL",
@@ -37,6 +37,8 @@ class ScheduleSpec(BaseModel):
     day_of_week: Optional[List[str]] = Field(default=None, description="Days of week for weekly schedule (e.g. ['mon'])")
     day_of_month: Optional[int] = Field(default=None, ge=1, le=31, description="Day of month for monthly schedule (1-31)")
     cron_expression: Optional[str] = Field(default=None, description="Standard 5-field cron expression")
+    interval_minutes: Optional[int] = Field(default=None, ge=1, description="Fixed execution interval in minutes")
+    max_executions: Optional[int] = Field(default=None, ge=1, description="Exact maximum execution count")
     enabled: bool = Field(default=True, description="Whether the schedule is active")
 
     @field_validator("timezone")
@@ -111,6 +113,8 @@ class ScheduledJob(BaseModel):
     updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     next_run_at: Optional[str] = None
     last_run_at: Optional[str] = None
+    max_executions: Optional[int] = Field(default=None, description="Maximum number of executions before automatic completion")
+    execution_count: int = Field(default=0, description="Total number of executions completed")
     consecutive_failures: int = Field(default=0)
     failure_threshold: int = Field(default=3)
     idempotency_key: Optional[str] = None
@@ -134,3 +138,4 @@ class JobRun(BaseModel):
     summary: str
     error_message: Optional[str] = None
     notification_status: Optional[str] = None
+    result_sample: Optional[List[Dict[str, Any]]] = None

@@ -120,12 +120,12 @@ def test_is_recoverable_failure_classification():
     assert is_recoverable_failure(asyncio.TimeoutError()) is True
     assert is_recoverable_failure(httpx.RequestError("network error")) is True
     assert is_recoverable_failure(ProviderRateLimitError("gemini", message="Rate limit exceeded")) is True
+    assert is_recoverable_failure(ProviderRateLimitError("gemini", message="Quota exceeded (billing exhausted)")) is True
 
     # Ineligible / Non-recoverable
     assert is_recoverable_failure(asyncio.CancelledError()) is False
     assert is_recoverable_failure(ProviderAuthenticationError("gemini", "Invalid API key")) is False
     assert is_recoverable_failure(MissingAPIKeyError("gemini")) is False
-    assert is_recoverable_failure(ProviderRateLimitError("gemini", message="Quota exceeded (billing exhausted)")) is False
 
 
 # ------------------------------------------------------------------------------

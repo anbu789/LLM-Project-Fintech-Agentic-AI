@@ -74,8 +74,10 @@ def _read_events(log_path: Path):
 def test_all_9_nodes_complete_when_scheduled_query_executes_with_fake_db(isolated_monitor):
     """Verify all 9 nodes emit NODE_STARTED and NODE_COMPLETED with accurate identifiers in QUERY_AND_SCHEDULE."""
     orig_provider = settings.LLM_PROVIDER
+    orig_gate = settings.PHASE6_LIVE_EXECUTION_ENABLED
     try:
         settings.LLM_PROVIDER = "mock"
+        settings.PHASE6_LIVE_EXECUTION_ENABLED = False
         mock_col = MagicMock()
         mock_col.aggregate.return_value = iter([{"_id": "verified", "count": 42}])
         mock_db = MagicMock()
@@ -123,13 +125,16 @@ def test_all_9_nodes_complete_when_scheduled_query_executes_with_fake_db(isolate
         assert "9 completed, 0 skipped, 0 failed" in metrics["summary_text"]
     finally:
         settings.LLM_PROVIDER = orig_provider
+        settings.PHASE6_LIVE_EXECUTION_ENABLED = orig_gate
 
 
 def test_conditional_routing_emits_skips_and_excludes_them_from_success(isolated_monitor):
     """Out-of-scope and guardrail-rejected routes emit explicit NODE_SKIPPED with skip_reason, never counted as completed."""
     orig_provider = settings.LLM_PROVIDER
+    orig_gate = settings.PHASE6_LIVE_EXECUTION_ENABLED
     try:
         settings.LLM_PROVIDER = "mock"
+        settings.PHASE6_LIVE_EXECUTION_ENABLED = False
 
         async def _run_cases():
             await agent_graph.ainvoke(
@@ -177,6 +182,7 @@ def test_conditional_routing_emits_skips_and_excludes_them_from_success(isolated
         assert rej.nodes["request_intent_router"].status == "SKIPPED"
     finally:
         settings.LLM_PROVIDER = orig_provider
+        settings.PHASE6_LIVE_EXECUTION_ENABLED = orig_gate
 
 
 def test_duplicate_events_and_concurrent_requests_remain_isolated(isolated_monitor):
@@ -406,8 +412,10 @@ def test_end_to_end_mock_mode_show_transactions_30_days_with_monitor_output(isol
     3. Verifies complete lifecycle events, progress math, and rendered Terminal 2 monitor output.
     """
     orig_provider = settings.LLM_PROVIDER
+    orig_gate = settings.PHASE6_LIVE_EXECUTION_ENABLED
     try:
         settings.LLM_PROVIDER = "mock"
+        settings.PHASE6_LIVE_EXECUTION_ENABLED = False
         mock_meta = MagicMock()
         mock_meta.conversations.find_one.return_value = None
         client = TestClient(app)
@@ -482,3 +490,4 @@ def test_end_to_end_mock_mode_show_transactions_30_days_with_monitor_output(isol
         assert mock_col.aggregate.call_count == 1
     finally:
         settings.LLM_PROVIDER = orig_provider
+        settings.PHASE6_LIVE_EXECUTION_ENABLED = orig_gate

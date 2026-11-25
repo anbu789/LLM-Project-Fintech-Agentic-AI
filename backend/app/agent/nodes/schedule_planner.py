@@ -74,6 +74,7 @@ async def schedule_planner_node(state: Dict[str, Any]) -> Dict[str, Any]:
             "schedule_job_id": None,
             "preview_id": None,
             "schedule_preview": None,
+            "scheduling_error": str(e),
             "clarification_question": str(e),
             "trace": trace,
         }
@@ -95,12 +96,30 @@ async def schedule_planner_node(state: Dict[str, Any]) -> Dict[str, Any]:
             "schedule_job_id": None,
             "preview_id": None,
             "schedule_preview": None,
+            "scheduling_error": f"Invalid schedule specification: {e}",
             "clarification_question": f"Could you clarify the recurring schedule? {e}",
             "trace": trace,
         }
 
     # 3. Calculate next 3 run times using real APScheduler trigger
-    next_run_times = calculate_next_run_times(schedule_spec, count=3)
+    try:
+        next_run_times = calculate_next_run_times(schedule_spec, count=3)
+    except Exception as e:
+        logger.warning(f"[{request_id}] Node 9 next run calculation error: {e}")
+        trace.append({
+            "node": "schedule_planner",
+            "status": "error",
+            "detail": f"Failed to compute next execution times: {e}",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        })
+        return {
+            "schedule_approved": False,
+            "schedule_job_id": None,
+            "preview_id": None,
+            "schedule_preview": None,
+            "scheduling_error": f"Failed to compute schedule execution times: {e}",
+            "trace": trace,
+        }
 
     # 4. Handle dry run results for preview
     dry_run_results = None
@@ -114,19 +133,36 @@ async def schedule_planner_node(state: Dict[str, Any]) -> Dict[str, Any]:
 
     # 5. Create immutable schedule preview for explicit user approval
     report_name = state.get("query_description") or f"Recurring {target_collection.capitalize()} Report"
-    preview = schedule_service.create_preview(
-        owner_id=user_id,
-        report_name=report_name,
-        natural_language_query=query_text,
-        target_collection=target_collection,
-        pipeline_explanation=pipeline_explanation,
-        approved_pipeline=approved_pipeline,
-        schedule_spec=schedule_spec,
-        next_run_times=next_run_times,
-        dry_run_status=dry_run_status,
-        dry_run_results=dry_run_results,
-        warning="Preview generated. Explicit approval is required to activate this schedule.",
-    )
+    try:
+        preview = schedule_service.create_preview(
+            owner_id=user_id,
+            report_name=report_name,
+            natural_language_query=query_text,
+            target_collection=target_collection,
+            pipeline_explanation=pipeline_explanation,
+            approved_pipeline=approved_pipeline,
+            schedule_spec=schedule_spec,
+            next_run_times=next_run_times,
+            dry_run_status=dry_run_status,
+            dry_run_results=dry_run_results,
+            warning="Preview generated. Explicit approval is required to activate this schedule.",
+        )
+    except Exception as e:
+        logger.error(f"[{request_id}] Node 9 create_preview failed: {e}")
+        trace.append({
+            "node": "schedule_planner",
+            "status": "error",
+            "detail": f"Schedule registration failed: {e}",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        })
+        return {
+            "schedule_approved": False,
+            "schedule_job_id": None,
+            "preview_id": None,
+            "schedule_preview": None,
+            "scheduling_error": f"Schedule preview registration failed: {e}",
+            "trace": trace,
+        }
 
     trace.append({
         "node": "schedule_planner",
@@ -142,6 +178,7 @@ async def schedule_planner_node(state: Dict[str, Any]) -> Dict[str, Any]:
         "next_run_times": next_run_times,
         "schedule_approved": False,  # MUST remain False until explicit approval!
         "schedule_job_id": None,
+        "scheduling_error": None,
         "trace": trace,
     }
 

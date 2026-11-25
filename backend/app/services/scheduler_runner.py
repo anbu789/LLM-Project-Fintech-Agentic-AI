@@ -17,6 +17,8 @@ import uuid
 from zoneinfo import ZoneInfo
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.date import DateTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 
 _RE_DAYS_AGO = re.compile(r"\$\$DAYS_AGO_(\d+)")
 _RE_DAYS_AHEAD = re.compile(r"\$\$DAYS_AHEAD_(\d+)")
@@ -249,16 +251,46 @@ class SchedulerRunner:
             # 5. Evaluate execution outcome
             if verif_status in ("SUCCESS_WITH_DATA", "SUCCESS_EMPTY", "SUCCESS_LIMITED"):
                 # Successful run
+                current_count = job_doc.get("execution_count", 0) + 1
+                max_executions = job_doc.get("max_executions")
+                spec_dict = job_doc.get("schedule_spec", {})
+                freq = spec_dict.get("frequency")
+
+                is_completed = (freq == "once") or (max_executions is not None and current_count >= max_executions)
+
+                if is_completed:
+                    try:
+                        if self.scheduler.get_job(job_id):
+                            self.scheduler.remove_job(job_id)
+                            logger.info(f"Removed completed job '{job_id}' from scheduler triggers.")
+                    except Exception as e:
+                        logger.warning(f"Could not remove completed job '{job_id}' from scheduler: {e}")
+
+                update_payload = {
+                    "last_run_at": start_time.isoformat(),
+                    "consecutive_failures": 0,
+                    "updated_at": end_time.isoformat(),
+                    "execution_count": current_count,
+                }
+                if is_completed:
+                    update_payload["status"] = "COMPLETED"
+                    update_payload["next_run_at"] = None
+                    logger.info(f"Job '{job_id}' reached final execution ({current_count}/{max_executions or 1}); marked COMPLETED.")
+                else:
+                    try:
+                        aps_job = self.scheduler.get_job(job_id)
+                        if aps_job and aps_job.next_run_time:
+                            update_payload["next_run_at"] = aps_job.next_run_time.astimezone(timezone.utc).isoformat()
+                    except Exception:
+                        pass
+
                 db.scheduled_jobs.update_one(
                     {"job_id": job_id},
-                    {
-                        "$set": {
-                            "last_run_at": start_time.isoformat(),
-                            "consecutive_failures": 0,
-                            "updated_at": end_time.isoformat(),
-                        }
-                    },
+                    {"$set": update_payload},
                 )
+                raw_docs = verif_res.get("verified_results") or exec_res.get("raw_results") or []
+                from backend.app.agent.nodes.result_verifier import _sanitize_doc
+                sample_docs = [_sanitize_doc(dict(d)) for d in raw_docs[:10]] if isinstance(raw_docs, list) else None
                 self._record_run(
                     run_id=run_id,
                     job_id=job_id,
@@ -270,8 +302,9 @@ class SchedulerRunner:
                     row_count=exec_res.get("result_row_count", 0),
                     truncated=exec_res.get("result_truncated", False),
                     summary=verif_res.get("interpretation_summary", "Completed successfully."),
+                    result_sample=sample_docs,
                 )
-                logger.info(f"Job '{job_id}' run '{run_id}' succeeded in {duration_ms}ms ({exec_res.get('result_row_count', 0)} rows).")
+                logger.info(f"Job '{job_id}' run '{run_id}' succeeded in {duration_ms}ms ({exec_res.get('result_row_count', 0)} rows, execution {current_count}).")
 
             elif exec_status == "GATE_BLOCKED":
                 # Live execution gate blocked (development or unverified native auth)
@@ -359,6 +392,7 @@ class SchedulerRunner:
         truncated: bool = False,
         summary: str = "",
         error_message: Optional[str] = None,
+        result_sample: Optional[List[Dict[str, Any]]] = None,
     ) -> None:
         """Persists JobRun document to agent_metadata_db.job_runs."""
         end_time = datetime.now(timezone.utc)
@@ -377,6 +411,7 @@ class SchedulerRunner:
             result_truncated=truncated,
             summary=summary,
             error_message=error_message,
+            result_sample=result_sample,
         )
         db = self._get_db()
         db.job_runs.insert_one(run.model_dump())
@@ -410,19 +445,85 @@ class SchedulerRunner:
 
             freq = spec_dict.get("frequency")
             cron_expr = spec_dict.get("cron_expression")
+            interval_mins = spec_dict.get("interval_minutes")
+            start_at_str = spec_dict.get("start_at")
+            end_at_str = spec_dict.get("end_at")
+
+            start_dt = None
+            if start_at_str:
+                if isinstance(start_at_str, str):
+                    try:
+                        start_dt = datetime.fromisoformat(start_at_str).astimezone(tz)
+                    except Exception:
+                        pass
+                elif isinstance(start_at_str, datetime):
+                    start_dt = start_at_str.astimezone(tz)
+
+            end_dt = None
+            if end_at_str:
+                if isinstance(end_at_str, str):
+                    try:
+                        end_dt = datetime.fromisoformat(end_at_str).astimezone(tz)
+                    except Exception:
+                        pass
+                elif isinstance(end_at_str, datetime):
+                    end_dt = end_at_str.astimezone(tz)
 
             try:
-                if freq == "cron" and cron_expr:
-                    trigger = CronTrigger.from_crontab(cron_expr, timezone=tz)
+                if freq == "once":
+                    run_date = start_dt or datetime.now(tz)
+                    trigger = DateTrigger(run_date=run_date, timezone=tz)
+                elif freq == "interval" or (interval_mins and (freq == "cron" or start_dt)):
+                    trigger = IntervalTrigger(
+                        minutes=interval_mins or 1,
+                        start_date=start_dt,
+                        end_date=end_dt,
+                        timezone=tz,
+                    )
+                elif freq == "cron" and cron_expr:
+                    trigger = CronTrigger.from_crontab(
+                        cron_expr,
+                        timezone=tz,
+                    )
+                    if start_dt:
+                        trigger.start_date = start_dt
+                    if end_dt:
+                        trigger.end_date = end_dt
                 elif freq == "daily":
-                    trigger = CronTrigger(hour=spec_dict.get("hour", 9), minute=spec_dict.get("minute", 0), timezone=tz)
+                    trigger = CronTrigger(
+                        hour=spec_dict.get("hour", 9),
+                        minute=spec_dict.get("minute", 0),
+                        timezone=tz,
+                        start_date=start_dt,
+                        end_date=end_dt,
+                    )
                 elif freq == "weekly":
                     dow = ",".join(spec_dict.get("day_of_week") or ["mon"])
-                    trigger = CronTrigger(day_of_week=dow, hour=spec_dict.get("hour", 9), minute=spec_dict.get("minute", 0), timezone=tz)
+                    trigger = CronTrigger(
+                        day_of_week=dow,
+                        hour=spec_dict.get("hour", 9),
+                        minute=spec_dict.get("minute", 0),
+                        timezone=tz,
+                        start_date=start_dt,
+                        end_date=end_dt,
+                    )
                 elif freq == "monthly":
-                    trigger = CronTrigger(day=spec_dict.get("day_of_month", 1), hour=spec_dict.get("hour", 9), minute=spec_dict.get("minute", 0), timezone=tz)
+                    trigger = CronTrigger(
+                        day=spec_dict.get("day_of_month", 1),
+                        hour=spec_dict.get("hour", 9),
+                        minute=spec_dict.get("minute", 0),
+                        timezone=tz,
+                        start_date=start_dt,
+                        end_date=end_dt,
+                    )
                 else:
-                    trigger = CronTrigger(hour=9, minute=0, timezone=tz)
+                    trigger = CronTrigger(
+                        hour=spec_dict.get("hour", 9),
+                        minute=spec_dict.get("minute", 0),
+                        timezone=tz,
+                        start_date=start_dt,
+                        end_date=end_dt,
+                    )
 
                 if job_id in existing_aps_jobs:
                     self.scheduler.modify_job(job_id, trigger=trigger)
@@ -494,3 +595,24 @@ re_days_ago = re.compile(r"\$\$DAYS_AGO_(\d+)")
 re_days_ahead = re.compile(r"\$\$DAYS_AHEAD_(\d+)")
 
 scheduler_runner = SchedulerRunner()
+
+
+if __name__ == "__main__":
+    import signal
+
+    async def _run_main():
+        scheduler_runner.start()
+        logger.info(f"Background Scheduler Service is actively running (instance={scheduler_runner.instance_id}). Press Ctrl+C to stop.")
+        try:
+            while True:
+                await asyncio.sleep(1)
+        except (asyncio.CancelledError, KeyboardInterrupt):
+            pass
+        finally:
+            scheduler_runner.shutdown()
+
+    try:
+        asyncio.run(_run_main())
+    except KeyboardInterrupt:
+        pass
+

@@ -42,7 +42,7 @@ _VALIDATED_PIPELINE_TEMPLATE = """\
 """
 
 _EXECUTION_SUCCESS_WITH_DATA_TEMPLATE = """\
-✅ **Query Executed Successfully** (Database query executed successfully)
+✅ **Query Executed Successfully** (Query Understood & Validated - Phase 5/6 Database query executed successfully)
 
 **Target Collection:** `{target_collection}`
 **Execution Metrics:** {row_count} records returned in {execution_time_ms} ms.
@@ -55,7 +55,7 @@ _EXECUTION_SUCCESS_WITH_DATA_TEMPLATE = """\
 """
 
 _EXECUTION_SUCCESS_EMPTY_TEMPLATE = """\
-✅ **Query Executed Successfully** (Database query executed successfully)
+✅ **Query Executed Successfully** (Query Understood & Validated - Phase 5/6 Database query executed successfully)
 
 **Target Collection:** `{target_collection}`
 **Execution Metrics:** 0 records returned in {execution_time_ms} ms.
@@ -173,6 +173,14 @@ _SCHEDULE_ACTIVATED_TEMPLATE = """\
 Your scheduled report is now registered in `agent_metadata_db.scheduled_jobs` and will execute automatically at the configured intervals.
 """
 
+_SCHEDULING_ERROR_TEMPLATE = """\
+❌ **Schedule Registration Failed** (Phase 7)
+
+**Error:** {scheduling_error}
+
+Could not register the requested schedule preview. Please verify your schedule syntax, timing, or timezone, and try again.
+"""
+
 _SCHEDULE_ONLY_TEMPLATE = """\
 ✅ **Schedule Request Understood** (Phase 5/7)
 
@@ -272,6 +280,7 @@ async def response_composer_node(state: Dict[str, Any]) -> Dict[str, Any]:
     schedule_preview = state.get("schedule_preview")
     schedule_approved = state.get("schedule_approved", False)
     schedule_job_id = state.get("schedule_job_id")
+    scheduling_error = state.get("scheduling_error")
 
     # Mock provider backward-compatibility preamble (e.g. definitions of NPA, KYC in tests)
     mock_preamble = ""
@@ -305,6 +314,72 @@ async def response_composer_node(state: Dict[str, Any]) -> Dict[str, Any]:
         msg = mock_preamble + _INVALID_PIPELINE_TEMPLATE.format(
             target_collection=target_collection,
             formatted_errors=err_lines,
+        )
+
+    # -- Case 3.4: Phase 7 Scheduling Error
+    elif scheduling_error:
+        msg = mock_preamble + _SCHEDULING_ERROR_TEMPLATE.format(
+            scheduling_error=scheduling_error
+        )
+
+    # -- Case 3.5: Phase 7 Schedule Activated
+    elif schedule_approved and schedule_job_id:
+        msg = mock_preamble + _SCHEDULE_ACTIVATED_TEMPLATE.format(
+            job_id=schedule_job_id,
+            report_name=state.get("report_name") or f"Recurring {target_collection.capitalize()} Report",
+            target_collection=target_collection,
+            recurrence_expression=state.get("recurrence_expression") or "Custom",
+            cron_expression=state.get("cron_expression") or "N/A",
+            timezone_name=state.get("timezone") or settings.SCHEDULER_TIMEZONE,
+            next_run_at=state.get("next_run_at") or "Scheduled per cron trigger",
+        )
+
+    # -- Case 3.6: Phase 7 Schedule Preview Generated (Awaiting Approval)
+    elif schedule_preview and isinstance(schedule_preview, dict) and schedule_preview.get("preview_id"):
+        spec = schedule_preview.get("schedule_spec") or {}
+        recurrence_expr = spec.get("recurrence_expression") or "Custom"
+        cron_expr = spec.get("cron_expression") or "N/A"
+        tz_name = spec.get("timezone") or settings.SCHEDULER_TIMEZONE
+        preview_runs = schedule_preview.get("next_run_times") or state.get("next_run_times") or []
+        formatted_runs = "\n".join(f"  {idx+1}. {r}" for idx, r in enumerate(preview_runs)) if preview_runs else "  - Not calculated"
+
+        preview_pipeline = schedule_preview.get("approved_pipeline") or generated_pipeline or []
+        formatted_pipe = json.dumps(preview_pipeline, indent=2, default=str)
+
+        dry_results = schedule_preview.get("dry_run_results")
+        dry_limit = getattr(settings, "PHASE7_DRY_RUN_RESULT_LIMIT", 10)
+        if dry_results:
+            sample_json = json.dumps(dry_results[:dry_limit], indent=2, default=str)
+            dry_section = f"**Dry-Run Results Preview (First {len(dry_results[:dry_limit])} records):**\n```json\n{sample_json}\n```"
+        else:
+            dry_section = "> 🔒 **Dry-Run Notice:** Live database execution preview is gated (`PHASE6_LIVE_EXECUTION_ENABLED=False`). The pipeline has been deterministically verified against canonical schema."
+
+        msg = mock_preamble + _SCHEDULE_PREVIEW_TEMPLATE.format(
+            report_name=schedule_preview.get("report_name", "Recurring Banking Report"),
+            target_collection=schedule_preview.get("target_collection", target_collection),
+            recurrence_expression=recurrence_expr,
+            cron_expression=cron_expr,
+            timezone_name=tz_name,
+            pipeline_explanation=schedule_preview.get("pipeline_explanation", pipeline_explanation),
+            formatted_run_times=formatted_runs,
+            formatted_pipeline=formatted_pipe,
+            dry_run_section=dry_section,
+            preview_id=schedule_preview.get("preview_id", "N/A"),
+            expires_at=schedule_preview.get("expires_at", "within 15 minutes"),
+        )
+
+    # -- Case 3.7: Clarification Required (from Intent Router, Schedule Planner, or Validator)
+    elif clarification_question or request_mode == "CLARIFICATION_REQUIRED":
+        msg = mock_preamble + _CLARIFICATION_TEMPLATE.format(
+            clarification_question=clarification_question
+            or "Could you describe what banking data you need in more detail?",
+        )
+
+    # -- Case 3.8: Schedule Only without preview
+    elif request_mode == "SCHEDULE_ONLY":
+        msg = mock_preamble + _SCHEDULE_ONLY_TEMPLATE.format(
+            query_description=query_description,
+            intent_reason=intent_reason,
         )
 
     # -- Case 4: Phase 6 Executed with Data
@@ -346,66 +421,6 @@ async def response_composer_node(state: Dict[str, Any]) -> Dict[str, Any]:
             target_collection=target_collection,
             verification_status=verification_status,
             error_detail=execution_error or state.get("interpretation_summary") or "Query execution failure.",
-        )
-
-    # -- Case 7.5: Phase 7 Schedule Activated
-    elif schedule_approved and schedule_job_id:
-        msg = mock_preamble + _SCHEDULE_ACTIVATED_TEMPLATE.format(
-            job_id=schedule_job_id,
-            report_name=state.get("report_name") or f"Recurring {target_collection.capitalize()} Report",
-            target_collection=target_collection,
-            recurrence_expression=state.get("recurrence_expression") or "Custom",
-            cron_expression=state.get("cron_expression") or "N/A",
-            timezone_name=state.get("timezone") or settings.SCHEDULER_TIMEZONE,
-            next_run_at=state.get("next_run_at") or "Scheduled per cron trigger",
-        )
-
-    # -- Case 7.6: Phase 7 Schedule Preview Generated
-    elif schedule_preview and isinstance(schedule_preview, dict) and schedule_preview.get("preview_id"):
-        spec = schedule_preview.get("schedule_spec") or {}
-        recurrence_expr = spec.get("recurrence_expression") or "Custom"
-        cron_expr = spec.get("cron_expression") or "N/A"
-        tz_name = spec.get("timezone") or settings.SCHEDULER_TIMEZONE
-        preview_runs = schedule_preview.get("next_run_times") or state.get("next_run_times") or []
-        formatted_runs = "\n".join(f"  {idx+1}. {r}" for idx, r in enumerate(preview_runs)) if preview_runs else "  - Not calculated"
-
-        preview_pipeline = schedule_preview.get("approved_pipeline") or generated_pipeline or []
-        formatted_pipe = json.dumps(preview_pipeline, indent=2, default=str)
-
-        dry_results = schedule_preview.get("dry_run_results")
-        dry_limit = getattr(settings, "PHASE7_DRY_RUN_RESULT_LIMIT", 10)
-        if dry_results:
-            sample_json = json.dumps(dry_results[:dry_limit], indent=2, default=str)
-            dry_section = f"**Dry-Run Results Preview (First {len(dry_results[:dry_limit])} records):**\n```json\n{sample_json}\n```"
-        else:
-            dry_section = "> 🔒 **Dry-Run Notice:** Live database execution preview is gated (`PHASE6_LIVE_EXECUTION_ENABLED=False`). The pipeline has been deterministically verified against canonical schema."
-
-        msg = mock_preamble + _SCHEDULE_PREVIEW_TEMPLATE.format(
-            report_name=schedule_preview.get("report_name", "Recurring Banking Report"),
-            target_collection=schedule_preview.get("target_collection", target_collection),
-            recurrence_expression=recurrence_expr,
-            cron_expression=cron_expr,
-            timezone_name=tz_name,
-            pipeline_explanation=schedule_preview.get("pipeline_explanation", pipeline_explanation),
-            formatted_run_times=formatted_runs,
-            formatted_pipeline=formatted_pipe,
-            dry_run_section=dry_section,
-            preview_id=schedule_preview.get("preview_id", "N/A"),
-            expires_at=schedule_preview.get("expires_at", "within 15 minutes"),
-        )
-
-    # -- Case 8: Schedule Only
-    elif request_mode == "SCHEDULE_ONLY":
-        msg = mock_preamble + _SCHEDULE_ONLY_TEMPLATE.format(
-            query_description=query_description,
-            intent_reason=intent_reason,
-        )
-
-    # -- Case 9: Clarification Required
-    elif request_mode == "CLARIFICATION_REQUIRED":
-        msg = mock_preamble + _CLARIFICATION_TEMPLATE.format(
-            clarification_question=clarification_question
-            or "Could you describe what banking data you need in more detail?",
         )
 
     # -- Case 10: Out of Scope

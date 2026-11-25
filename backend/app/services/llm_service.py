@@ -977,11 +977,29 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         )
 
 
+_QUOTA_EXHAUSTED_PROVIDERS: set[str] = set()
+
+
+def mark_provider_quota_exhausted(provider_name: str) -> None:
+    if provider_name:
+        _QUOTA_EXHAUSTED_PROVIDERS.add(provider_name.strip().lower())
+
+
+def is_provider_quota_exhausted(provider_name: str) -> bool:
+    if not provider_name:
+        return False
+    return provider_name.strip().lower() in _QUOTA_EXHAUSTED_PROVIDERS
+
+
+def reset_exhausted_providers() -> None:
+    _QUOTA_EXHAUSTED_PROVIDERS.clear()
+
+
 def is_recoverable_failure(exc: Exception) -> bool:
     """
     Classifies whether an exception is an eligible recoverable failure for multi-provider fallback.
-    Eligible: network errors, timeouts, HTTP 500, 502, 503, 504, temporary rate limits.
-    Ineligible: HTTP 400, 401, 403, 404, quota exhaustion, cancellation, security rejections.
+    Eligible: network errors, timeouts, HTTP 500, 502, 503, 504, temporary rate limits, HTTP 429 quota exhaustion.
+    Ineligible: HTTP 400, 401, 403, 404, cancellation, security rejections.
     """
     if isinstance(exc, asyncio.CancelledError):
         return False
@@ -990,9 +1008,6 @@ def is_recoverable_failure(exc: Exception) -> bool:
     if isinstance(exc, MissingAPIKeyError):
         return False
     if isinstance(exc, ProviderRateLimitError):
-        msg = str(exc).lower()
-        if any(term in msg for term in ("insufficient_quota", "quota_exceeded", "billing", "quota exhausted")):
-            return False
         return True
     if isinstance(exc, ProviderTimeoutError):
         return True
@@ -1003,7 +1018,7 @@ def is_recoverable_failure(exc: Exception) -> bool:
     if isinstance(exc, ProviderAPIError):
         if exc.status_code in (400, 401, 403, 404):
             return False
-        if exc.status_code in (500, 502, 503, 504, 520, 521, 522, 523, 524):
+        if exc.status_code in (429, 500, 502, 503, 504, 520, 521, 522, 523, 524):
             return True
         if "network" in str(exc).lower() or "connection" in str(exc).lower():
             return True
@@ -1070,7 +1085,10 @@ class FallbackProviderManager(OpenAICompatibleProvider):
         """
         configured_chain = [self.primary_provider] + self.fallback_providers
         if not preferred_provider:
-            return configured_chain
+            healthy = [p for p in configured_chain if not is_provider_quota_exhausted(getattr(p, "provider_name", ""))]
+            exhausted = [p for p in configured_chain if is_provider_quota_exhausted(getattr(p, "provider_name", ""))]
+            return (healthy + exhausted) if healthy else configured_chain
+
         pref_clean = preferred_provider.strip().lower()
         match_idx = -1
         for idx, prov in enumerate(configured_chain):
@@ -1078,9 +1096,15 @@ class FallbackProviderManager(OpenAICompatibleProvider):
                 match_idx = idx
                 break
         if match_idx == -1:
-            return configured_chain
+            healthy = [p for p in configured_chain if not is_provider_quota_exhausted(getattr(p, "provider_name", ""))]
+            exhausted = [p for p in configured_chain if is_provider_quota_exhausted(getattr(p, "provider_name", ""))]
+            return (healthy + exhausted) if healthy else configured_chain
+
         # Rotate chain so preferred provider is evaluated first, followed by remaining sequence
-        return configured_chain[match_idx:] + configured_chain[:match_idx]
+        rotated = configured_chain[match_idx:] + configured_chain[:match_idx]
+        healthy = [p for p in rotated if not is_provider_quota_exhausted(getattr(p, "provider_name", ""))]
+        exhausted = [p for p in rotated if is_provider_quota_exhausted(getattr(p, "provider_name", ""))]
+        return (healthy + exhausted) if healthy else rotated
 
     async def generate_response(
         self,
@@ -1284,6 +1308,15 @@ class FallbackProviderManager(OpenAICompatibleProvider):
             except Exception as exc:
                 attempted_providers.append(prov_name)
                 failure_reasons[prov_name] = str(exc)
+                if isinstance(exc, ProviderRateLimitError):
+                    msg = str(exc).lower()
+                    if any(term in msg for term in ("insufficient_quota", "quota_exceeded", "billing", "quota exhausted", "429")):
+                        mark_provider_quota_exhausted(prov_name)
+                        logger.warning(
+                            f"[fallback_manager] Provider '{prov_name}' marked quota-exhausted; "
+                            f"will deprioritize in future requests to avoid repeated rate-limit delays."
+                        )
+
                 self._emit_provider_event(
                     "PROVIDER_ATTEMPT_FAILED",
                     status="FAILED",

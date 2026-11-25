@@ -183,6 +183,8 @@ class ScheduleService:
             created_at=datetime.now(timezone.utc).isoformat(),
             updated_at=datetime.now(timezone.utc).isoformat(),
             next_run_at=first_next_run,
+            max_executions=preview_doc.get("schedule_spec", {}).get("max_executions"),
+            execution_count=0,
             idempotency_key=idempotency_key,
             preview_id=preview_id,
         )
@@ -283,7 +285,8 @@ class ScheduleService:
             raise ScheduleServiceError(f"Job '{job_id}' not found.")
         db = self._get_db()
         cursor = db.job_runs.find({"job_id": job_id, "owner_id": owner_id}).sort("start_time", -1).limit(limit)
-        return [JobRun(**doc) for doc in cursor]
+        from backend.app.agent.nodes.result_verifier import _sanitize_doc
+        return [JobRun(**_sanitize_doc(doc)) for doc in cursor]
 
 
 schedule_service = ScheduleService()

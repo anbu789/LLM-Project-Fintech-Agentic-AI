@@ -353,7 +353,36 @@ def mock_synthesize_query(
             assumptions=[]
         )
 
-    # 11. Failed transactions
+    # 11. Transactions in last N days (dateSubtract)
+    if "transaction" in q and ("30 day" in q or "last 30" in q or "recent" in q):
+        return PipelineSynthesisOutput(
+            target_collection="transactions",
+            pipeline=[
+                {
+                    "$match": {
+                        "$expr": {
+                            "$gte": [
+                                "$transaction_date",
+                                {
+                                    "$dateSubtract": {
+                                        "startDate": "$$NOW",
+                                        "unit": "day",
+                                        "amount": 30,
+                                    }
+                                },
+                            ]
+                        }
+                    }
+                },
+                {"$sort": {"transaction_date": -1}},
+                {"$limit": 100},
+            ],
+            explanation="Retrieved transactions from the last 30 days using $dateSubtract from current date, sorted descending.",
+            unsupported_concepts_identified=[],
+            assumptions=[],
+        )
+
+    # 12. Failed transactions
     if "failed transaction" in q or "failed transactions" in q:
         return PipelineSynthesisOutput(
             target_collection="transactions",
